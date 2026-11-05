@@ -3,8 +3,7 @@
   "use strict";
 
   const SUPABASE_URL = "https://zusbebjskchgehdjvpsm.supabase.co";
-  const SUPABASE_KEY = "sb_publishable_WGMEA7-K8FAResrVCL8GJQ_6KCxrvm";
-
+  const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1c2JlYmpza2NoZ2VoZGp2cHNtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIyNDg1OTEsImV4cCI6MjEwNzgyNDU5MX0.2D86j8JssnCDpmh633zXPlF25oGsN9WIAwWMF7W0IeA";
   const db = window.supabase.createClient(
     SUPABASE_URL,
     SUPABASE_KEY
