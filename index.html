@@ -1,0 +1,233 @@
+
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#101510">
+<title>Goalscour | آمار فوتبال</title>
+<style>
+:root {
+ --bg:#0b0e0c;
+ --panel:#151b16;
+ --green:#b9f27c;
+ --text:#f4f7f1;
+ --muted:#9aa69a;
+}
+*{box-sizing:border-box}
+body{
+ margin:0;background:var(--bg);color:var(--text);
+ font-family:Tahoma,Arial,sans-serif;
+}
+header{padding:25px 18px}
+.logo{color:var(--green);font-size:30px;font-weight:bold}
+header p{color:var(--muted);font-size:12px}
+main{max-width:700px;margin:auto;padding:12px}
+nav{display:flex;gap:8px;overflow:auto;margin-bottom:18px}
+nav button,.btn{
+ border:0;border-radius:11px;padding:12px;
+ background:#202a20;color:white;cursor:pointer;
+ white-space:nowrap;
+}
+nav button.active,.btn{
+ background:var(--green);color:#111;font-weight:bold
+}
+.card{
+ background:var(--panel);padding:17px;
+ border:1px solid #29352a;border-radius:17px;margin-bottom:14px
+}
+h2{font-size:17px}
+.big{font-size:42px;color:var(--green);font-weight:bold}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat{background:#202a20;padding:13px;border-radius:13px}
+.stat b{display:block;color:var(--green);font-size:22px}
+.stat small{color:var(--muted)}
+input,select{
+ width:100%;padding:13px;margin:7px 0 12px;
+ border:1px solid #344235;border-radius:10px;
+ background:#0d130e;color:white;font-size:14px
+}
+.btn{width:100%;padding:14px}
+.item{
+ display:flex;justify-content:space-between;align-items:center;
+ padding:13px 0;border-bottom:1px solid #29352a
+}
+.item:last-child{border:0}
+.score{color:var(--green);font-weight:bold}
+.page{display:none}
+.page.active{display:block}
+.empty{text-align:center;color:var(--muted);padding:20px}
+footer{text-align:center;color:var(--muted);font-size:11px;padding:25px}
+</style>
+</head>
+<body>
+<header>
+ <div class="logo">⚽ GOALSCOUR</div>
+ <p>مدیریت حرفه‌ای آمار گل‌های فوتبال</p>
+</header>
+
+<main>
+<nav>
+ <button class="active" onclick="showPage('home',this)">خانه</button>
+ <button onclick="showPage('players',this)">بازیکنان</button>
+ <button onclick="showPage('matches',this)">مسابقات</button>
+ <button onclick="showPage('ranking',this)">گلزنان</button>
+</nav>
+
+<section id="home" class="page active">
+ <div class="card">
+  <small>مجموع گل‌های ثبت‌شده</small>
+  <div class="big" id="total">۰</div>
+  <small>آمار کلی Goalscour</small>
+ </div>
+ <div class="stats">
+  <div class="stat"><b id="count">۰</b><small>بازیکنان</small></div>
+  <div class="stat"><b id="games">۰</b><small>مسابقات</small></div>
+  <div class="stat"><b id="leader">۰</b><small>گل آقای گل</small></div>
+ </div>
+ <div class="card">
+  <h2>🏆 بهترین گلزن</h2>
+  <div id="best" class="empty">هنوز اطلاعاتی ثبت نشده</div>
+ </div>
+</section>
+
+<section id="players" class="page">
+ <div class="card">
+  <h2>افزودن بازیکن جدید</h2>
+  <input id="playerName" placeholder="نام بازیکن">
+  <button class="btn" onclick="addPlayer()">+ افزودن بازیکن</button>
+ </div>
+ <div class="card">
+  <h2>فهرست بازیکنان</h2>
+  <div id="playerList"></div>
+ </div>
+</section>
+
+<section id="matches" class="page">
+ <div class="card">
+  <h2>ثبت مسابقه</h2>
+  <input id="opponent" placeholder="نام تیم حریف">
+  <input id="date" type="date">
+  <label>گلزن</label>
+  <select id="scorer"></select>
+  <label>تعداد گل این بازیکن</label>
+  <input id="goals" type="number" min="1" value="1">
+  <label>گل‌های تیم حریف</label>
+  <input id="against" type="number" min="0" value="0">
+  <button class="btn" onclick="addMatch()">ثبت مسابقه</button>
+ </div>
+ <div class="card">
+  <h2>تاریخچه مسابقات</h2>
+  <div id="matchList"></div>
+ </div>
+</section>
+
+<section id="ranking" class="page">
+ <div class="card">
+  <h2>🏆 جدول گلزنان</h2>
+  <div id="rankingList"></div>
+ </div>
+</section>
+</main>
+
+<footer>GOALSCOUR © 2026 | Football Statistics</footer>
+
+<script>
+let players=JSON.parse(localStorage.getItem("gc_players")||"[]");
+let matches=JSON.parse(localStorage.getItem("gc_matches")||"[]");
+
+function save(){
+ localStorage.setItem("gc_players",JSON.stringify(players));
+ localStorage.setItem("gc_matches",JSON.stringify(matches));
+ render();
+}
+
+function showPage(id,button){
+ document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+ document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));
+ document.getElementById(id).classList.add("active");
+ button.classList.add("active");
+}
+
+function addPlayer(){
+ let name=document.getElementById("playerName").value.trim();
+ if(!name)return alert("نام بازیکن را وارد کن");
+ if(players.some(p=>p.name===name))return alert("این بازیکن وجود دارد");
+ players.push({id:Date.now()+Math.random(),name});
+ document.getElementById("playerName").value="";
+ save();
+}
+
+function getGoals(id){
+ return matches.reduce((sum,m)=>{
+  return sum+m.scorers.filter(s=>s.id===id).reduce((a,s)=>a+s.goals,0);
+ },0);
+}
+
+function addMatch(){
+ let opponent=document.getElementById("opponent").value.trim();
+ let id=document.getElementById("scorer").value;
+ let goals=Number(document.getElementById("goals").value);
+ let against=Number(document.getElementById("against").value);
+ let date=document.getElementById("date").value;
+ if(!opponent||!id||!date)return alert("اطلاعات مسابقه را کامل کن");
+ if(!Number.isInteger(goals)||goals<1||goals>99||!Number.isInteger(against)||against<0||against>99)return alert("تعداد گل معتبر نیست");
+ let player=players.find(p=>String(p.id)===id);
+ matches.push({
+  opponent,date,against,
+  scorers:[{id:player.id,name:player.name,goals}]
+ });
+ save();
+ document.getElementById("opponent").value="";
+ alert("مسابقه ثبت شد!");
+}
+
+function removePlayer(id){
+ if(!confirm("بازیکن حذف شود؟"))return;
+ players=players.filter(p=>String(p.id)!==String(id));
+ save();
+}
+
+function removeMatch(i){
+ if(!confirm("مسابقه حذف شود؟"))return;
+ matches.splice(i,1);
+ save();
+}
+
+function render(){
+ let total=matches.reduce((a,m)=>a+m.scorers.reduce((b,s)=>b+s.goals,0),0);
+ let sorted=[...players].sort((a,b)=>getGoals(b.id)-getGoals(a.id));
+ document.getElementById("total").textContent=total.toLocaleString("fa-IR");
+ document.getElementById("count").textContent=players.length.toLocaleString("fa-IR");
+ document.getElementById("games").textContent=matches.length.toLocaleString("fa-IR");
+ document.getElementById("leader").textContent=(sorted.length?getGoals(sorted[0].id):0).toLocaleString("fa-IR");
+ document.getElementById("best").textContent=sorted.length?sorted[0].name+" — "+getGoals(sorted[0].id)+" گل":"هنوز اطلاعاتی ثبت نشده";
+
+ document.getElementById("playerList").innerHTML=players.length?players.map(p=>
+ `<div class="item"><span>${escapeHTML(p.name)}</span><span class="score">${getGoals(p.id)} گل</span><button onclick="removePlayer('${p.id}')">حذف</button></div>`
+ ).join(""):'<div class="empty">بازیکنی وجود ندارد</div>';
+
+ document.getElementById("scorer").innerHTML=players.map(p=>
+ `<option value="${p.id}">${escapeHTML(p.name)}</option>`
+ ).join("");
+
+ document.getElementById("rankingList").innerHTML=sorted.length?sorted.map((p,i)=>
+ `<div class="item"><span>${i+1}. ${escapeHTML(p.name)}</span><span class="score">${getGoals(p.id)} گل</span></div>`
+ ).join(""):'<div class="empty">هنوز گلی ثبت نشده</div>';
+
+ document.getElementById("matchList").innerHTML=matches.length?[...matches].reverse().map((m,i)=>
+ `<div class="item"><div><b>${escapeHTML(m.opponent)}</b><br><small>${escapeHTML(m.date)}</small><br><small>${m.scorers.map(s=>escapeHTML(s.name)+" ("+s.goals+")").join("، ")}</small></div><span class="score">${m.scorers.reduce((a,s)=>a+s.goals,0)} - ${m.against}</span><button onclick="removeMatch(${matches.length-1-i})">حذف</button></div>`
+ ).join(""):'<div class="empty">مسابقه‌ای ثبت نشده</div>';
+}
+
+function escapeHTML(s){
+ return String(s).replace(/[&<>"']/g,c=>({
+ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+ })[c]);
+}
+
+document.getElementById("date").value=new Date().toISOString().slice(0,10);
+render();
+</script>
+</body>
+</html>
