@@ -87,7 +87,17 @@
 
       <button type="submit">ورود مدیر</button>
     </form>
+    <button id="gcForgotPassword"
+      class="gc-secondary" type="button">
+      فراموشی رمز عبور
+    </button>
 
+    <form id="gcNewPasswordForm" class="gc-hidden">
+      <input id="gcNewPassword" type="password"
+        placeholder="رمز عبور جدید" minlength="8" required>
+
+      <button type="submit">ثبت رمز جدید</button>
+    </form>
     <div id="gcStatus">
       در حال اتصال به پایگاه داده...
     </div>
