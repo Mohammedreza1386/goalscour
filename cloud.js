@@ -458,6 +458,63 @@
       form.classList.remove("gc-hidden");
     });
 
+    // درخواست بازیابی رمز عبور
+  document.getElementById("gcForgotPassword")
+    .addEventListener("click", async () => {
+      const email = document.getElementById("gcEmail").value.trim();
+
+      if (!email) {
+        status("ابتدا ایمیل مدیر را وارد کن.");
+        return;
+      }
+
+      status("در حال ارسال ایمیل بازیابی...");
+
+      const result = await db.auth.resetPasswordForEmail(email, {
+        redirectTo: "https://goalscour-econova4.vercel.app/"
+      });
+
+      if (result.error) {
+        status("خطا: " + result.error.message);
+        return;
+      }
+
+      status("ایمیل بازیابی ارسال شد. صندوق ورودی را بررسی کن.", true);
+    });
+
+  // تشخیص بازگشت از لینک بازیابی
+  db.auth.onAuthStateChange((event) => {
+    if (event === "PASSWORD_RECOVERY") {
+      document.getElementById("gcNewPasswordForm")
+        .classList.remove("gc-hidden");
+
+      status("رمز عبور جدید را وارد کن.");
+    }
+  });
+
+  // ثبت رمز جدید
+  document.getElementById("gcNewPasswordForm")
+    .addEventListener("submit", async event => {
+      event.preventDefault();
+
+      const password = document.getElementById("gcNewPassword").value;
+
+      status("در حال تغییر رمز عبور...");
+
+      const result = await db.auth.updateUser({
+        password
+      });
+
+      if (result.error) {
+        status("خطا: " + result.error.message);
+        return;
+      }
+
+      document.getElementById("gcNewPasswordForm")
+        .classList.add("gc-hidden");
+
+      status("رمز عبور با موفقیت تغییر کرد.", true);
+    });
   // ورود مدیر
   document.getElementById("gcLoginForm")
     .addEventListener("submit", async event => {
