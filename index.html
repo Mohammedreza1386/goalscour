@@ -3,130 +3,172 @@
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#101510">
 <title>Goalscour | آمار فوتبال</title>
 <style>
-:root {
- --bg:#0b0e0c;
- --panel:#151b16;
- --green:#b9f27c;
- --text:#f4f7f1;
- --muted:#9aa69a;
-}
+:root{--bg:#0b0e0c;--panel:#151b16;--green:#b9f27c;--text:#f4f7f1;--muted:#9aa69a}
 *{box-sizing:border-box}
-body{
- margin:0;background:var(--bg);color:var(--text);
- font-family:Tahoma,Arial,sans-serif;
-}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Tahoma,Arial,sans-serif}
 header{padding:25px 18px}
 .logo{color:var(--green);font-size:30px;font-weight:bold}
 header p{color:var(--muted);font-size:12px}
-main{max-width:700px;margin:auto;padding:12px}
+main{max-width:760px;margin:auto;padding:12px}
 nav{display:flex;gap:8px;overflow:auto;margin-bottom:18px}
-nav button,.btn{
- border:0;border-radius:11px;padding:12px;
- background:#202a20;color:white;cursor:pointer;
- white-space:nowrap;
-}
-nav button.active,.btn{
- background:var(--green);color:#111;font-weight:bold
-}
-.card{
- background:var(--panel);padding:17px;
- border:1px solid #29352a;border-radius:17px;margin-bottom:14px
-}
+nav button,.btn{border:0;border-radius:11px;padding:12px;background:#202a20;color:white;cursor:pointer;white-space:nowrap}
+nav button.active,.btn{background:var(--green);color:#111;font-weight:bold}
+.card{background:var(--panel);padding:17px;border:1px solid #29352a;border-radius:17px;margin-bottom:14px}
 h2{font-size:17px}
 .big{font-size:42px;color:var(--green);font-weight:bold}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
 .stat{background:#202a20;padding:13px;border-radius:13px}
 .stat b{display:block;color:var(--green);font-size:22px}
 .stat small{color:var(--muted)}
-input,select{
- width:100%;padding:13px;margin:7px 0 12px;
- border:1px solid #344235;border-radius:10px;
- background:#0d130e;color:white;font-size:14px
-}
+input,select{width:100%;padding:13px;margin:7px 0 12px;border:1px solid #344235;border-radius:10px;background:#0d130e;color:white;font-size:14px}
 .btn{width:100%;padding:14px}
-.item{
- display:flex;justify-content:space-between;align-items:center;
- padding:13px 0;border-bottom:1px solid #29352a
-}
+.item{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:13px 0;border-bottom:1px solid #29352a;flex-wrap:wrap}
 .item:last-child{border:0}
 .score{color:var(--green);font-weight:bold}
 .page{display:none}
 .page.active{display:block}
 .empty{text-align:center;color:var(--muted);padding:20px}
+.muted{color:var(--muted);font-size:12px}
+.tag{display:inline-block;padding:5px 8px;border-radius:8px;background:#263326;color:var(--green);font-size:11px;margin:3px}
+.danger{background:#472323;color:#ffdede;border:0;border-radius:8px;padding:7px 10px;cursor:pointer}
 footer{text-align:center;color:var(--muted);font-size:11px;padding:25px}
 </style>
 </head>
 <body>
+
 <header>
- <div class="logo">⚽ GOALSCOUR</div>
- <p>مدیریت حرفه‌ای آمار گل‌های فوتبال</p>
+<div class="logo">⚽ GOALSCOUR</div>
+<p>مدیریت حرفه‌ای آمار گل و پاس گل فوتبال</p>
 </header>
 
 <main>
 <nav>
- <button class="active" onclick="showPage('home',this)">خانه</button>
- <button onclick="showPage('players',this)">بازیکنان</button>
- <button onclick="showPage('matches',this)">مسابقات</button>
- <button onclick="showPage('ranking',this)">گلزنان</button>
+<button class="active" onclick="showPage('home',this)">خانه</button>
+<button onclick="showPage('players',this)">بازیکنان</button>
+<button onclick="showPage('matches',this)">مسابقات رسمی</button>
+<button onclick="showPage('unofficial',this)">آمار غیررسمی</button>
+<button onclick="showPage('ranking',this)">جدول آمار</button>
 </nav>
 
 <section id="home" class="page active">
- <div class="card">
-  <small>مجموع گل‌های ثبت‌شده</small>
-  <div class="big" id="total">۰</div>
-  <small>آمار کلی Goalscour</small>
- </div>
- <div class="stats">
-  <div class="stat"><b id="count">۰</b><small>بازیکنان</small></div>
-  <div class="stat"><b id="games">۰</b><small>مسابقات</small></div>
-  <div class="stat"><b id="leader">۰</b><small>گل آقای گل</small></div>
- </div>
- <div class="card">
-  <h2>🏆 بهترین گلزن</h2>
-  <div id="best" class="empty">هنوز اطلاعاتی ثبت نشده</div>
- </div>
+<div class="card">
+<small>مجموع گل‌های رسمی و غیررسمی</small>
+<div class="big" id="totalGoals">۰</div>
+<small>تمام بازیکنان</small>
+</div>
+
+<div class="stats">
+<div class="stat"><b id="totalAssists">۰</b><small>مجموع پاس گل</small></div>
+<div class="stat"><b id="playerCount">۰</b><small>بازیکنان</small></div>
+<div class="stat"><b id="matchCount">۰</b><small>مسابقات رسمی</small></div>
+<div class="stat"><b id="unofficialCount">۰</b><small>ثبت‌های غیررسمی</small></div>
+</div>
+
+<div class="card">
+<h2>آمار تفکیکی</h2>
+<div class="item">⚽ گل رسمی <b class="score" id="ogHome">۰</b></div>
+<div class="item">⚽ گل غیررسمی <b class="score" id="ugHome">۰</b></div>
+<div class="item">👟 پاس گل رسمی <b class="score" id="oaHome">۰</b></div>
+<div class="item">👟 پاس گل غیررسمی <b class="score" id="uaHome">۰</b></div>
+</div>
+
+<div class="card">
+<h2>🏆 بهترین گلزن</h2>
+<div id="bestScorer" class="empty">هنوز اطلاعاتی ثبت نشده</div>
+<h2>🎯 بهترین پاسور</h2>
+<div id="bestAssister" class="empty">هنوز اطلاعاتی ثبت نشده</div>
+</div>
 </section>
 
 <section id="players" class="page">
- <div class="card">
-  <h2>افزودن بازیکن جدید</h2>
-  <input id="playerName" placeholder="نام بازیکن">
-  <button class="btn" onclick="addPlayer()">+ افزودن بازیکن</button>
- </div>
- <div class="card">
-  <h2>فهرست بازیکنان</h2>
-  <div id="playerList"></div>
- </div>
+<div class="card">
+<h2>افزودن بازیکن جدید</h2>
+<input id="playerName" placeholder="نام بازیکن">
+<button class="btn" onclick="addPlayer()">+ افزودن بازیکن</button>
+</div>
+<div class="card">
+<h2>فهرست بازیکنان</h2>
+<div id="playerList"></div>
+</div>
 </section>
 
 <section id="matches" class="page">
- <div class="card">
-  <h2>ثبت مسابقه</h2>
-  <input id="opponent" placeholder="نام تیم حریف">
-  <input id="date" type="date">
-  <label>گلزن</label>
-  <select id="scorer"></select>
-  <label>تعداد گل این بازیکن</label>
-  <input id="goals" type="number" min="1" value="1">
-  <label>گل‌های تیم حریف</label>
-  <input id="against" type="number" min="0" value="0">
-  <button class="btn" onclick="addMatch()">ثبت مسابقه</button>
- </div>
- <div class="card">
-  <h2>تاریخچه مسابقات</h2>
-  <div id="matchList"></div>
- </div>
+<div class="card">
+<h2>ثبت مسابقه رسمی</h2>
+<label>نام تیم حریف</label>
+<input id="opponent" placeholder="مثلاً تیم آبی">
+
+<label>تاریخ مسابقه</label>
+<input id="matchDate" type="date">
+
+<label>گلزن</label>
+<select id="scorer"></select>
+
+<label>تعداد گل</label>
+<input id="matchGoals" type="number" min="1" max="99" value="1">
+
+<label>پاسور (اختیاری)</label>
+<select id="assister"></select>
+
+<label>تعداد پاس گل</label>
+<input id="matchAssists" type="number" min="0" max="99" value="0">
+
+<label>گل‌های تیم حریف</label>
+<input id="against" type="number" min="0" max="99" value="0">
+
+<button class="btn" onclick="addMatch()">ثبت مسابقه رسمی</button>
+<p class="muted">برای ثبت پاس گل، پاسور را انتخاب کن؛ در غیر این صورت تعداد پاس گل صفر باشد.</p>
+</div>
+
+<div class="card">
+<h2>تاریخچه مسابقات رسمی</h2>
+<div id="matchList"></div>
+</div>
+</section>
+
+<section id="unofficial" class="page">
+<div class="card">
+<h2>ثبت گل و پاس گل غیررسمی</h2>
+
+<label>بازیکن</label>
+<select id="unofficialPlayer"></select>
+
+<label>تعداد گل غیررسمی</label>
+<input id="unofficialGoals" type="number" min="0" max="999" value="1">
+
+<label>تعداد پاس گل غیررسمی</label>
+<input id="unofficialAssists" type="number" min="0" max="999" value="0">
+
+<label>تاریخ (اختیاری)</label>
+<input id="unofficialDate" type="date">
+
+<label>توضیحات (اختیاری)</label>
+<input id="unofficialNote" placeholder="مثلاً تمرین یا بازی دوستانه">
+
+<button class="btn" onclick="addUnofficial()">ثبت آمار غیررسمی</button>
+<p class="muted">می‌توانی فقط گل، فقط پاس گل یا هر دو را ثبت کنی.</p>
+</div>
+
+<div class="card">
+<h2>سوابق غیررسمی</h2>
+<div id="unofficialList"></div>
+</div>
 </section>
 
 <section id="ranking" class="page">
- <div class="card">
-  <h2>🏆 جدول گلزنان</h2>
-  <div id="rankingList"></div>
- </div>
+<div class="card">
+<h2>🏆 جدول گلزنان</h2>
+<div id="rankingList"></div>
+</div>
+
+<div class="card">
+<h2>🎯 جدول پاسورها</h2>
+<div id="assistRankingList"></div>
+</div>
 </section>
 </main>
 
@@ -135,18 +177,20 @@ footer{text-align:center;color:var(--muted);font-size:11px;padding:25px}
 <script>
 let players=JSON.parse(localStorage.getItem("gc_players")||"[]");
 let matches=JSON.parse(localStorage.getItem("gc_matches")||"[]");
+let unofficial=JSON.parse(localStorage.getItem("gc_unofficial")||"[]");
 
 function save(){
  localStorage.setItem("gc_players",JSON.stringify(players));
  localStorage.setItem("gc_matches",JSON.stringify(matches));
+ localStorage.setItem("gc_unofficial",JSON.stringify(unofficial));
  render();
 }
 
-function showPage(id,button){
- document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
- document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));
+function showPage(id,b){
+ document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));
+ document.querySelectorAll("nav button").forEach(x=>x.classList.remove("active"));
  document.getElementById(id).classList.add("active");
- button.classList.add("active");
+ b.classList.add("active");
 }
 
 function addPlayer(){
@@ -158,28 +202,102 @@ function addPlayer(){
  save();
 }
 
-function getGoals(id){
- return matches.reduce((sum,m)=>{
-  return sum+m.scorers.filter(s=>s.id===id).reduce((a,s)=>a+s.goals,0);
- },0);
+function getStats(id){
+ let s={og:0,ug:0,oa:0,ua:0};
+
+ matches.forEach(m=>{
+  (m.scorers||[]).forEach(x=>{
+   if(String(x.id)===String(id))s.og+=Number(x.goals)||0;
+  });
+  if(m.assisterId!=null&&String(m.assisterId)===String(id))
+   s.oa+=Number(m.assists)||0;
+ });
+
+ unofficial.forEach(u=>{
+  if(String(u.playerId)===String(id)){
+   s.ug+=Number(u.goals)||0;
+   s.ua+=Number(u.assists)||0;
+  }
+ });
+
+ s.g=s.og+s.ug;
+ s.a=s.oa+s.ua;
+ return s;
 }
 
 function addMatch(){
  let opponent=document.getElementById("opponent").value.trim();
  let id=document.getElementById("scorer").value;
- let goals=Number(document.getElementById("goals").value);
+ let goals=Number(document.getElementById("matchGoals").value);
  let against=Number(document.getElementById("against").value);
- let date=document.getElementById("date").value;
+ let date=document.getElementById("matchDate").value;
+ let aid=document.getElementById("assister").value;
+ let assists=Number(document.getElementById("matchAssists").value);
+
  if(!opponent||!id||!date)return alert("اطلاعات مسابقه را کامل کن");
- if(!Number.isInteger(goals)||goals<1||goals>99||!Number.isInteger(against)||against<0||against>99)return alert("تعداد گل معتبر نیست");
- let player=players.find(p=>String(p.id)===id);
+
+ if(!Number.isInteger(goals)||goals<1||goals>99||
+ !Number.isInteger(against)||against<0||against>99||
+ !Number.isInteger(assists)||assists<0||assists>99)
+ return alert("تعداد گل یا پاس گل معتبر نیست");
+
+ if(assists>0&&!aid)return alert("برای ثبت پاس گل، پاسور را انتخاب کن");
+ if(assists>0&&String(aid)===String(id))
+ return alert("گلزن نمی‌تواند پاسور گل خودش باشد");
+
+ let p=players.find(x=>String(x.id)===String(id));
+ let a=players.find(x=>String(x.id)===String(aid));
+
  matches.push({
   opponent,date,against,
-  scorers:[{id:player.id,name:player.name,goals}]
+  scorers:[{id:p.id,name:p.name,goals}],
+  assisterId:assists>0?a.id:null,
+  assisterName:assists>0?a.name:"",
+  assists
  });
- save();
+
  document.getElementById("opponent").value="";
- alert("مسابقه ثبت شد!");
+ document.getElementById("matchGoals").value="1";
+ document.getElementById("matchAssists").value="0";
+ document.getElementById("against").value="0";
+
+ save();
+ alert("مسابقه رسمی ثبت شد!");
+}
+
+function addUnofficial(){
+ let id=document.getElementById("unofficialPlayer").value;
+ let g=Number(document.getElementById("unofficialGoals").value);
+ let a=Number(document.getElementById("unofficialAssists").value);
+ let date=document.getElementById("unofficialDate").value;
+ let note=document.getElementById("unofficialNote").value.trim();
+
+ if(!id)return alert("ابتدا بازیکن را انتخاب کن");
+
+ if(!Number.isInteger(g)||g<0||g>999||
+ !Number.isInteger(a)||a<0||a>999)
+ return alert("تعداد گل و پاس گل معتبر نیست");
+
+ if(g===0&&a===0)return alert("حداقل یک گل یا پاس گل وارد کن");
+
+ let p=players.find(x=>String(x.id)===String(id));
+
+ unofficial.push({
+  id:Date.now()+Math.random(),
+  playerId:p.id,
+  playerName:p.name,
+  goals:g,
+  assists:a,
+  date,
+  note
+ });
+
+ document.getElementById("unofficialGoals").value="1";
+ document.getElementById("unofficialAssists").value="0";
+ document.getElementById("unofficialNote").value="";
+
+ save();
+ alert("آمار غیررسمی ثبت شد!");
 }
 
 function removePlayer(id){
@@ -189,44 +307,101 @@ function removePlayer(id){
 }
 
 function removeMatch(i){
- if(!confirm("مسابقه حذف شود؟"))return;
+ if(!confirm("این مسابقه حذف شود؟"))return;
  matches.splice(i,1);
  save();
 }
 
+function removeUnofficial(id){
+ if(!confirm("این ثبت غیررسمی حذف شود؟"))return;
+ unofficial=unofficial.filter(u=>String(u.id)!==String(id));
+ save();
+}
+
+function f(n){
+ return (Number(n)||0).toLocaleString("fa-IR");
+}
+
+function esc(s){
+ return String(s==null?"":s).replace(/[&<>"']/g,c=>({
+ "&":"&amp;","<":"&lt;",">":"&gt;",
+ '"':"&quot;","'":"&#39;"
+ }[c]));
+}
+
 function render(){
- let total=matches.reduce((a,m)=>a+m.scorers.reduce((b,s)=>b+s.goals,0),0);
- let sorted=[...players].sort((a,b)=>getGoals(b.id)-getGoals(a.id));
- document.getElementById("total").textContent=total.toLocaleString("fa-IR");
- document.getElementById("count").textContent=players.length.toLocaleString("fa-IR");
- document.getElementById("games").textContent=matches.length.toLocaleString("fa-IR");
- document.getElementById("leader").textContent=(sorted.length?getGoals(sorted[0].id):0).toLocaleString("fa-IR");
- document.getElementById("best").textContent=sorted.length?sorted[0].name+" — "+getGoals(sorted[0].id)+" گل":"هنوز اطلاعاتی ثبت نشده";
+ let all=players.map(p=>({p,s:getStats(p.id)}));
 
- document.getElementById("playerList").innerHTML=players.length?players.map(p=>
- `<div class="item"><span>${escapeHTML(p.name)}</span><span class="score">${getGoals(p.id)} گل</span><button onclick="removePlayer('${p.id}')">حذف</button></div>`
- ).join(""):'<div class="empty">بازیکنی وجود ندارد</div>';
+ let sum=all.reduce((t,x)=>({
+  g:t.g+x.s.g,
+  a:t.a+x.s.a,
+  og:t.og+x.s.og,
+  ug:t.ug+x.s.ug,
+  oa:t.oa+x.s.oa,
+  ua:t.ua+x.s.ua
+ }),{g:0,a:0,og:0,ug:0,oa:0,ua:0});
 
- document.getElementById("scorer").innerHTML=players.map(p=>
- `<option value="${p.id}">${escapeHTML(p.name)}</option>`
- ).join("");
+ let gs=[...all].sort((x,y)=>y.s.g-x.s.g);
+ let as=[...all].sort((x,y)=>y.s.a-x.s.a);
 
- document.getElementById("rankingList").innerHTML=sorted.length?sorted.map((p,i)=>
- `<div class="item"><span>${i+1}. ${escapeHTML(p.name)}</span><span class="score">${getGoals(p.id)} گل</span></div>`
- ).join(""):'<div class="empty">هنوز گلی ثبت نشده</div>';
+ document.getElementById("totalGoals").textContent=f(sum.g);
+ document.getElementById("totalAssists").textContent=f(sum.a);
+ document.getElementById("playerCount").textContent=f(players.length);
+ document.getElementById("matchCount").textContent=f(matches.length);
+ document.getElementById("unofficialCount").textContent=f(unofficial.length);
 
- document.getElementById("matchList").innerHTML=matches.length?[...matches].reverse().map((m,i)=>
- `<div class="item"><div><b>${escapeHTML(m.opponent)}</b><br><small>${escapeHTML(m.date)}</small><br><small>${m.scorers.map(s=>escapeHTML(s.name)+" ("+s.goals+")").join("، ")}</small></div><span class="score">${m.scorers.reduce((a,s)=>a+s.goals,0)} - ${m.against}</span><button onclick="removeMatch(${matches.length-1-i})">حذف</button></div>`
- ).join(""):'<div class="empty">مسابقه‌ای ثبت نشده</div>';
+ document.getElementById("ogHome").textContent=f(sum.og);
+ document.getElementById("ugHome").textContent=f(sum.ug);
+ document.getElementById("oaHome").textContent=f(sum.oa);
+ document.getElementById("uaHome").textContent=f(sum.ua);
+
+ document.getElementById("bestScorer").textContent=
+ gs.length&&gs[0].s.g?gs[0].p.name+" — "+f(gs[0].s.g)+" گل":"هنوز اطلاعاتی ثبت نشده";
+
+ document.getElementById("bestAssister").textContent=
+ as.length&&as[0].s.a?as[0].p.name+" — "+f(as[0].s.a)+" پاس گل":"هنوز اطلاعاتی ثبت نشده";
+
+ document.getElementById("playerList").innerHTML=players.length?
+ players.map(p=>{
+  let s=getStats(p.id);
+  return '<div class="item"><div><b>'+esc(p.name)+'</b><br><span class="muted">مجموع: '+f(s.g)+' گل | '+f(s.a)+' پاس گل</span><br><span class="tag">رسمی '+f(s.og)+' گل / '+f(s.oa)+' پاس</span><span class="tag">غیررسمی '+f(s.ug)+' گل / '+f(s.ua)+' پاس</span></div><button class="danger" onclick="removePlayer(\''+String(p.id)+'\')">حذف</button></div>';
+ }).join(""):'<div class="empty">بازیکنی وجود ندارد</div>';
+
+ let opts='<option value="">انتخاب بازیکن</option>'+
+ players.map(p=>'<option value="'+esc(p.id)+'">'+esc(p.name)+'</option>').join("");
+
+ ["scorer","assister","unofficialPlayer"].forEach(id=>{
+  document.getElementById(id).innerHTML=opts;
+ });
+
+ document.getElementById("rankingList").innerHTML=gs.length?
+ gs.map((x,i)=>'<div class="item"><div><b>'+f(i+1)+'. '+esc(x.p.name)+'</b><br><span class="muted">رسمی '+f(x.s.og)+' | غیررسمی '+f(x.s.ug)+'</span></div><span class="score">'+f(x.s.g)+' گل</span></div>').join("")
+ :'<div class="empty">هنوز گلی ثبت نشده</div>';
+
+ document.getElementById("assistRankingList").innerHTML=as.length?
+ as.map((x,i)=>'<div class="item"><div><b>'+f(i+1)+'. '+esc(x.p.name)+'</b><br><span class="muted">رسمی '+f(x.s.oa)+' | غیررسمی '+f(x.s.ua)+'</span></div><span class="score">'+f(x.s.a)+' پاس گل</span></div>').join("")
+ :'<div class="empty">هنوز پاس گلی ثبت نشده</div>';
+
+ document.getElementById("matchList").innerHTML=matches.length?
+ [...matches].reverse().map((m,i)=>{
+  let g=(m.scorers||[]).reduce((n,s)=>n+(Number(s.goals)||0),0);
+  let names=(m.scorers||[]).map(s=>esc(s.name)+" ("+f(s.goals)+" گل)").join("، ");
+  let at=Number(m.assists)>0?
+  "<br><small>پاسور: "+esc(m.assisterName||"بازیکن")+" ("+f(m.assists)+" پاس گل)</small>":"";
+
+  return '<div class="item"><div><b>'+esc(m.opponent)+'</b><br><small>'+esc(m.date)+'</small><br><small>'+names+'</small>'+at+'</div><span class="score">'+f(g)+' - '+f(m.against)+'</span><button class="danger" onclick="removeMatch('+(matches.length-1-i)+')">حذف</button></div>';
+ }).join("")
+ :'<div class="empty">مسابقه‌ای ثبت نشده</div>';
+
+ document.getElementById("unofficialList").innerHTML=unofficial.length?
+ [...unofficial].reverse().map(u=>
+ '<div class="item"><div><b>'+esc(u.playerName||"بازیکن")+'</b><br><span class="muted">'+(u.date?esc(u.date):"بدون تاریخ")+(u.note?" | "+esc(u.note):"")+'</span><br><span class="score">'+f(u.goals)+' گل | '+f(u.assists)+' پاس گل</span></div><button class="danger" onclick="removeUnofficial(\''+String(u.id)+'\')">حذف</button></div>'
+ ).join("")
+ :'<div class="empty">هنوز آمار غیررسمی ثبت نشده</div>';
 }
 
-function escapeHTML(s){
- return String(s).replace(/[&<>"']/g,c=>({
- '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
- })[c]);
-}
-
-document.getElementById("date").value=new Date().toISOString().slice(0,10);
+document.getElementById("matchDate").value=new Date().toISOString().slice(0,10);
+document.getElementById("unofficialDate").value=new Date().toISOString().slice(0,10);
 render();
 </script>
 </body>
