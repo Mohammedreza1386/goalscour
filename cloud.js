@@ -304,28 +304,8 @@
         if (result.error) throw result.error;
       }
 
-      const result = await db
-        .from(group.table)
-        .select("id");
-
-      if (result.error) throw result.error;
-
-      const keep = new Set(
-        group.local.map(x => String(x.id))
-      );
-
-      const remove = (result.data || [])
-        .map(x => String(x.id))
-        .filter(id => !keep.has(id));
-
-      if (remove.length) {
-        const deleted = await db
-          .from(group.table)
-          .delete()
-          .in("id", remove);
-
-        if (deleted.error) throw deleted.error;
-      }
+      // حفظ تمام رکوردهای قبلی
+// هیچ رکوردی در همگام‌سازی خودکار حذف نمی‌شود.
     }
 
     status(
