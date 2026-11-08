@@ -5,7 +5,7 @@
     "https://zusbebjskchgehdjvpsm.supabase.co";
 
   const SUPABASE_KEY =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1c2JlYmpza2NoZ2VoZGp2cHNtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIyNDg1OTEsImV4cCI6MjEwNzgyNDU5MX0.2D86j8JssnCDpmh633zXPlF25oGsN9WIAwWM7F0W0IeA";
+    "sb_publishable_WGMEA7-K8FAResrVCL8GJQ_6KCxrvmK";
 
   const db = window.supabase.createClient(
     SUPABASE_URL,
@@ -260,9 +260,7 @@
     return Array.isArray(value) ? value : [];
   }
 
-  /* =========================
-     پایان پارت اول
-  ========================= */
+  /* پایان پارت اول */
    /* =========================
      کنترل دسترسی مدیر
   ========================= */
@@ -587,7 +585,9 @@
         localUnofficial.length
     };
   }
-  /* =========================
+
+  /* پایان پارت دوم */
+   /* =========================
      راه‌اندازی اولیه
   ========================= */
 
@@ -610,7 +610,6 @@
 
         await mergeLocalAndCloud();
 
-        // فقط بعد از پشتیبان‌گیری و ادغام، اطلاعات ارسال می‌شوند.
         await syncAll();
 
       } else {
@@ -885,7 +884,3 @@
   initialize();
 
 })();
-  /* =========================
-     پایان پارت دوم
-  ========================= */
- 
