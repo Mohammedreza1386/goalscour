@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
@@ -329,7 +328,7 @@ function saveData() {
   }
 
   if (errors.length) {
-    alert(errors.join("\n"));
+      alert(errors.join("\n"));
   }
 
   return matchesSaved && unofficialSaved && playersSaved;
@@ -787,8 +786,6 @@ function deletePlayer(playerId) {
   renderAll();
 }
 
-/* پایان پارت ۲ */
-  
 /* =========================
    ثبت مسابقه رسمی
 ========================= */
@@ -889,9 +886,8 @@ document.getElementById("unofficialForm").addEventListener(
     if (goals === 0 && assists === 0) {
       alert("حداقل یک گل یا پاس گل ثبت کنید.");
       return;
-    }
-
-    const record = {
+  }
+        const record = {
       id: id(),
       playerId,
       goals,
@@ -1044,10 +1040,6 @@ function renderPlayers() {
 }
 
 /* =========================
-   پایان پارت ۳
-========================= */
-  
-/* =========================
    داشبورد اصلی
 ========================= */
 
@@ -1130,51 +1122,15 @@ function renderIndividualRankings() {
   const container = document.getElementById("individualRankings");
 
   const categories = [
-    {
-      title: "مجموع گل‌ها",
-      key: "totalGoals",
-      unit: "گل"
-    },
-    {
-      title: "گل‌های رسمی",
-      key: "officialGoals",
-      unit: "گل"
-    },
-    {
-      title: "گل‌های غیررسمی",
-      key: "unofficialGoals",
-      unit: "گل"
-    },
-    {
-      title: "پنالتی‌های رسمی",
-      key: "officialPenalties",
-      unit: "پنالتی"
-    },
-    {
-      title: "پنالتی‌های غیررسمی",
-      key: "unofficialPenalties",
-      unit: "پنالتی"
-    },
-    {
-      title: "گل‌های بدون پنالتی",
-      key: "nonPenaltyGoals",
-      unit: "گل"
-    },
-    {
-      title: "پاس گل‌های رسمی",
-      key: "officialAssists",
-      unit: "پاس گل"
-    },
-    {
-      title: "پاس گل‌های غیررسمی",
-      key: "unofficialAssists",
-      unit: "پاس گل"
-    },
-    {
-      title: "مجموع پاس گل",
-      key: "totalAssists",
-      unit: "پاس گل"
-    }
+    {title:"مجموع گل‌ها",key:"totalGoals"},
+    {title:"گل‌های رسمی",key:"officialGoals"},
+    {title:"گل‌های غیررسمی",key:"unofficialGoals"},
+    {title:"پنالتی‌های رسمی",key:"officialPenalties"},
+    {title:"پنالتی‌های غیررسمی",key:"unofficialPenalties"},
+    {title:"گل‌های بدون پنالتی",key:"nonPenaltyGoals"},
+    {title:"پاس گل‌های رسمی",key:"officialAssists"},
+    {title:"پاس گل‌های غیررسمی",key:"unofficialAssists"},
+    {title:"مجموع پاس گل",key:"totalAssists"}
   ];
 
   if (!players.length) {
@@ -1184,10 +1140,9 @@ function renderIndividualRankings() {
   }
 
   container.innerHTML = categories.map(category => {
-    const sorted = [...players].sort((a, b) => {
-      return getStats(b.id)[category.key] -
-        getStats(a.id)[category.key];
-    });
+    const sorted = [...players].sort((a, b) =>
+      getStats(b.id)[category.key] - getStats(a.id)[category.key]
+    );
 
     return `
       <div class="metric-panel">
@@ -1195,8 +1150,6 @@ function renderIndividualRankings() {
         <div class="metric-list">
           ${sorted.map((player, index) => {
             const stats = getStats(player.id);
-            const value = stats[category.key];
-
             const photo = player.photo
               ? `<img class="avatar" src="${player.photo}" alt="${esc(player.name)}">`
               : `<div class="avatar" style="display:flex;align-items:center;justify-content:center">⚽</div>`;
@@ -1206,14 +1159,10 @@ function renderIndividualRankings() {
                 <span class="tag">${index + 1}</span>
                 ${photo}
                 <div class="metric-player-info">
-                  <div class="metric-player-name">
-                    ${esc(player.name)}
-                  </div>
-                  <div class="metric-player-rank">
-                    رتبه ${index + 1}
-                  </div>
+                  <div class="metric-player-name">${esc(player.name)}</div>
+                  <div class="metric-player-rank">رتبه ${index + 1}</div>
                 </div>
-                <div class="metric-value">${value}</div>
+                <div class="metric-value">${stats[category.key]}</div>
               </div>
             `;
           }).join("")}
@@ -1230,16 +1179,13 @@ function renderIndividualRankings() {
 function renderRanking() {
   const body = document.getElementById("rankingBody");
 
-  const sorted = [...players].sort((a, b) => {
-    return getStats(b.id).totalGoals -
-      getStats(a.id).totalGoals;
-  });
+  const sorted = [...players].sort((a, b) =>
+    getStats(b.id).totalGoals - getStats(a.id).totalGoals
+  );
 
   if (!sorted.length) {
     body.innerHTML = `
-      <tr>
-        <td colspan="11">هنوز بازیکنی ثبت نشده است.</td>
-      </tr>
+      <tr><td colspan="11">هنوز بازیکنی ثبت نشده است.</td></tr>
     `;
     return;
   }
@@ -1378,10 +1324,8 @@ function renderAll() {
 renderAll();
 
 </script>
-  
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/cloud.js"></script>
-</body>
-</html>
 </body>
 </html>
