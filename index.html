@@ -225,7 +225,35 @@ td{color:#e3e9e0}
     </form>
   </div>
 </section>
+  
+<section id="performance" class="section">
+  <h2>نمودار عملکرد بازیکنان</h2>
 
+  <div class="panel">
+    <h3>بررسی روند گل‌ها و پاس گل‌ها</h3>
+
+    <label for="chartPlayer">انتخاب بازیکن</label>
+    <select id="chartPlayer">
+      <option value="">انتخاب بازیکن</option>
+    </select>
+
+    <div class="chart-filters">
+      <button type="button" data-chart-range="7">۷ روز</button>
+      <button type="button" data-chart-range="30">۳۰ روز</button>
+      <button type="button" data-chart-range="all">کل تاریخچه</button>
+    </div>
+
+    <div class="chart-legend">
+      <span>🟢 گل‌ها</span>
+      <span>🔵 پاس گل‌ها</span>
+    </div>
+
+    <div id="performanceChart" class="performance-chart">
+      <p class="muted">برای مشاهده نمودار، بازیکن را انتخاب کن.</p>
+    </div>
+  </div>
+</section>
+  
 <section id="ranking" class="section">
   <h2>جدول کامل آمار بازیکنان</h2>
   <div class="panel">
