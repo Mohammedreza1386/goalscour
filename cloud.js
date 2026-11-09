@@ -5,7 +5,7 @@
     "https://zusbebjskchgehdjvpsm.supabase.co";
 
   const SUPABASE_KEY =
-    "sb_publishable_WGMEA7-K8FAResrVCL8GJQ_6KCxrvmK";
+  "sb_publishable_WGMEA7-K8FAResrVCL8GJQ_6KCxrvmK";
 
   const db = window.supabase.createClient(
     SUPABASE_URL,
@@ -58,12 +58,31 @@
       color: #10170d;
       font-weight: bold;
       margin-top: 7px;
+      cursor: pointer;
     }
 
     .gc-panel .gc-secondary {
       background: #172019;
       color: #b9f27c;
       border: 1px solid #273329;
+    }
+
+    .gc-panel .gc-danger {
+      background: #3a1919;
+      color: #ffaaaa;
+      border: 1px solid #633333;
+    }
+
+    .gc-section-title {
+      color: #b9f27c;
+      margin-top: 18px;
+      font-size: 14px;
+    }
+
+    .gc-description {
+      color: #89958a;
+      font-size: 11px;
+      line-height: 2;
     }
 
     #gcStatus {
@@ -78,7 +97,7 @@
   document.head.appendChild(style);
 
   /* =========================
-     پنل ورود مدیر
+     پنل مدیریت
   ========================= */
 
   const panel = document.createElement("section");
@@ -93,7 +112,7 @@
       gap:10px
     ">
       <strong style="color:#b9f27c">
-        مدیریت Goalscour 2.0
+        مدیریت Goalscour
       </strong>
 
       <button
@@ -150,6 +169,44 @@
       </button>
     </form>
 
+    <div id="gcAdminTools" class="gc-hidden">
+
+      <div class="gc-section-title">
+        پشتیبان‌گیری و بازیابی اطلاعات
+      </div>
+
+      <p class="gc-description">
+        از اطلاعات بازیکنان، مسابقات و آمار غیررسمی
+        یک نسخه پشتیبان JSON تهیه کن یا آن را بازیابی کن.
+      </p>
+
+      <button
+        id="gcExportBackup"
+        type="button"
+      >
+        دریافت نسخه پشتیبان JSON
+      </button>
+
+      <label class="gc-description">
+        انتخاب فایل پشتیبان برای بازیابی:
+      </label>
+
+      <input
+        id="gcImportFile"
+        type="file"
+        accept=".json,application/json"
+      >
+
+      <button
+        id="gcImportBackup"
+        class="gc-secondary"
+        type="button"
+      >
+        بازیابی اطلاعات از فایل
+      </button>
+
+    </div>
+
     <div id="gcStatus">
       در حال اتصال به پایگاه داده...
     </div>
@@ -192,7 +249,8 @@
   function createLocalBackup() {
     try {
       const backup = {
-        version: 2,
+        app: "Goalscour",
+        version: 3,
         createdAt: new Date().toISOString(),
 
         players: Array.isArray(players)
@@ -219,13 +277,10 @@
       return true;
 
     } catch (error) {
-      console.error(
-        "Backup failed:",
-        error
-      );
+      console.error("Backup failed:", error);
 
       status(
-        "هشدار: پشتیبان محلی ساخته نشد. فضای مرورگر را بررسی کن."
+        "پشتیبان محلی ساخته نشد؛ عملیات متوقف شد."
       );
 
       return false;
@@ -239,14 +294,12 @@
   function mergeRecords(localRows, remoteRows) {
     const result = new Map();
 
-    // ابتدا رکوردهای محلی حفظ می‌شوند.
     (localRows || []).forEach(item => {
       if (item && item.id != null) {
         result.set(String(item.id), item);
       }
     });
 
-    // رکوردهای سرور برای شناسه‌های تکراری اولویت دارند.
     (remoteRows || []).forEach(item => {
       if (item && item.id != null) {
         result.set(String(item.id), item);
@@ -274,25 +327,20 @@
 
     protectedPanels.forEach(element => {
       if (element) {
-        element.classList.toggle(
-          "gc-hidden",
-          !isAdmin
-        );
+        element.classList.toggle("gc-hidden", !isAdmin);
       }
     });
 
     document.querySelectorAll(
       ".player-actions, #matchHistory button, #unofficialHistory button"
     ).forEach(element => {
-      element.classList.toggle(
-        "gc-hidden",
-        !isAdmin
-      );
+      element.classList.toggle("gc-hidden", !isAdmin);
     });
 
     const login = document.getElementById("gcLoginForm");
     const logout = document.getElementById("gcLogout");
     const show = document.getElementById("gcShowLogin");
+    const tools = document.getElementById("gcAdminTools");
 
     if (login) {
       login.classList.toggle(
@@ -308,10 +356,14 @@
     if (show) {
       show.classList.toggle("gc-hidden", isAdmin);
     }
+
+    if (tools) {
+      tools.classList.toggle("gc-hidden", !isAdmin);
+    }
   }
 
   /* =========================
-     اتصال به نمایش اصلی سایت
+     اتصال به نمایش سایت
   ========================= */
 
   if (typeof window.renderAll === "function") {
@@ -466,7 +518,6 @@
       );
     }
 
-    // پیش از ارسال، از اطلاعات محلی پشتیبان می‌گیریم.
     if (!createLocalBackup()) {
       throw new Error(
         "پشتیبان‌گیری ناموفق بود؛ همگام‌سازی متوقف شد."
@@ -488,7 +539,7 @@
     }
 
     status(
-      "اطلاعات با موفقیت همگام‌سازی شد. هیچ رکوردی به‌صورت خودکار حذف نشد.",
+      "اطلاعات با موفقیت همگام‌سازی شد.",
       true
     );
   }
@@ -559,7 +610,6 @@
     const localMatches = validArray(matches);
     const localUnofficial = validArray(unofficial);
 
-    // رکوردهای محلی و سرور با هم حفظ می‌شوند.
     players = mergeRecords(
       localPlayers,
       remote.players
@@ -588,6 +638,208 @@
 
   /* پایان پارت دوم */
    /* =========================
+     اعتبارسنجی فایل پشتیبان
+  ========================= */
+
+  function validateBackup(data) {
+    if (!data || typeof data !== "object") {
+      throw new Error("ساختار فایل معتبر نیست.");
+    }
+
+    if (data.app !== "Goalscour") {
+      throw new Error("این فایل متعلق به Goalscour نیست.");
+    }
+
+    if (
+      !Array.isArray(data.players) ||
+      !Array.isArray(data.matches) ||
+      !Array.isArray(data.unofficial)
+    ) {
+      throw new Error("بخش‌های فایل پشتیبان ناقص هستند.");
+    }
+
+    const groups = [
+      data.players,
+      data.matches,
+      data.unofficial
+    ];
+
+    for (const group of groups) {
+      for (const item of group) {
+        if (
+          !item ||
+          typeof item !== "object" ||
+          item.id == null
+        ) {
+          throw new Error(
+            "یکی از رکوردها شناسه معتبر ندارد."
+          );
+        }
+      }
+    }
+
+    return true;
+  }
+
+  /* =========================
+     خروجی گرفتن JSON
+  ========================= */
+
+  function exportBackup() {
+    if (!isAdmin) {
+      status("فقط مدیر اجازه دریافت پشتیبان دارد.");
+      return;
+    }
+
+    try {
+      const backup = {
+        app: "Goalscour",
+        version: 3,
+        createdAt: new Date().toISOString(),
+        players: validArray(players),
+        matches: validArray(matches),
+        unofficial: validArray(unofficial)
+      };
+
+      const blob = new Blob(
+        [JSON.stringify(backup, null, 2)],
+        { type: "application/json;charset=utf-8" }
+      );
+
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+
+      link.href = url;
+      link.download =
+        "goalscour-backup-" +
+        new Date().toISOString().slice(0, 10) +
+        ".json";
+
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      URL.revokeObjectURL(url);
+
+      status("فایل پشتیبان JSON آماده شد.", true);
+
+    } catch (error) {
+      console.error(error);
+      status("خطا در تهیه فایل پشتیبان: " + error.message);
+    }
+  }
+
+  document.getElementById("gcExportBackup")
+    .addEventListener("click", exportBackup);
+
+  /* =========================
+     بازیابی فایل JSON
+  ========================= */
+
+  async function importBackup() {
+    if (!isAdmin) {
+      status("فقط مدیر اجازه بازیابی اطلاعات دارد.");
+      return;
+    }
+
+    const input = document.getElementById("gcImportFile");
+    const file = input.files && input.files[0];
+
+    if (!file) {
+      status("ابتدا فایل JSON را انتخاب کن.");
+      return;
+    }
+
+    if (!file.name.toLowerCase().endsWith(".json")) {
+      status("فقط فایل JSON قابل قبول است.");
+      return;
+    }
+
+    try {
+      status("در حال خواندن فایل پشتیبان...");
+
+      const content = await file.text();
+      const imported = JSON.parse(content);
+
+      validateBackup(imported);
+
+      const confirmed = window.confirm(
+        "اطلاعات فایل با اطلاعات فعلی ادغام می‌شوند. " +
+        "رکوردهای هم‌شناسه از فایل انتخابی جایگزین می‌شوند. " +
+        "آیا ادامه می‌دهی؟"
+      );
+
+      if (!confirmed) {
+        status("بازیابی لغو شد.");
+        return;
+      }
+
+      // ابتدا از اطلاعات فعلی نسخه پشتیبان می‌گیریم.
+      if (!createLocalBackup()) {
+        throw new Error(
+          "پشتیبان‌گیری از اطلاعات فعلی ناموفق بود."
+        );
+      }
+
+      const oldPlayers = players;
+      const oldMatches = matches;
+      const oldUnofficial = unofficial;
+
+      // فایل واردشده برای شناسه‌های تکراری اولویت دارد.
+      players = mergeRecords(
+        oldPlayers,
+        imported.players
+      );
+
+      matches = mergeRecords(
+        oldMatches,
+        imported.matches
+      );
+
+      unofficial = mergeRecords(
+        oldUnofficial,
+        imported.unofficial
+      );
+
+      try {
+        saveLocal();
+      } catch (storageError) {
+        // در صورت شکست ذخیره، وضعیت قبلی را برمی‌گردانیم.
+        players = oldPlayers;
+        matches = oldMatches;
+        unofficial = oldUnofficial;
+
+        throw new Error(
+          "ذخیره محلی ناموفق بود؛ اطلاعات قبلی حفظ شدند."
+        );
+      }
+
+      if (typeof window.renderAll === "function") {
+        window.renderAll();
+      }
+
+      input.value = "";
+
+      status(
+        "بازیابی محلی موفق بود؛ در حال ارسال اطلاعات به سرور...",
+        true
+      );
+
+      await queueSync();
+
+    } catch (error) {
+      console.error("Import failed:", error);
+
+      status(
+        "بازیابی ناموفق: " + error.message
+      );
+    }
+  }
+
+  document.getElementById("gcImportBackup")
+    .addEventListener("click", importBackup);
+
+  /* =========================
      راه‌اندازی اولیه
   ========================= */
 
@@ -610,6 +862,8 @@
 
         await mergeLocalAndCloud();
 
+        initialized = true;
+
         await syncAll();
 
       } else {
@@ -620,9 +874,9 @@
         unofficial = remote.unofficial;
 
         saveLocal();
-      }
 
-      initialized = true;
+        initialized = true;
+      }
 
       if (typeof window.renderAll === "function") {
         window.renderAll();
@@ -632,7 +886,7 @@
 
       if (isAdmin) {
         status(
-          "ورود مدیر موفق بود. اطلاعات همگام‌سازی شدند.",
+          "ورود مدیر موفق بود؛ اطلاعات همگام‌سازی شدند.",
           true
         );
       } else {
@@ -694,7 +948,7 @@
         }
 
         status(
-          "درخواست بازیابی ارسال شد. ایمیل خود را بررسی کن.",
+          "درخواست بازیابی ارسال شد؛ ایمیل خود را بررسی کن.",
           true
         );
 
@@ -747,10 +1001,7 @@
         document.getElementById("gcNewPasswordForm")
           .classList.add("gc-hidden");
 
-        status(
-          "رمز عبور با موفقیت تغییر کرد.",
-          true
-        );
+        status("رمز عبور با موفقیت تغییر کرد.", true);
 
       } catch (error) {
         status("خطا: " + error.message);
@@ -853,29 +1104,20 @@
       }
 
     } catch (error) {
-      console.warn(
-        "Public refresh failed:",
-        error
-      );
+      console.warn("Public refresh failed:", error);
 
     } finally {
       refreshRunning = false;
     }
   }
 
-  window.addEventListener(
-    "focus",
-    refreshPublicData
-  );
+  window.addEventListener("focus", refreshPublicData);
 
-  document.addEventListener(
-    "visibilitychange",
-    () => {
-      if (!document.hidden) {
-        refreshPublicData();
-      }
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) {
+      refreshPublicData();
     }
-  );
+  });
 
   /* =========================
      شروع سیستم
