@@ -1285,6 +1285,211 @@ function renderUnofficialHistory() {
   `).join("");
 }
 
+  /* =========================
+   نمودار عملکرد بازیکنان
+========================= */
+
+let chartRange = "7";
+
+function renderPerformanceChart() {
+  const select = document.getElementById("chartPlayer");
+  const container = document.getElementById("performanceChart");
+
+  if (!select || !container) return;
+
+  const previous = select.value;
+
+  select.innerHTML =
+    '<option value="">انتخاب بازیکن</option>' +
+    players.map(p =>
+      `<option value="${esc(p.id)}">${esc(p.name)}</option>`
+    ).join("");
+
+  if (players.some(p => String(p.id) === String(previous))) {
+    select.value = previous;
+  } else if (players.length) {
+    select.value = String(players[0].id);
+  }
+
+  select.onchange = renderPerformanceChart;
+
+  document.querySelectorAll("[data-chart-range]").forEach(button => {
+    button.classList.toggle(
+      "active",
+      button.dataset.chartRange === chartRange
+    );
+
+    button.onclick = () => {
+      chartRange = button.dataset.chartRange;
+      renderPerformanceChart();
+    };
+  });
+
+  const playerId = select.value;
+
+  if (!playerId) {
+    container.innerHTML = '<p class="muted">هنوز بازیکنی ثبت نشده است.</p>';
+    return;
+  }
+
+  const daily = {};
+
+  function addRecord(date, goals, assists) {
+    if (!date) return;
+
+    if (!daily[date]) {
+      daily[date] = { goals: 0, assists: 0 };
+    }
+
+    daily[date].goals += num(goals);
+    daily[date].assists += num(assists);
+  }
+
+  matches.forEach(match => {
+    if (String(match.scorerId) === String(playerId)) {
+      addRecord(match.date, match.goals, 0);
+    }
+
+    if (String(match.assisterId) === String(playerId)) {
+      addRecord(match.date, 0, match.assists);
+    }
+  });
+
+  unofficial.forEach(record => {
+    if (String(record.playerId) === String(playerId)) {
+      addRecord(record.date, record.goals, record.assists);
+    }
+  });
+
+  let dates = Object.keys(daily).sort();
+
+  if (chartRange !== "all") {
+    const count = Number(chartRange);
+    const end = new Date();
+    end.setHours(0, 0, 0, 0);
+
+    const start = new Date(end);
+    start.setDate(start.getDate() - count + 1);
+
+    dates = [];
+
+    for (
+      let d = new Date(start);
+      d <= end;
+      d.setDate(d.getDate() + 1)
+    ) {
+      dates.push(
+        `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`
+      );
+    }
+  }
+
+  if (!dates.length) {
+    container.innerHTML =
+      '<p class="muted">هنوز آماری برای این بازیکن ثبت نشده است.</p>';
+    return;
+  }
+
+  const values = dates.map(date => ({
+    date,
+    goals: daily[date]?.goals || 0,
+    assists: daily[date]?.assists || 0
+  }));
+
+  const maxValue = Math.max(
+    1,
+    ...values.map(v => Math.max(v.goals, v.assists))
+  );
+
+  const width = 720;
+  const height = 260;
+  const left = 42;
+  const right = 15;
+  const top = 20;
+  const bottom = 45;
+
+  const plotWidth = width - left - right;
+  const plotHeight = height - top - bottom;
+
+  function point(value, index) {
+    const x = values.length === 1
+      ? left + plotWidth / 2
+      : left + (index / (values.length - 1)) * plotWidth;
+
+    const y = top + plotHeight -
+      (value / maxValue) * plotHeight;
+
+    return `${x},${y}`;
+  }
+
+  const goalPoints = values
+    .map((v, i) => point(v.goals, i))
+    .join(" ");
+
+  const assistPoints = values
+    .map((v, i) => point(v.assists, i))
+    .join(" ");
+
+  const grid = [0, 1, 2, 3, 4].map(i => {
+    const y = top + (plotHeight / 4) * i;
+    const value = Math.round(maxValue * (4 - i) / 4);
+
+    return `
+      <line x1="${left}" y1="${y}"
+        x2="${width - right}" y2="${y}"
+        stroke="#ffffff" opacity=".10"/>
+
+      <text x="${left - 10}" y="${y + 4}"
+        text-anchor="end" fill="#aaa" font-size="12">
+        ${value}
+      </text>
+    `;
+  }).join("");
+
+  const labels = values.map((v, i) => {
+    if (
+      i !== 0 &&
+      i !== values.length - 1 &&
+      i % Math.ceil(values.length / 5) !== 0
+    ) return "";
+
+    const x = values.length === 1
+      ? left + plotWidth / 2
+      : left + (i / (values.length - 1)) * plotWidth;
+
+    return `
+      <text x="${x}" y="${height - 12}"
+        text-anchor="middle" fill="#aaa" font-size="11">
+        ${esc(v.date.slice(5))}
+      </text>
+    `;
+  }).join("");
+
+  container.innerHTML = `
+    <svg viewBox="0 0 ${width} ${height}"
+      role="img" aria-label="نمودار گل و پاس گل">
+
+      ${grid}
+
+      <polyline points="${goalPoints}"
+        fill="none" stroke="#b9f27c"
+        stroke-width="4" stroke-linecap="round"
+        stroke-linejoin="round"/>
+
+      <polyline points="${assistPoints}"
+        fill="none" stroke="#60a5fa"
+        stroke-width="4" stroke-linecap="round"
+        stroke-linejoin="round"/>
+
+      ${labels}
+    </svg>
+
+    <div class="chart-legend">
+      <span>گل‌ها: ${values.reduce((s,v) => s + v.goals, 0)}</span>
+      <span>پاس گل‌ها: ${values.reduce((s,v) => s + v.assists, 0)}</span>
+    </div>
+  `;
+}
 /* =========================
    اجرای همه بخش‌ها
 ========================= */
