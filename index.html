@@ -497,14 +497,25 @@ function getStats(playerId) {
 
 function totalStats() {
   const result = {
-    officialGoals:0, unofficialGoals:0, totalGoals:0,
-    officialPenalties:0, unofficialPenalties:0, totalPenalties:0,
-    nonPenaltyGoals:0, officialAssists:0, unofficialAssists:0,
-    totalAssists:0, likes:0
+    officialGoals: 0,
+    unofficialGoals: 0,
+    totalGoals: 0,
+    officialPenalties: 0,
+    unofficialPenalties: 0,
+    totalPenalties: 0,
+    nonPenaltyGoals: 0,
+    officialAssists: 0,
+    unofficialAssists: 0,
+    totalAssists: 0,
+    hatTricks: 0,
+    braces: 0,
+    goalContributions: 0,
+    likes: 0
   };
 
   players.forEach(player => {
     const stats = getStats(player.id);
+
     Object.keys(result).forEach(key => {
       result[key] += stats[key] || 0;
     });
@@ -512,6 +523,7 @@ function totalStats() {
 
   return result;
 }
+
   /* =========================
    منوی اصلی و جابه‌جایی صفحات
 ========================= */
