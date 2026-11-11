@@ -1170,16 +1170,19 @@ function renderIndividualRankings() {
   const container = document.getElementById("individualRankings");
 
   const categories = [
-    {title:"مجموع گل‌ها",key:"totalGoals"},
-    {title:"گل‌های رسمی",key:"officialGoals"},
-    {title:"گل‌های غیررسمی",key:"unofficialGoals"},
-    {title:"پنالتی‌های رسمی",key:"officialPenalties"},
-    {title:"پنالتی‌های غیررسمی",key:"unofficialPenalties"},
-    {title:"گل‌های بدون پنالتی",key:"nonPenaltyGoals"},
-    {title:"پاس گل‌های رسمی",key:"officialAssists"},
-    {title:"پاس گل‌های غیررسمی",key:"unofficialAssists"},
-    {title:"مجموع پاس گل",key:"totalAssists"}
-  ];
+  {title:"مجموع گل‌ها",key:"totalGoals"},
+  {title:"گل‌های رسمی",key:"officialGoals"},
+  {title:"گل‌های غیررسمی",key:"unofficialGoals"},
+  {title:"پنالتی‌های رسمی",key:"officialPenalties"},
+  {title:"پنالتی‌های غیررسمی",key:"unofficialPenalties"},
+  {title:"گل‌های بدون پنالتی",key:"nonPenaltyGoals"},
+  {title:"پاس گل‌های رسمی",key:"officialAssists"},
+  {title:"پاس گل‌های غیررسمی",key:"unofficialAssists"},
+  {title:"مجموع پاس گل",key:"totalAssists"},
+  {title:"هت‌تریک",key:"hatTricks"},
+  {title:"دوبل",key:"braces"},
+  {title:"مجموع گل و پاس گل (G+A)",key:"goalContributions"}
+];
 
   if (!players.length) {
     container.innerHTML =
