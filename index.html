@@ -422,10 +422,19 @@ function playerName(playerId) {
   return player ? player.name : "بازیکن حذف‌شده";
 }
 
+
 function getStats(playerId) {
-  const officialMatches = matches.filter(m => String(m.scorerId) === String(playerId));
-  const officialAssists = matches.filter(m => String(m.assisterId) === String(playerId));
-  const unofficialRecords = unofficial.filter(u => String(u.playerId) === String(playerId));
+  const officialMatches = matches.filter(
+    m => String(m.scorerId) === String(playerId)
+  );
+
+  const officialAssists = matches.filter(
+    m => String(m.assisterId) === String(playerId)
+  );
+
+  const unofficialRecords = unofficial.filter(
+    u => String(u.playerId) === String(playerId)
+  );
 
   let officialGoals = 0;
   let officialPenalties = 0;
@@ -451,7 +460,21 @@ function getStats(playerId) {
 
   const totalGoals = officialGoals + unofficialGoalCount;
   const totalPenalties = officialPenalties + unofficialPenalties;
-  const player = players.find(p => String(p.id) === String(playerId));
+  const totalAssists = officialAssistCount + unofficialAssistCount;
+
+  const hatTricks = officialMatches.filter(
+    m => num(m.goals) >= 3
+  ).length;
+
+  const braces = officialMatches.filter(
+    m => num(m.goals) === 2
+  ).length;
+
+  const goalContributions = totalGoals + totalAssists;
+
+  const player = players.find(
+    p => String(p.id) === String(playerId)
+  );
 
   return {
     officialGoals,
@@ -463,10 +486,14 @@ function getStats(playerId) {
     nonPenaltyGoals: Math.max(0, totalGoals - totalPenalties),
     officialAssists: officialAssistCount,
     unofficialAssists: unofficialAssistCount,
-    totalAssists: officialAssistCount + unofficialAssistCount,
+    totalAssists,
+    hatTricks,
+    braces,
+    goalContributions,
     likes: num(player?.likes)
   };
 }
+
 
 function totalStats() {
   const result = {
