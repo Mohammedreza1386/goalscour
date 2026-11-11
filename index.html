@@ -1097,18 +1097,21 @@ function renderDashboard() {
   const totals = totalStats();
 
   const cards = [
-    ["تعداد بازیکنان", players.length],
-    ["گل‌های رسمی", totals.officialGoals],
-    ["گل‌های غیررسمی", totals.unofficialGoals],
-    ["مجموع گل‌ها", totals.totalGoals],
-    ["پنالتی‌های رسمی", totals.officialPenalties],
-    ["پنالتی‌های غیررسمی", totals.unofficialPenalties],
-    ["گل‌های بدون پنالتی", totals.nonPenaltyGoals],
-    ["پاس گل رسمی", totals.officialAssists],
-    ["پاس گل غیررسمی", totals.unofficialAssists],
-    ["مجموع پاس گل", totals.totalAssists],
-    ["مجموع لایک‌ها", totals.likes]
-  ];
+  ["تعداد بازیکنان", players.length],
+  ["گل‌های رسمی", totals.officialGoals],
+  ["گل‌های غیررسمی", totals.unofficialGoals],
+  ["مجموع گل‌ها", totals.totalGoals],
+  ["پنالتی‌های رسمی", totals.officialPenalties],
+  ["پنالتی‌های غیررسمی", totals.unofficialPenalties],
+  ["گل‌های بدون پنالتی", totals.nonPenaltyGoals],
+  ["پاس گل رسمی", totals.officialAssists],
+  ["پاس گل غیررسمی", totals.unofficialAssists],
+  ["مجموع پاس گل", totals.totalAssists],
+  ["هت‌تریک", totals.hatTricks],
+  ["دوبل", totals.braces],
+  ["مجموع گل و پاس گل (G+A)", totals.goalContributions],
+  ["مجموع لایک‌ها", totals.likes]
+];
 
   document.getElementById("dashboard").innerHTML =
     cards.map(card => `
