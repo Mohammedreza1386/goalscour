@@ -3,7 +3,7 @@
 
 const db = window.supabase.createClient(
   "https://zusbebjskchgehdjvpsm.supabase.co",
-  "sb_publishable_WGMEA7-K8FAResrVCL8GJQ_6KCxrvm"
+  "sb_publishable_WGMEA7-K8FAResrVCL8GJQ_6KCxrvmK"
 );
 
 const css = `
