@@ -1092,6 +1092,33 @@ function renderPlayers() {
   <b>${stats.goalContributions}</b>
 </div>
 
+
+<div class="mini">
+  <span>تعداد بازی‌ها</span>
+  <b>${stats.appearances}</b>
+</div>
+
+<div class="mini">
+  <span>مجموع امتیاز مسابقات</span>
+  <b>${stats.totalRating.toFixed(2)}</b>
+</div>
+
+<div class="mini">
+  <span>میانگین امتیاز از ۱۰</span>
+  <b>${stats.averageRating.toFixed(2)}</b>
+</div>
+
+<div class="mini">
+  <span>میانگین گل در هر بازی</span>
+  <b>${stats.goalsPerMatch.toFixed(2)}</b>
+</div>
+
+<div class="mini">
+  <span>میانگین پاس گل در هر بازی</span>
+  <b>${stats.assistsPerMatch.toFixed(2)}</b>
+</div>
+
+
           <div class="mini">
             <span>لایک‌ها</span>
             <b>${stats.likes}</b>
