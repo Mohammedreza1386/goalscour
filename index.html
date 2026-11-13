@@ -438,22 +438,37 @@ function playerName(playerId) {
 }
 
 
+
 function getStats(playerId) {
+  const isRatedDuplicate = m =>
+    typeof window.gcIsRatedDuplicate === "function" &&
+    window.gcIsRatedDuplicate(m);
+
+  // رکوردهای قدیمیِ مسابقاتی که در سیستم جدید ثبت شده‌اند، کنار گذاشته می‌شوند.
   const officialMatches = matches.filter(
-    m => String(m.scorerId) === String(playerId)
+    m => String(m.scorerId) === String(playerId) && !isRatedDuplicate(m)
   );
 
   const officialAssists = matches.filter(
-    m => String(m.assisterId) === String(playerId)
+    m => String(m.assisterId) === String(playerId) && !isRatedDuplicate(m)
   );
 
   const unofficialRecords = unofficial.filter(
     u => String(u.playerId) === String(playerId)
   );
 
-  let officialGoals = 0;
-  let officialPenalties = 0;
-  let officialAssistCount = 0;
+  const rated = typeof window.gcGetMatchStats === "function"
+    ? window.gcGetMatchStats(playerId)
+    : {
+        appearances: 0, totalRating: 0, averageRating: 0,
+        goals: 0, penalties: 0, assists: 0,
+        goalsPerMatch: 0, assistsPerMatch: 0,
+        hatTricks: 0, braces: 0
+      };
+
+  let officialGoals = num(rated.goals);
+  let officialPenalties = num(rated.penalties);
+  let officialAssistCount = num(rated.assists);
   let unofficialGoalCount = 0;
   let unofficialPenalties = 0;
   let unofficialAssistCount = 0;
@@ -477,13 +492,13 @@ function getStats(playerId) {
   const totalPenalties = officialPenalties + unofficialPenalties;
   const totalAssists = officialAssistCount + unofficialAssistCount;
 
-  const hatTricks = officialMatches.filter(
-    m => num(m.goals) >= 3
-  ).length;
+  const hatTricks =
+    officialMatches.filter(m => num(m.goals) >= 3).length +
+    num(rated.hatTricks);
 
-  const braces = officialMatches.filter(
-    m => num(m.goals) === 2
-  ).length;
+  const braces =
+    officialMatches.filter(m => num(m.goals) === 2).length +
+    num(rated.braces);
 
   const goalContributions = totalGoals + totalAssists;
 
@@ -505,9 +520,16 @@ function getStats(playerId) {
     hatTricks,
     braces,
     goalContributions,
-    likes: num(player?.likes)
+    likes: num(player?.likes),
+
+    appearances: num(rated.appearances),
+    totalRating: num(rated.totalRating),
+    averageRating: num(rated.averageRating),
+    goalsPerMatch: num(rated.goalsPerMatch),
+    assistsPerMatch: num(rated.assistsPerMatch)
   };
 }
+  
 
 
 function totalStats() {
