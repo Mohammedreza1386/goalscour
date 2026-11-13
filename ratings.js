@@ -353,10 +353,15 @@ function publishStats() {
     if (performanceResult.error) throw performanceResult.error;
 
     events = eventResult.data || [];
-    performances = performanceResult.data || [];
+performances = performanceResult.data || [];
 
-    renderHistory();
-  }
+publishStats();
+renderHistory();
+
+if (typeof window.renderAll === "function") {
+  window.renderAll();
+}
+  
 
   async function saveRatedMatch() {
     if (!isAdmin) {
