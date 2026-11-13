@@ -1,3 +1,4 @@
+
 (() => {
 "use strict";
 
@@ -6,73 +7,30 @@ const db = window.supabase.createClient(
   "sb_publishable_WGMEA7-K8FAResrVCL8GJQ_6KCxrvmK"
 );
 
-const css = `
-#gcFeatures .gcp {
-  background:#111812;
-  border:1px solid #273329;
-  border-radius:15px;
-  padding:14px;
-  margin:12px 0;
-}
-#gcFeatures .gcg {
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
-  gap:10px;
-}
-#gcFeatures .gcc {
-  background:#0c130d;
-  border:1px solid #273329;
-  border-radius:12px;
-  padding:12px;
-}
-#gcFeatures input,#gcFeatures select {
-  background:#090d0a;
-  color:white;
-  border:1px solid #273329;
-  border-radius:8px;
-  padding:9px;
-  max-width:100%;
-  margin:5px;
-}
-#gcFeatures button {
-  background:#b9f27c;
-  color:#10170d;
-  border:0;
-  border-radius:8px;
-  padding:9px;
-  font-weight:bold;
-}
-#gcFeatures .gcm {
-  color:#89958a;
-  font-size:11px;
-  line-height:1.9;
-}
-#gcFeatures .gcr {
-  display:flex;
-  justify-content:space-between;
-  gap:8px;
-  padding:7px 0;
-  border-bottom:1px solid #273329;
-}
-#gcFeatures .gcpill {
-  display:inline-block;
-  background:#263525;
-  color:#b9f27c;
-  border-radius:20px;
-  padding:4px 8px;
-  font-size:10px;
-  margin:3px;
-}
+if (document.getElementById("gcFeatures")) return;
+
+const style = document.createElement("style");
+style.textContent = `
+#gcFeatures .gcp{background:#111812;border:1px solid #273329;border-radius:15px;padding:14px;margin:12px 0}
+#gcFeatures .gcg{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px}
+#gcFeatures .gcc{background:#0c130d;border:1px solid #273329;border-radius:12px;padding:12px}
+#gcFeatures input,#gcFeatures select{background:#090d0a;color:white;border:1px solid #273329;border-radius:8px;padding:9px;max-width:100%;margin:5px}
+#gcFeatures button{background:#b9f27c;color:#10170d;border:0;border-radius:8px;padding:9px;font-weight:bold;margin:4px;cursor:pointer}
+#gcFeatures button.secondary{background:#263525;color:#b9f27c}
+#gcFeatures .gcm{color:#89958a;font-size:11px;line-height:1.9}
+#gcFeatures .gcr{display:flex;justify-content:space-between;gap:8px;padding:7px 0;border-bottom:1px solid #273329}
+#gcFeatures .gcpill{display:inline-block;background:#263525;color:#b9f27c;border-radius:20px;padding:4px 8px;font-size:10px;margin:3px}
+#gcFeatures .gcform{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+#gcFeatures .gcform input{min-width:125px}
+#gcFeatures h3{margin-top:8px}
 `;
 
-const st = document.createElement("style");
-st.textContent = css;
-document.head.appendChild(st);
+document.head.appendChild(style);
 
 const main = document.querySelector("main");
 const nav = main && main.querySelector("nav");
 
-if (!main || !nav || document.getElementById("gcFeatures")) return;
+if (!main || !nav) return;
 
 const tab = document.createElement("button");
 tab.type = "button";
@@ -85,33 +43,56 @@ section.id = "gcFeatures";
 section.className = "section";
 
 section.innerHTML = `
-  <h2>قابلیت‌های جدید Goalscour</h2>
+  <h2>جوایز و آمار بازیکنان</h2>
 
   <div class="gcp">
-    <h3>دریبل‌های بازیکنان</h3>
-    <p class="gcm">
-      ثبت مجموع دریبل‌های موفق و ناموفق برای هر بازیکن.
-    </p>
-    <div id="gcDribbles" class="gcg">در حال دریافت...</div>
+    <h3>مدیریت دوره مسابقات</h3>
+    <p class="gcm">مدیر تاریخ شروع و پایان هر دوره را خودش مشخص می‌کند.</p>
+
+    <div id="gcPeriodAdmin"></div>
+
+    <div class="gcform">
+      <label>دوره انتخاب‌شده:</label>
+      <select id="gcPeriodSelect"></select>
+    </div>
+
+    <div id="gcPeriodInfo" class="gcm"></div>
   </div>
 
   <div class="gcp">
     <h3>توپ طلای Goalscour</h3>
-    <p class="gcm">
-      سیستم پنج نامزد را بر اساس آمار پیشنهاد می‌کند
-      و مدیر برنده نهایی را انتخاب می‌کند.
-    </p>
+    <p class="gcm">پنج نامزد برتر با توجه به عملکرد بازیکنان در دوره انتخاب‌شده پیشنهاد می‌شوند. انتخاب نهایی با مدیر است.</p>
     <div id="gcBallon" class="gcg"></div>
-    <div id="gcAwardAdmin"></div>
+    <div id="gcBallonAdmin"></div>
+  </div>
+
+  <div class="gcp">
+    <h3>کفش طلای Goalscour</h3>
+    <p class="gcm">رتبه‌بندی بر اساس گل‌های رسمی در دوره انتخاب‌شده محاسبه می‌شود.</p>
+    <div id="gcGoldenBoot" class="gcg"></div>
+    <div id="gcBootAdmin"></div>
+  </div>
+
+  <div class="gcp">
+    <h3>رتبه‌بندی جوایز بازیکنان</h3>
+    <p class="gcm">مجموع جوایز رسمی ثبت‌شده برای هر بازیکن.</p>
+    <div id="gcAwardRanking"></div>
+  </div>
+
+  <div class="gcp">
+    <h3>تاریخچه جوایز</h3>
     <div id="gcAwardsHistory"></div>
   </div>
 
   <div class="gcp">
+    <h3>دریبل‌های بازیکنان</h3>
+    <p class="gcm">ثبت دریبل موفق و ناموفق برای هر بازیکن.</p>
+    <div id="gcDribbles" class="gcg"></div>
+  </div>
+
+  <div class="gcp">
     <h3>مدال دستاورد گلزنی</h3>
-    <p class="gcm">
-      مدال‌های ۱۰۰، ۲۵۰، ۵۰۰ و ۱۰۰۰ گل
-      به‌صورت خودکار باز می‌شوند.
-    </p>
+    <p class="gcm">مدال‌های ۱۰۰، ۲۵۰، ۵۰۰ و ۱۰۰۰ گل به‌صورت خودکار محاسبه می‌شوند.</p>
     <div id="gcAchievements" class="gcg"></div>
   </div>
 
@@ -127,6 +108,10 @@ let unofficial = [];
 let dribbles = [];
 let awards = [];
 let achievements = [];
+let periods = [];
+let matchEvents = [];
+let performances = [];
+let currentPeriodId = "";
 
 const el = id => document.getElementById(id);
 
@@ -146,277 +131,546 @@ function status(message) {
   el("gcFeatureStatus").textContent = message || "";
 }
 
+function inRange(date, period) {
+  if (!date) return false;
+  const d = String(date).slice(0, 10);
+  return d >= period.start_date && d <= period.end_date;
+}
+
+function matchKey(date, opponent) {
+  return String(date || "").slice(0, 10) + "|" +
+    String(opponent || "").trim().toLowerCase();
+}
+
 async function checkAdmin() {
   const result = await db.auth.getSession();
-  const user = result.data &&
-    result.data.session &&
-    result.data.session.user;
+  const user = result.data?.session?.user;
 
   if (!user) return false;
 
-  const adminResult = await db
+  const a = await db
     .from("admin_users")
     .select("user_id")
     .eq("user_id", user.id)
     .eq("role", "admin")
     .maybeSingle();
 
-  return !adminResult.error && !!adminResult.data;
+  return !a.error && !!a.data;
 }
 
 async function load() {
-  const queries = await Promise.all([
+  const results = await Promise.all([
     db.from("goalscour_players").select("*"),
     db.from("goalscour_matches").select("*"),
     db.from("goalscour_unofficial").select("*"),
     db.from("goalscour_dribbles").select("*"),
-    db.from("goalscour_awards")
-      .select("*")
-      .order("created_at", { ascending:false }),
-    db.from("goalscour_achievements").select("*")
+    db.from("goalscour_awards").select("*").order("created_at", {ascending:false}),
+    db.from("goalscour_achievements").select("*"),
+    db.from("goalscour_periods").select("*").order("created_at", {ascending:false}),
+    db.from("goalscour_match_events").select("*"),
+    db.from("goalscour_match_performances").select("*")
   ]);
 
-  queries.forEach(query => {
-    if (query.error) throw query.error;
-  });
+  for (const result of results) {
+    if (result.error) throw result.error;
+  }
 
-  players = queries[0].data || [];
-  matches = queries[1].data || [];
-  unofficial = queries[2].data || [];
-  dribbles = queries[3].data || [];
-  awards = queries[4].data || [];
-  achievements = queries[5].data || [];
+  players = results[0].data || [];
+  matches = results[1].data || [];
+  unofficial = results[2].data || [];
+  dribbles = results[3].data || [];
+  awards = results[4].data || [];
+  achievements = results[5].data || [];
+  periods = results[6].data || [];
+  matchEvents = results[7].data || [];
+  performances = results[8].data || [];
+
+  if (!periods.some(p => p.id === currentPeriodId)) {
+    const active = periods.find(p => p.status === "active");
+    currentPeriodId = active?.id || periods[0]?.id || "";
+  }
 }
 
-function stats(player) {
+function calculateStats(player, period = null) {
   const id = String(player.id);
 
-  const officialMatches = matches.filter(
+  const eventsInRange = matchEvents.filter(event =>
+    !period || inRange(event.match_date, period)
+  );
+
+  const ratedKeys = new Set(
+    eventsInRange.map(event =>
+      matchKey(event.match_date, event.opponent)
+    )
+  );
+
+  const oldMatches = matches.filter(match => {
+    if (period && !inRange(match.match_date, period)) return false;
+
+    return !ratedKeys.has(
+      matchKey(match.match_date, match.opponent)
+    );
+  });
+
+  const oldScored = oldMatches.filter(
     x => String(x.scorer_id) === id
   );
 
-  const unofficialRecords = unofficial.filter(
-    x => String(x.player_id) === id
+  const oldAssisted = oldMatches.filter(
+    x => String(x.assister_id) === id
   );
 
-  const assists =
-    matches
-      .filter(x => String(x.assister_id) === id)
-      .reduce((sum, x) => sum + n(x.assists), 0) +
-    unofficialRecords.reduce(
-      (sum, x) => sum + n(x.assists), 0
-    );
+  const ratedEventIds = new Set(
+    eventsInRange.map(event => String(event.id))
+  );
+
+  const ratedRows = performances.filter(row =>
+    String(row.player_id) === id &&
+    ratedEventIds.has(String(row.match_id))
+  );
+
+  const unofficialRows = unofficial.filter(row =>
+    String(row.player_id) === id &&
+    (!period || inRange(row.record_date, period))
+  );
+
+  const officialGoals =
+    oldScored.reduce((sum, x) => sum + n(x.goals), 0) +
+    ratedRows.reduce((sum, x) => sum + n(x.goals), 0);
+
+  const unofficialGoals = unofficialRows.reduce(
+    (sum, x) => sum + n(x.goals), 0
+  );
+
+  const oldAssists = oldAssisted.reduce(
+    (sum, x) => sum + n(x.assists), 0
+  );
+
+  const ratedAssists = ratedRows.reduce(
+    (sum, x) => sum + n(x.assists), 0
+  );
+
+  const unofficialAssists = unofficialRows.reduce(
+    (sum, x) => sum + n(x.assists), 0
+  );
+
+  const hatTricks =
+    oldScored.filter(x => n(x.goals) >= 3).length +
+    ratedRows.filter(x => n(x.goals) >= 3).length;
+
+  const braces =
+    oldScored.filter(x => n(x.goals) === 2).length +
+    ratedRows.filter(x => n(x.goals) === 2).length;
+
+  const ratingTotal = ratedRows.reduce(
+    (sum, x) => sum + Number(x.rating || 0), 0
+  );
+
+  const appearances = ratedRows.length;
 
   const dribble = dribbles.find(
     x => String(x.player_id) === id
   ) || {};
 
   return {
-    goals:
-      officialMatches.reduce(
-        (sum, x) => sum + n(x.goals), 0
-      ) +
-      unofficialRecords.reduce(
-        (sum, x) => sum + n(x.goals), 0
-      ),
-
-    assists,
-
-    hat: officialMatches.filter(
-      x => n(x.goals) >= 3
-    ).length,
-
+    officialGoals,
+    unofficialGoals,
+    goals: officialGoals + unofficialGoals,
+    assists: oldAssists + ratedAssists + unofficialAssists,
+    hatTricks,
+    braces,
+    appearances,
+    ratingTotal,
+    averageRating: appearances ? ratingTotal / appearances : 0,
     success: n(dribble.successful),
     fail: n(dribble.unsuccessful)
   };
 }
 
-function nominees() {
-  return players
-    .map(player => ({
-      player,
-      stats: stats(player)
-    }))
-    .sort((a, b) => {
-      const scoreA =
-        a.stats.goals * 1.4 +
-        a.stats.assists * 1.2 +
-        a.stats.hat * 2 +
-        a.stats.success * 0.15;
-
-      const scoreB =
-        b.stats.goals * 1.4 +
-        b.stats.assists * 1.2 +
-        b.stats.hat * 2 +
-        b.stats.success * 0.15;
-
-      return scoreB - scoreA;
-    })
-    .slice(0, 5);
+function selectedPeriod() {
+  return periods.find(p => p.id === currentPeriodId) || null;
 }
 
-async function render() {
+function periodNominees(period) {
+  return players.map(player => {
+    const s = calculateStats(player, period);
 
-  // دریبل‌ها
-  el("gcDribbles").innerHTML = players.length
-    ? players.map(player => {
-        const s = stats(player);
+    const score =
+      s.goals * 1.4 +
+      s.assists * 1.2 +
+      s.hatTricks * 2 +
+      s.averageRating * 0.8;
 
-        return `
-          <div class="gcc">
-            <b>${esc(player.name)}</b>
+    return {player, stats:s, score};
+  }).sort((a,b) => b.score - a.score).slice(0,5);
+}
 
-            <div class="gcr">
-              <span>دریبل موفق</span>
-              <b>${s.success}</b>
-            </div>
+function goldenBootRanking(period) {
+  return players.map(player => ({
+    player,
+    stats: calculateStats(player, period)
+  })).sort((a,b) =>
+    b.stats.officialGoals - a.stats.officialGoals
+  );
+}
 
-            <div class="gcr">
-              <span>دریبل ناموفق</span>
-              <b>${s.fail}</b>
-            </div>
+function awardLabel(type) {
+  if (type === "ballon_dor") return "توپ طلا";
+  if (type === "golden_boot") return "کفش طلا";
+  return type || "جایزه";
+}
 
-            <div class="gcr">
-              <span>مجموع</span>
-              <b>${s.success + s.fail}</b>
-            </div>
+function periodLabel(id) {
+  const p = periods.find(x => String(x.id) === String(id));
+  return p ? p.title : "";
+}
 
-            ${admin ? `
-              <input
-                id="gcs-${esc(player.id)}"
-                type="number"
-                min="0"
-                value="${s.success}"
-                aria-label="دریبل موفق"
-              >
+async function savePeriod(event) {
+  event.preventDefault();
 
-              <input
-                id="gcf-${esc(player.id)}"
-                type="number"
-                min="0"
-                value="${s.fail}"
-                aria-label="دریبل ناموفق"
-              >
+  if (!admin) throw new Error("فقط مدیر اجازه ساخت دوره دارد.");
 
-              <button data-dribble="${esc(player.id)}">
-                ذخیره
-              </button>
-            ` : ""}
-          </div>
-        `;
-      }).join("")
-    : '<p class="gcm">بازیکنی ثبت نشده است.</p>';
+  const title = el("gcPeriodTitle").value.trim();
+  const start = el("gcPeriodStart").value;
+  const end = el("gcPeriodEnd").value;
 
-  // نامزدهای توپ طلا
-  const list = nominees();
-  const season = String(new Date().getFullYear());
+  if (!title || !start || !end) {
+    throw new Error("عنوان و تاریخ شروع و پایان را وارد کن.");
+  }
 
-  const currentAward = awards.find(
-    a => a.award_type === "ballon_dor" &&
-         a.season === season
+  if (end < start) {
+    throw new Error("تاریخ پایان نمی‌تواند قبل از شروع باشد.");
+  }
+
+  const session = await db.auth.getSession();
+  const user = session.data?.session?.user;
+
+  const id = "period-" + crypto.randomUUID();
+
+  const result = await db.from("goalscour_periods").insert({
+    id,
+    title,
+    start_date: start,
+    end_date: end,
+    status: "active",
+    created_by: user?.id || null
+  });
+
+  if (result.error) throw result.error;
+
+  currentPeriodId = id;
+  await load();
+  await render();
+
+  status("دوره جدید با موفقیت ساخته شد.");
+}
+
+async function saveAward(type, winnerId, candidateIds, period) {
+  if (!admin) throw new Error("فقط مدیر اجازه ثبت جایزه دارد.");
+
+  const id = "period-award-" + type + "-" + period.id;
+  const season = "period:" + period.id;
+
+  const payload = {
+    id,
+    award_type: type,
+    season,
+    period_id: period.id,
+    candidate_player_ids: candidateIds,
+    winner_player_id: String(winnerId),
+    status: "awarded",
+    awarded_at: new Date().toISOString()
+  };
+
+  const result = await db
+    .from("goalscour_awards")
+    .upsert(payload, {onConflict:"id"});
+
+  if (result.error) throw result.error;
+
+  await load();
+  await render();
+}
+
+function renderPeriods() {
+  const adminBox = el("gcPeriodAdmin");
+
+  adminBox.innerHTML = admin ? `
+    <form id="gcPeriodForm">
+      <div class="gcform">
+        <input id="gcPeriodTitle" placeholder="نام دوره؛ مثلاً فصل اول" required>
+        <label>شروع:</label>
+        <input id="gcPeriodStart" type="date" required>
+        <label>پایان:</label>
+        <input id="gcPeriodEnd" type="date" required>
+        <button type="submit">ساخت دوره</button>
+      </div>
+    </form>
+  ` : '<p class="gcm">ساخت و مدیریت دوره‌ها فقط برای مدیر فعال است.</p>';
+
+  el("gcPeriodSelect").innerHTML = periods.map(p => `
+    <option value="${esc(p.id)}" ${p.id === currentPeriodId ? "selected" : ""}>
+      ${esc(p.title)}
+    </option>
+  `).join("");
+
+  const p = selectedPeriod();
+
+  el("gcPeriodInfo").textContent = p
+    ? `${p.title} | ${p.start_date} تا ${p.end_date} | وضعیت: ${p.status}`
+    : "هنوز دوره‌ای ساخته نشده است.";
+}
+
+function renderBallon(period) {
+  const box = el("gcBallon");
+  const adminBox = el("gcBallonAdmin");
+
+  if (!period) {
+    box.innerHTML = '<p class="gcm">ابتدا مدیر باید یک دوره بسازد.</p>';
+    adminBox.innerHTML = "";
+    return;
+  }
+
+  const list = periodNominees(period);
+
+  const existing = awards.find(a =>
+    a.award_type === "ballon_dor" &&
+    String(a.period_id) === String(period.id)
   );
 
-  el("gcBallon").innerHTML = list.map((item, index) => `
+  box.innerHTML = list.map((item,index) => `
     <div class="gcc">
-      <span class="gcpill">نامزد ${index + 1}</span>
+      <span class="gcpill">نامزد ${index+1}</span>
       <b>${esc(item.player.name)}</b>
-
-      <div class="gcr">
-        <span>گل</span>
-        <b>${item.stats.goals}</b>
-      </div>
-
-      <div class="gcr">
-        <span>پاس گل</span>
-        <b>${item.stats.assists}</b>
-      </div>
-
-      <div class="gcr">
-        <span>هت‌تریک</span>
-        <b>${item.stats.hat}</b>
-      </div>
+      <div class="gcr"><span>مجموع گل</span><b>${item.stats.goals}</b></div>
+      <div class="gcr"><span>پاس گل</span><b>${item.stats.assists}</b></div>
+      <div class="gcr"><span>هت‌تریک</span><b>${item.stats.hatTricks}</b></div>
+      <div class="gcr"><span>میانگین امتیاز</span><b>${item.stats.averageRating.toFixed(2)}</b></div>
+      <div class="gcr"><span>امتیاز پیشنهادی</span><b>${item.score.toFixed(2)}</b></div>
     </div>
-  `).join("") || `
-    <p class="gcm">برای نامزدی ابتدا بازیکن ثبت کن.</p>
-  `;
+  `).join("") || '<p class="gcm">بازیکنی برای نامزدی وجود ندارد.</p>';
 
-  // انتخاب برنده توسط مدیر
-  el("gcAwardAdmin").innerHTML =
-    admin && list.length
-      ? `
-        <label>انتخاب برنده فصل ${season}</label>
+  if (admin && list.length) {
+    const winner = players.find(p =>
+      String(p.id) === String(existing?.winner_player_id)
+    );
 
-        <select id="gcWinner">
-          ${list.map(item => `
-            <option
-              value="${esc(item.player.id)}"
-              ${
-                currentAward &&
-                String(currentAward.winner_player_id) ===
-                String(item.player.id)
-                  ? "selected"
-                  : ""
-              }
-            >
-              ${esc(item.player.name)}
-            </option>
-          `).join("")}
-        </select>
+    adminBox.innerHTML = `
+      <p class="gcm">انتخاب برنده توپ طلا برای ${esc(period.title)}</p>
+      <select id="gcBallonWinner">
+        ${list.map(item => `
+          <option value="${esc(item.player.id)}"
+            ${winner && String(winner.id) === String(item.player.id) ? "selected" : ""}>
+            ${esc(item.player.name)}
+          </option>
+        `).join("")}
+      </select>
+      <button id="gcSaveBallon">ثبت برنده توپ طلا</button>
+      ${winner ? `<p class="gcm">برنده ثبت‌شده: ${esc(winner.name)}</p>` : ""}
+    `;
+  } else {
+    adminBox.innerHTML = existing
+      ? '<p class="gcm">برنده این دوره ثبت شده است.</p>'
+      : '<p class="gcm">انتخاب برنده نهایی با مدیر است.</p>';
+  }
+}
 
-        <button id="gcSaveAward">
-          ثبت برنده توپ طلا
-        </button>
-      `
-      : (
-          currentAward
-            ? '<p class="gcm">برنده فصل جاری ثبت شده است.</p>'
-            : '<p class="gcm">انتخاب برنده نهایی با مدیر است.</p>'
-        );
+function renderGoldenBoot(period) {
+  const box = el("gcGoldenBoot");
+  const adminBox = el("gcBootAdmin");
 
-  // تاریخچه برندگان
-  el("gcAwardsHistory").innerHTML = awards.length
-    ? `
-      <h3>برندگان قبلی</h3>
-      ${awards.map(award => {
-        const winner = players.find(
-          p => String(p.id) === String(award.winner_player_id)
-        );
+  if (!period) {
+    box.innerHTML = '<p class="gcm">ابتدا یک دوره بساز.</p>';
+    adminBox.innerHTML = "";
+    return;
+  }
 
-        return `
-          <div class="gcr">
-            <span>${esc(award.season)} - توپ طلا</span>
-            <b>${esc(winner ? winner.name : "بازیکن نامشخص")}</b>
-          </div>
-        `;
-      }).join("")}
-    `
-    : '<p class="gcm">هنوز برنده‌ای ثبت نشده است.</p>';
+  const list = goldenBootRanking(period);
+  const existing = awards.find(a =>
+    a.award_type === "golden_boot" &&
+    String(a.period_id) === String(period.id)
+  );
 
-  // مدال‌ها
-  const levels = [100, 250, 500, 1000];
+  box.innerHTML = list.map((item,index) => `
+    <div class="gcc">
+      <span class="gcpill">رتبه ${index+1}</span>
+      <b>${esc(item.player.name)}</b>
+      <div class="gcr"><span>گل رسمی</span><b>${item.stats.officialGoals}</b></div>
+    </div>
+  `).join("") || '<p class="gcm">بازیکنی ثبت نشده است.</p>';
+
+  const eligible = list.filter(x => x.stats.officialGoals > 0);
+
+  if (admin && eligible.length) {
+    adminBox.innerHTML = `
+      <p class="gcm">انتخاب برنده کفش طلا از میان گلزنان دوره</p>
+      <select id="gcBootWinner">
+        ${eligible.map(item => `
+          <option value="${esc(item.player.id)}"
+            ${String(existing?.winner_player_id) === String(item.player.id) ? "selected" : ""}>
+            ${esc(item.player.name)} - ${item.stats.officialGoals} گل
+          </option>
+        `).join("")}
+      </select>
+      <button id="gcSaveBoot">ثبت برنده کفش طلا</button>
+    `;
+  } else {
+    adminBox.innerHTML = existing
+      ? '<p class="gcm">برنده کفش طلا ثبت شده است.</p>'
+      : '<p class="gcm">هنوز گل رسمی در این دوره ثبت نشده است.</p>';
+  }
+}
+
+function renderAwardRanking() {
+  const totals = new Map();
+
+  awards.forEach(award => {
+    if (!award.winner_player_id) return;
+
+    const id = String(award.winner_player_id);
+
+    if (!totals.has(id)) {
+      totals.set(id, {
+        count:0,
+        ballon:0,
+        boot:0,
+        other:0
+      });
+    }
+
+    const item = totals.get(id);
+    item.count++;
+
+    if (award.award_type === "ballon_dor") item.ballon++;
+    else if (award.award_type === "golden_boot") item.boot++;
+    else item.other++;
+  });
+
+  const ranking = players.map(player => ({
+    player,
+    total: totals.get(String(player.id)) || {
+      count:0, ballon:0, boot:0, other:0
+    }
+  })).sort((a,b) => b.total.count - a.total.count);
+
+  el("gcAwardRanking").innerHTML = ranking.map((item,index) => `
+    <div class="gcr">
+      <span>${index+1}. ${esc(item.player.name)}</span>
+      <b>${item.total.count} جایزه</b>
+    </div>
+    <p class="gcm">
+      توپ طلا: ${item.total.ballon} |
+      کفش طلا: ${item.total.boot} |
+      سایر: ${item.total.other}
+    </p>
+  `).join("") || '<p class="gcm">هنوز جایزه‌ای ثبت نشده است.</p>';
+}
+
+function renderHistory() {
+  const sorted = awards.slice().sort((a,b) =>
+    String(b.awarded_at || b.created_at || "").localeCompare(
+      String(a.awarded_at || a.created_at || "")
+    )
+  );
+
+  el("gcAwardsHistory").innerHTML = sorted.map(award => {
+    const winner = players.find(p =>
+      String(p.id) === String(award.winner_player_id)
+    );
+
+    const label = periodLabel(award.period_id) || award.season || "قدیمی";
+
+    return `
+      <div class="gcr">
+        <span>${esc(label)} - ${esc(awardLabel(award.award_type))}</span>
+        <b>${esc(winner?.name || "بازیکن نامشخص")}</b>
+      </div>
+    `;
+  }).join("") || '<p class="gcm">هنوز جایزه‌ای ثبت نشده است.</p>';
+}
+
+function renderDribbles() {
+  el("gcDribbles").innerHTML = players.map(player => {
+    const s = calculateStats(player);
+
+    return `
+      <div class="gcc">
+        <b>${esc(player.name)}</b>
+        <div class="gcr"><span>موفق</span><b>${s.success}</b></div>
+        <div class="gcr"><span>ناموفق</span><b>${s.fail}</b></div>
+        <div class="gcr"><span>مجموع</span><b>${s.success+s.fail}</b></div>
+
+        ${admin ? `
+          <input id="gcs-${esc(player.id)}" type="number" min="0" value="${s.success}">
+          <input id="gcf-${esc(player.id)}" type="number" min="0" value="${s.fail}">
+          <button data-dribble="${esc(player.id)}">ذخیره دریبل</button>
+        ` : ""}
+      </div>
+    `;
+  }).join("") || '<p class="gcm">بازیکنی ثبت نشده است.</p>';
+}
+
+async function unlockAchievements() {
+  if (!admin) return;
+
+  const levels = [100,250,500,1000];
+
+  const known = new Set(
+    achievements.map(a =>
+      String(a.player_id) + ":" + a.achievement_key
+    )
+  );
+
+  const rows = [];
+
+  players.forEach(player => {
+    const total = calculateStats(player).goals;
+
+    levels.forEach(level => {
+      const key = "goals_" + level;
+      const compound = String(player.id) + ":" + key;
+
+      if (total >= level && !known.has(compound)) {
+        rows.push({
+          player_id:String(player.id),
+          achievement_key:key
+        });
+      }
+    });
+  });
+
+  if (rows.length) {
+    const result = await db
+      .from("goalscour_achievements")
+      .upsert(rows, {onConflict:"player_id,achievement_key"});
+
+    if (result.error) throw result.error;
+
+    await load();
+  }
+}
+
+function renderAchievements() {
+  const levels = [100,250,500,1000];
 
   el("gcAchievements").innerHTML = players.map(player => {
-    const s = stats(player);
+    const total = calculateStats(player).goals;
 
-    const unlocked = achievements.filter(
-      a => String(a.player_id) === String(player.id)
+    const unlocked = achievements.filter(a =>
+      String(a.player_id) === String(player.id)
     );
 
     return `
       <div class="gcc">
         <b>${esc(player.name)}</b>
-        <p class="gcm">${s.goals} گل</p>
-
+        <p class="gcm">${total} گل در کل دوران</p>
         ${levels.map(level => {
-          const has = unlocked.some(
-            a => a.achievement_key === "goals_" + level
+          const has = unlocked.some(a =>
+            a.achievement_key === "goals_" + level
           );
 
           return `
-            <span
-              class="gcpill"
-              style="opacity:${has ? 1 : 0.35}"
-            >
+            <span class="gcpill" style="opacity:${has ? 1 : .35}">
               ${level} گل ${has ? "✓" : "🔒"}
             </span>
           `;
@@ -426,49 +680,19 @@ async function render() {
   }).join("") || '<p class="gcm">بازیکنی ثبت نشده است.</p>';
 }
 
-async function unlockAchievements() {
-  if (!admin) return;
+async function render() {
+  renderPeriods();
 
-  const levels = [100, 250, 500, 1000];
+  const period = selectedPeriod();
 
-  const known = new Set(
-    achievements.map(
-      a => String(a.player_id) + ":" + a.achievement_key
-    )
-  );
-
-  const rows = [];
-
-  players.forEach(player => {
-    levels.forEach(level => {
-      const key = "goals_" + level;
-
-      if (
-        stats(player).goals >= level &&
-        !known.has(String(player.id) + ":" + key)
-      ) {
-        rows.push({
-          player_id: String(player.id),
-          achievement_key: key
-        });
-      }
-    });
-  });
-
-  if (rows.length) {
-    const result = await db
-      .from("goalscour_achievements")
-      .upsert(rows, {
-        onConflict: "player_id,achievement_key"
-      });
-
-    if (result.error) throw result.error;
-
-    await load();
-  }
+  renderBallon(period);
+  renderGoldenBoot(period);
+  renderAwardRanking();
+  renderHistory();
+  renderDribbles();
+  renderAchievements();
 }
 
-// جابه‌جایی بین صفحات
 nav.addEventListener("click", event => {
   const button = event.target.closest(
     "button[data-tab='gcFeatures']"
@@ -485,15 +709,28 @@ nav.addEventListener("click", event => {
   });
 });
 
-// ذخیره دریبل و برنده توپ طلا
+el("gcPeriodSelect").addEventListener("change", async event => {
+  currentPeriodId = event.target.value;
+  await render();
+});
+
+
+section.addEventListener("submit", async event => {
+  if (event.target.id !== "gcPeriodForm") return;
+
+  try {
+    await savePeriod(event);
+  } catch (error) {
+    status("خطا: " + error.message);
+  }
+});
+
 section.addEventListener("click", async event => {
   try {
     const dribbleButton = event.target.closest("[data-dribble]");
 
     if (dribbleButton) {
-      if (!admin) {
-        throw new Error("فقط مدیر اجازه ویرایش دارد.");
-      }
+      if (!admin) throw new Error("فقط مدیر اجازه ویرایش دارد.");
 
       const id = dribbleButton.dataset.dribble;
 
@@ -504,51 +741,56 @@ section.addEventListener("click", async event => {
           successful: n(el("gcs-" + id).value),
           unsuccessful: n(el("gcf-" + id).value),
           updated_at: new Date().toISOString()
-        }, {
-          onConflict: "player_id"
-        });
+        }, { onConflict: "player_id" });
 
       if (result.error) throw result.error;
 
       await load();
       await render();
-
       status("آمار دریبل ذخیره شد.");
+      return;
     }
 
-    if (event.target.id === "gcSaveAward") {
-      if (!admin) {
-        throw new Error("فقط مدیر اجازه انتخاب برنده دارد.");
-      }
+    const period = selectedPeriod();
 
-      const season = String(new Date().getFullYear());
-      const list = nominees();
+    if (event.target.id === "gcSaveBallon") {
+      if (!period) throw new Error("دوره‌ای انتخاب نشده است.");
 
-      const result = await db
-        .from("goalscour_awards")
-        .upsert({
-          id: "ballondor-" + season,
-          award_type: "ballon_dor",
-          season,
-          candidate_player_ids: list.map(
-            item => String(item.player.id)
-          ),
-          winner_player_id: String(el("gcWinner").value),
-          status: "awarded",
-          awarded_at: new Date().toISOString()
-        }, {
-          onConflict: "award_type,season"
-        });
+      const list = periodNominees(period);
+      const winner = el("gcBallonWinner").value;
 
-      if (result.error) throw result.error;
-
-      await load();
-      await render();
+      await saveAward(
+        "ballon_dor",
+        winner,
+        list.map(x => String(x.player.id)),
+        period
+      );
 
       status("برنده توپ طلا ثبت شد.");
+      return;
+    }
+
+    if (event.target.id === "gcSaveBoot") {
+      if (!period) throw new Error("دوره‌ای انتخاب نشده است.");
+
+      const list = goldenBootRanking(period)
+        .filter(x => x.stats.officialGoals > 0);
+
+      const winner = el("gcBootWinner").value;
+
+      await saveAward(
+        "golden_boot",
+        winner,
+        list.map(x => String(x.player.id)),
+        period
+      );
+
+      status("برنده کفش طلا ثبت شد.");
+      return;
     }
 
   } catch (error) {
+    console.error(error);
     status("خطا: " + error.message);
   }
 });
@@ -576,7 +818,7 @@ async function start() {
 start();
 
 db.auth.onAuthStateChange(() => {
-  start();
+  setTimeout(start, 0);
 });
 
 })();
