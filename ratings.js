@@ -361,7 +361,7 @@ renderHistory();
 if (typeof window.renderAll === "function") {
   window.renderAll();
 }
-  
+  }
 
   async function saveRatedMatch() {
     if (!isAdmin) {
