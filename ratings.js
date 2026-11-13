@@ -295,6 +295,50 @@
     return isAdmin;
   }
 
+  
+function publishStats() {
+  window.gcGetMatchStats = function (playerId) {
+    const rows = performances.filter(
+      item => String(item.player_id) === String(playerId)
+    );
+
+    const appearances = new Set(rows.map(item => item.match_id)).size;
+
+    const goals = rows.reduce((sum, item) => sum + Number(item.goals || 0), 0);
+    const penalties = rows.reduce((sum, item) => sum + Number(item.penalties || 0), 0);
+    const assists = rows.reduce((sum, item) => sum + Number(item.assists || 0), 0);
+    const totalRating = rows.reduce((sum, item) => sum + Number(item.rating || 0), 0);
+
+    return {
+      appearances,
+      totalRating: Number(totalRating.toFixed(2)),
+      averageRating: appearances
+        ? Number((totalRating / appearances).toFixed(2))
+        : 0,
+      goals,
+      penalties,
+      assists,
+      goalsPerMatch: appearances
+        ? Number((goals / appearances).toFixed(2))
+        : 0,
+      assistsPerMatch: appearances
+        ? Number((assists / appearances).toFixed(2))
+        : 0,
+      hatTricks: rows.filter(item => Number(item.goals) >= 3).length,
+      braces: rows.filter(item => Number(item.goals) === 2).length
+    };
+  };
+
+  window.gcIsRatedDuplicate = function (match) {
+    return events.some(event =>
+      String(event.match_date) === String(match.date) &&
+      String(event.opponent || "").trim().toLowerCase() ===
+      String(match.opponent || "").trim().toLowerCase()
+    );
+  };
+}
+  
+
   async function loadRatings() {
     const [eventResult, performanceResult] = await Promise.all([
       db.from("goalscour_match_events")
