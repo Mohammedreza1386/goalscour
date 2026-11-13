@@ -13,9 +13,9 @@
   let isAdmin = false;
   let events = [];
   let performances = [];
-  let selectedPlayers = [];
 
   const style = document.createElement("style");
+
   style.textContent = `
     #gcRatings .gc-rating-row {
       background:#0c130d;
@@ -45,11 +45,18 @@
 
     #gcRatings label {
       color:#b9c5b6;
-      font-size:11px;
+      font-size:12px;
     }
 
     #gcRatings .gc-rating-row strong {
       color:#b9f27c;
+    }
+
+    #gcRatings .gc-rating-score {
+      color:#b9f27c !important;
+      font-weight:bold;
+      font-size:20px;
+      background:#172319 !important;
     }
 
     #gcRatings .gc-rating-history {
@@ -79,6 +86,7 @@
       }
     }
   `;
+
   document.head.appendChild(style);
 
   function getPlayers() {
@@ -101,8 +109,10 @@
 
   function today() {
     const date = new Date();
+
     return new Date(
-      date.getTime() - date.getTimezoneOffset() * 60000
+      date.getTime() -
+      date.getTimezoneOffset() * 60000
     ).toISOString().slice(0, 10);
   }
 
@@ -110,6 +120,7 @@
     const player = getPlayers().find(
       item => String(item.id) === String(playerId)
     );
+
     return player ? player.name : "بازیکن حذف‌شده";
   }
 
@@ -121,54 +132,147 @@
     `).join("");
   }
 
+  // فرمول محاسبه خودکار امتیاز
+
+  function calculateRating(
+    goals,
+    penalties,
+    assists,
+    teamGoals,
+    opponentGoals
+  ) {
+    const normalGoals = Math.max(0, goals - penalties);
+
+    let score = 6;
+
+    score += normalGoals * 1.15;
+    score += penalties * 0.75;
+    score += assists * 0.85;
+
+    if (teamGoals > opponentGoals) {
+      score += 0.6;
+    } else if (teamGoals === opponentGoals) {
+      score += 0.2;
+    } else {
+      score -= 0.4;
+    }
+
+    score = Math.max(1, Math.min(10, score));
+
+    return Number(score.toFixed(2));
+  }
+
+  function getRows() {
+    return [
+      ...document.querySelectorAll(
+        "#gcPerformanceRows .gc-rating-row"
+      )
+    ];
+  }
+
+  function updateAutomaticRatings() {
+    const opponentGoals = Number(
+      document.getElementById("gcRatingAgainst")?.value || 0
+    );
+
+    const rows = getRows();
+
+    const teamGoals = rows.reduce((sum, row) => {
+      return sum + Math.max(
+        0,
+        Number(row.querySelector(".gc-rating-goals").value || 0)
+      );
+    }, 0);
+
+    rows.forEach(row => {
+      const goals = Number(
+        row.querySelector(".gc-rating-goals").value || 0
+      );
+
+      const penalties = Number(
+        row.querySelector(".gc-rating-penalties").value || 0
+      );
+
+      const assists = Number(
+        row.querySelector(".gc-rating-assists").value || 0
+      );
+
+      const score = calculateRating(
+        goals,
+        penalties,
+        assists,
+        teamGoals,
+        opponentGoals
+      );
+
+      row.querySelector(".gc-rating-score").value =
+        score.toFixed(2);
+    });
+  }
+
   function buildInterface() {
     const section = document.getElementById("gcRatings");
+
     if (!section) return;
 
     section.innerHTML = `
       <h2>ثبت عملکرد و امتیاز مسابقه</h2>
 
       <div class="panel" id="gcRatingAdminForm">
+
         <h3>ثبت مسابقه جدید</h3>
 
         <label>نام حریف</label>
-        <input id="gcRatingOpponent" maxlength="100"
+        <input id="gcRatingOpponent"
+          maxlength="100"
           placeholder="نام تیم مقابل">
 
         <div class="gc-rating-grid">
           <div>
             <label>تاریخ مسابقه</label>
-            <input id="gcRatingDate" type="date" value="${today()}">
+            <input id="gcRatingDate"
+              type="date"
+              value="${today()}">
           </div>
+
           <div>
             <label>گل‌های حریف</label>
-            <input id="gcRatingAgainst" type="number"
-              min="0" max="99" value="0">
+            <input id="gcRatingAgainst"
+              type="number"
+              min="0"
+              max="99"
+              value="0">
           </div>
         </div>
 
         <div class="notice">
-          برای هر بازیکن حاضر، امتیاز، گل، پنالتی و پاس گل را جداگانه وارد کن.
-          حضور بازیکن بدون گل نیز ثبت می‌شود.
+          امتیاز بازیکنان به‌صورت خودکار از ۱ تا ۱۰
+          محاسبه می‌شود. گل، پنالتی، پاس گل و نتیجه
+          مسابقه در محاسبه تأثیر دارند.
         </div>
 
         <div id="gcPerformanceRows"></div>
 
-        <button class="secondary" type="button"
+        <button class="secondary"
+          type="button"
           id="gcAddPerformanceRow">
           + افزودن بازیکن به مسابقه
         </button>
 
-        <button class="primary" type="button"
+        <button class="primary"
+          type="button"
           id="gcSaveRatedMatch">
           ذخیره مسابقه و عملکرد بازیکنان
         </button>
 
-        <div class="gc-rating-status" id="gcRatingStatus"></div>
+        <div class="gc-rating-status"
+          id="gcRatingStatus"></div>
+
       </div>
 
       <div class="panel">
         <h3>تاریخچه مسابقات امتیازدهی‌شده</h3>
+
         <div id="gcRatedMatchHistory">
           در حال دریافت اطلاعات...
         </div>
@@ -181,99 +285,143 @@
     document.getElementById("gcSaveRatedMatch")
       .addEventListener("click", saveRatedMatch);
 
+    document.getElementById("gcRatingAgainst")
+      .addEventListener("input", updateAutomaticRatings);
+
     addPlayerRow();
   }
 
   function status(message, success = false) {
     const element = document.getElementById("gcRatingStatus");
+
     if (!element) return;
 
     element.textContent = message;
-    element.style.color = success ? "#b9f27c" : "#ffaaaa";
+
+    element.style.color = success
+      ? "#b9f27c"
+      : "#ffaaaa";
   }
 
   function addPlayerRow() {
-    const container = document.getElementById("gcPerformanceRows");
-    if (!container) return;
-
-    const available = getPlayers().filter(player =>
-      !selectedPlayers.includes(String(player.id))
+    const container = document.getElementById(
+      "gcPerformanceRows"
     );
 
+    if (!container) return;
+
+    const available = getPlayers().filter(player => {
+      return !getRows().some(row =>
+        row.querySelector(".gc-rating-player").value ===
+        String(player.id)
+      );
+    });
+
     if (!available.length) {
-      status("همه بازیکنان موجود به این مسابقه اضافه شده‌اند.");
+      status("همه بازیکنان به مسابقه اضافه شده‌اند.");
       return;
     }
 
-    const rowId = "gc-rating-" + crypto.randomUUID();
     const row = document.createElement("div");
 
     row.className = "gc-rating-row";
-    row.dataset.rowId = rowId;
 
     row.innerHTML = `
       <div style="display:flex;justify-content:space-between;gap:8px">
         <strong>بازیکن مسابقه</strong>
-        <button type="button" class="danger gc-remove-rating">
+
+        <button type="button"
+          class="danger gc-remove-rating">
           حذف
         </button>
       </div>
 
       <label>انتخاب بازیکن</label>
+
       <select class="gc-rating-player">
         <option value="">انتخاب بازیکن</option>
         ${getPlayerOptions()}
       </select>
 
       <div class="gc-rating-grid">
+
         <div>
-          <label>امتیاز (۱ تا ۱۰)</label>
-          <input class="gc-rating-score" type="number"
-            min="1" max="10" step="0.01" value="7.00">
+          <label>امتیاز خودکار</label>
+
+          <input class="gc-rating-score"
+            type="number"
+            min="1"
+            max="10"
+            step="0.01"
+            value="6.20"
+            readonly>
         </div>
 
         <div>
           <label>گل</label>
-          <input class="gc-rating-goals" type="number"
-            min="0" max="99" value="0">
+
+          <input class="gc-rating-goals"
+            type="number"
+            min="0"
+            max="99"
+            value="0">
         </div>
 
         <div>
           <label>پنالتی</label>
-          <input class="gc-rating-penalties" type="number"
-            min="0" max="99" value="0">
+
+          <input class="gc-rating-penalties"
+            type="number"
+            min="0"
+            max="99"
+            value="0">
         </div>
 
         <div>
           <label>پاس گل</label>
-          <input class="gc-rating-assists" type="number"
-            min="0" max="99" value="0">
+
+          <input class="gc-rating-assists"
+            type="number"
+            min="0"
+            max="99"
+            value="0">
         </div>
+
       </div>
     `;
 
     const select = row.querySelector(".gc-rating-player");
 
     select.addEventListener("change", () => {
-      const value = String(select.value);
+      const value = select.value;
 
-      if (value && selectedPlayers.includes(value)) {
+      const duplicate = getRows().some(other =>
+        other !== row &&
+        other.querySelector(".gc-rating-player").value === value &&
+        value
+      );
+
+      if (duplicate) {
         select.value = "";
-        status("این بازیکن قبلاً به مسابقه اضافه شده است.");
-        return;
+        status("این بازیکن قبلاً انتخاب شده است.");
       }
+    });
 
-      if (value) selectedPlayers.push(value);
+    row.querySelectorAll(
+      ".gc-rating-goals, .gc-rating-penalties, .gc-rating-assists"
+    ).forEach(input => {
+      input.addEventListener("input", updateAutomaticRatings);
     });
 
     row.querySelector(".gc-remove-rating")
       .addEventListener("click", () => {
-        const value = String(select.value);
-        selectedPlayers = selectedPlayers.filter(id => id !== value);
         row.remove();
+        updateAutomaticRatings();
       });
 
     container.appendChild(row);
+
+    updateAutomaticRatings();
   }
 
   async function verifyAdmin() {
@@ -292,52 +440,74 @@
       .maybeSingle();
 
     isAdmin = !result.error && !!result.data;
+
     return isAdmin;
   }
-
   
-function publishStats() {
-  window.gcGetMatchStats = function (playerId) {
-    const rows = performances.filter(
-      item => String(item.player_id) === String(playerId)
-    );
+  function publishStats() {
+    window.gcGetMatchStats = function (playerId) {
+      const rows = performances.filter(item =>
+        String(item.player_id) === String(playerId)
+      );
 
-    const appearances = new Set(rows.map(item => item.match_id)).size;
+      const appearances = new Set(
+        rows.map(item => item.match_id)
+      ).size;
 
-    const goals = rows.reduce((sum, item) => sum + Number(item.goals || 0), 0);
-    const penalties = rows.reduce((sum, item) => sum + Number(item.penalties || 0), 0);
-    const assists = rows.reduce((sum, item) => sum + Number(item.assists || 0), 0);
-    const totalRating = rows.reduce((sum, item) => sum + Number(item.rating || 0), 0);
+      const goals = rows.reduce(
+        (sum, item) => sum + Number(item.goals || 0), 0
+      );
 
-    return {
-      appearances,
-      totalRating: Number(totalRating.toFixed(2)),
-      averageRating: appearances
-        ? Number((totalRating / appearances).toFixed(2))
-        : 0,
-      goals,
-      penalties,
-      assists,
-      goalsPerMatch: appearances
-        ? Number((goals / appearances).toFixed(2))
-        : 0,
-      assistsPerMatch: appearances
-        ? Number((assists / appearances).toFixed(2))
-        : 0,
-      hatTricks: rows.filter(item => Number(item.goals) >= 3).length,
-      braces: rows.filter(item => Number(item.goals) === 2).length
+      const penalties = rows.reduce(
+        (sum, item) => sum + Number(item.penalties || 0), 0
+      );
+
+      const assists = rows.reduce(
+        (sum, item) => sum + Number(item.assists || 0), 0
+      );
+
+      const totalRating = rows.reduce(
+        (sum, item) => sum + Number(item.rating || 0), 0
+      );
+
+      return {
+        appearances,
+        totalRating: Number(totalRating.toFixed(2)),
+
+        averageRating: appearances
+          ? Number((totalRating / appearances).toFixed(2))
+          : 0,
+
+        goals,
+        penalties,
+        assists,
+
+        goalsPerMatch: appearances
+          ? Number((goals / appearances).toFixed(2))
+          : 0,
+
+        assistsPerMatch: appearances
+          ? Number((assists / appearances).toFixed(2))
+          : 0,
+
+        hatTricks: rows.filter(
+          item => Number(item.goals) >= 3
+        ).length,
+
+        braces: rows.filter(
+          item => Number(item.goals) === 2
+        ).length
+      };
     };
-  };
 
-  window.gcIsRatedDuplicate = function (match) {
-    return events.some(event =>
-      String(event.match_date) === String(match.date) &&
-      String(event.opponent || "").trim().toLowerCase() ===
-      String(match.opponent || "").trim().toLowerCase()
-    );
-  };
-}
-  
+    window.gcIsRatedDuplicate = function (match) {
+      return events.some(event =>
+        String(event.match_date) === String(match.date) &&
+        String(event.opponent || "").trim().toLowerCase() ===
+        String(match.opponent || "").trim().toLowerCase()
+      );
+    };
+  }
 
   async function loadRatings() {
     const [eventResult, performanceResult] = await Promise.all([
@@ -353,14 +523,14 @@ function publishStats() {
     if (performanceResult.error) throw performanceResult.error;
 
     events = eventResult.data || [];
-performances = performanceResult.data || [];
+    performances = performanceResult.data || [];
 
-publishStats();
-renderHistory();
+    publishStats();
+    renderHistory();
 
-if (typeof window.renderAll === "function") {
-  window.renderAll();
-}
+    if (typeof window.renderAll === "function") {
+      window.renderAll();
+    }
   }
 
   async function saveRatedMatch() {
@@ -372,65 +542,98 @@ if (typeof window.renderAll === "function") {
     const opponent = document
       .getElementById("gcRatingOpponent").value.trim();
 
-    const date = document.getElementById("gcRatingDate").value;
+    const date = document
+      .getElementById("gcRatingDate").value;
 
     const against = Number(
       document.getElementById("gcRatingAgainst").value
     );
 
-    const rows = [
-      ...document.querySelectorAll("#gcPerformanceRows .gc-rating-row")
-    ];
+    const rows = getRows();
 
     if (!opponent || !date || !rows.length) {
-      status("نام حریف، تاریخ و حداقل یک بازیکن را وارد کن.");
+      status("نام حریف، تاریخ و حداقل یک بازیکن لازم است.");
+      return;
+    }
+
+    if (
+      !Number.isInteger(against) ||
+      against < 0 ||
+      against > 99
+    ) {
+      status("تعداد گل‌های حریف معتبر نیست.");
       return;
     }
 
     const records = [];
 
     for (const row of rows) {
-      const playerId = row.querySelector(".gc-rating-player").value;
-      const rating = Number(row.querySelector(".gc-rating-score").value);
-      const goals = Number(row.querySelector(".gc-rating-goals").value);
-      const penalties = Number(row.querySelector(".gc-rating-penalties").value);
-      const assists = Number(row.querySelector(".gc-rating-assists").value);
+      const playerId = row.querySelector(
+        ".gc-rating-player"
+      ).value;
+
+      const goals = Number(
+        row.querySelector(".gc-rating-goals").value
+      );
+
+      const penalties = Number(
+        row.querySelector(".gc-rating-penalties").value
+      );
+
+      const assists = Number(
+        row.querySelector(".gc-rating-assists").value
+      );
 
       if (!playerId) {
         status("برای تمام ردیف‌ها بازیکن انتخاب کن.");
         return;
       }
 
-      if (!Number.isFinite(rating) || rating < 1 || rating > 10) {
-        status("امتیاز هر بازیکن باید بین ۱ تا ۱۰ باشد.");
-        return;
-      }
-
       if (
-        !Number.isInteger(goals) || goals < 0 ||
-        !Number.isInteger(penalties) || penalties < 0 ||
-        !Number.isInteger(assists) || assists < 0 ||
-        penalties > goals
+        !Number.isInteger(goals) ||
+        goals < 0 || goals > 99 ||
+        !Number.isInteger(penalties) ||
+        penalties < 0 || penalties > goals ||
+        !Number.isInteger(assists) ||
+        assists < 0 || assists > 99
       ) {
-        status("آمار گل، پنالتی یا پاس گل معتبر نیست.");
+        status("اطلاعات گل، پنالتی یا پاس گل معتبر نیست.");
         return;
       }
 
       records.push({
         player_id: playerId,
-        rating: Math.round(rating * 100) / 100,
         goals,
         penalties,
         assists
       });
     }
 
-    if (new Set(records.map(item => item.player_id)).size !== records.length) {
-      status("هر بازیکن فقط یک بار باید در مسابقه ثبت شود.");
+    if (
+      new Set(records.map(item => item.player_id)).size !==
+      records.length
+    ) {
+      status("هر بازیکن فقط یک بار باید ثبت شود.");
       return;
     }
 
-    status("در حال ذخیره مسابقه...");
+    const teamGoals = records.reduce(
+      (sum, item) => sum + item.goals, 0
+    );
+
+    // محاسبه نهایی امتیاز همه بازیکنان
+
+    records.forEach(item => {
+      item.rating = calculateRating(
+        item.goals,
+        item.penalties,
+        item.assists,
+        teamGoals,
+        against
+      );
+    });
+
+    status("در حال ذخیره مسابقه و امتیازهای خودکار...");
 
     const matchId = crypto.randomUUID();
 
@@ -462,11 +665,13 @@ if (typeof window.renderAll === "function") {
         .delete()
         .eq("id", matchId);
 
-      status("ذخیره عملکردها ناموفق بود: " + performanceResult.error.message);
+      status(
+        "ذخیره عملکرد ناموفق بود: " +
+        performanceResult.error.message
+      );
+
       return;
     }
-
-    selectedPlayers = [];
 
     document.getElementById("gcRatingOpponent").value = "";
     document.getElementById("gcRatingDate").value = today();
@@ -474,32 +679,41 @@ if (typeof window.renderAll === "function") {
 
     document.getElementById("gcPerformanceRows").innerHTML = "";
 
-    addPlayerRow();
-
     await loadRatings();
 
-    status("مسابقه و عملکرد بازیکنان با موفقیت ذخیره شد.", true);
+    addPlayerRow();
+
+    status(
+      "مسابقه و امتیازهای خودکار با موفقیت ذخیره شدند.",
+      true
+    );
   }
 
   function renderHistory() {
-    const container = document.getElementById("gcRatedMatchHistory");
+    const container = document.getElementById(
+      "gcRatedMatchHistory"
+    );
+
     if (!container) return;
 
     if (!events.length) {
       container.innerHTML =
-        '<div class="empty">هنوز مسابقه‌ای با این سیستم ثبت نشده است.</div>';
+        '<div class="empty">هنوز مسابقه‌ای ثبت نشده است.</div>';
       return;
     }
 
     container.innerHTML = events.map(event => {
-      const rows = performances.filter(
-        item => String(item.match_id) === String(event.id)
+      const rows = performances.filter(item =>
+        String(item.match_id) === String(event.id)
       );
 
       const playerRows = rows.map(item => `
         <div class="history-detail">
           ${escapeHTML(getPlayerName(item.player_id))}
-          — امتیاز: <b style="color:#b9f27c">${Number(item.rating).toFixed(2)}</b>
+          — امتیاز خودکار:
+          <b style="color:#b9f27c">
+            ${Number(item.rating).toFixed(2)}
+          </b>
           — گل: ${item.goals}
           — پنالتی: ${item.penalties}
           — پاس گل: ${item.assists}
@@ -508,19 +722,29 @@ if (typeof window.renderAll === "function") {
 
       return `
         <div class="gc-rating-history">
+
           <strong>${escapeHTML(event.opponent)}</strong>
+
           <small> | ${escapeHTML(event.match_date)}</small>
+
           <div class="history-detail">
-            گل‌های حریف: ${event.against_goals}
-            | تعداد بازیکنان حاضر: ${rows.length}
+            گل‌های تیم: ${rows.reduce(
+              (sum, item) => sum + Number(item.goals || 0), 0
+            )}
+            | گل‌های حریف: ${event.against_goals}
+            | بازیکنان حاضر: ${rows.length}
           </div>
+
           ${playerRows}
+
           ${isAdmin ? `
-            <button type="button" class="danger"
+            <button type="button"
+              class="danger"
               data-delete-rating-match="${escapeHTML(event.id)}">
               حذف مسابقه
             </button>
           ` : ""}
+
         </div>
       `;
     }).join("");
@@ -536,7 +760,7 @@ if (typeof window.renderAll === "function") {
   async function deleteRatedMatch(matchId) {
     if (!isAdmin) return;
 
-    if (!confirm("این مسابقه و تمام عملکردهای ثبت‌شده آن حذف شود؟")) {
+    if (!confirm("این مسابقه و عملکردهای ثبت‌شده حذف شوند؟")) {
       return;
     }
 
@@ -551,6 +775,8 @@ if (typeof window.renderAll === "function") {
     }
 
     await loadRatings();
+
+    status("مسابقه حذف شد.", true);
   }
 
   async function initialize() {
@@ -559,6 +785,7 @@ if (typeof window.renderAll === "function") {
     const allowed = await verifyAdmin();
 
     const form = document.getElementById("gcRatingAdminForm");
+
     if (form) {
       form.classList.toggle("gc-hidden", !allowed);
     }
@@ -567,6 +794,7 @@ if (typeof window.renderAll === "function") {
       await loadRatings();
     } catch (error) {
       status("خطا در دریافت اطلاعات: " + error.message);
+
       document.getElementById("gcRatedMatchHistory").textContent =
         "دریافت اطلاعات ناموفق بود.";
     }
@@ -574,7 +802,10 @@ if (typeof window.renderAll === "function") {
     db.auth.onAuthStateChange(async () => {
       const admin = await verifyAdmin();
 
-      const adminForm = document.getElementById("gcRatingAdminForm");
+      const adminForm = document.getElementById(
+        "gcRatingAdminForm"
+      );
+
       if (adminForm) {
         adminForm.classList.toggle("gc-hidden", !admin);
       }
@@ -584,9 +815,14 @@ if (typeof window.renderAll === "function") {
   }
 
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initialize, { once: true });
+    document.addEventListener(
+      "DOMContentLoaded",
+      initialize,
+      { once: true }
+    );
   } else {
     initialize();
   }
+
 })();
-  
+       
