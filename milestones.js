@@ -81,6 +81,21 @@
         background:rgba(255,255,255,.025);
       }
 
+      
+#gcMilestones .gm-card.gm-achieved {
+  border: 2px solid #b9f27c;
+  background: rgba(185,242,124,.09);
+}
+
+#gcMilestones .gm-achievement {
+  display: inline-block;
+  color: #b9f27c;
+  font-weight: 800;
+  font-size: 12px;
+  margin-bottom: 7px;
+}
+
+
       #gcMilestones .gm-photo {
         width:54px;
         height:54px;
