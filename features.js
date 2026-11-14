@@ -618,7 +618,7 @@ function renderAwardRanking() {
 }
 
 function renderHistory() {
-  const sorted = awards.slice().sort((a,b) =>
+  const sorted = awards.slice().sort((a, b) =>
     String(b.awarded_at || b.created_at || "").localeCompare(
       String(a.awarded_at || a.created_at || "")
     )
@@ -631,11 +631,24 @@ function renderHistory() {
 
     const label = periodLabel(award.period_id) || award.season || "قدیمی";
 
+    const title = award.is_custom
+      ? `${award.award_icon || "🏆"} ${award.award_name || "جایزه اختصاصی"}`
+      : awardLabel(award.award_type);
+
+    const points = award.is_custom
+      ? ` · ${Number(award.award_points || 0)} امتیاز`
+      : "";
+
+    const description = award.is_custom && award.award_description
+      ? `<p class="gcm">${esc(award.award_description)}</p>`
+      : "";
+
     return `
       <div class="gcr">
-        <span>${esc(label)} - ${esc(awardLabel(award.award_type))}</span>
+        <span>${esc(label)} - ${esc(title)}${points}</span>
         <b>${esc(winner?.name || "بازیکن نامشخص")}</b>
       </div>
+      ${description}
     `;
   }).join("") || '<p class="gcm">هنوز جایزه‌ای ثبت نشده است.</p>';
 }
