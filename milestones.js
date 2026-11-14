@@ -280,6 +280,13 @@ function getNextMilestone(goals) {
           ${photoHTML(player.photo)}
 
           <div>
+          
+${player.milestone.achieved >= 100
+  ? `<div class="gm-achievement">
+       🏆 رکورد ${player.milestone.achieved} گل کسب شد
+     </div>`
+  : ""}
+  
             <div class="gm-name">
               ${index + 1}. ${esc(player.name)}
             </div>
