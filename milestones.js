@@ -275,7 +275,7 @@ function getNextMilestone(goals) {
 
     el("gmMilestoneList").innerHTML = ranked.length
       ? ranked.map((player,index) => `
-        <div class="gm-card">
+        <div class="gm-card ${player.milestone.achieved >= 100 ? "gm-achieved" : ""}">
 
           ${photoHTML(player.photo)}
 
