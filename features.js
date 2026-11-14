@@ -84,6 +84,46 @@ section.innerHTML = `
     <div id="gcAwardsHistory"></div>
   </div>
 
+  <div class="gcp" id="gcCustomAwardAdmin">
+  <h3>🏆 ساخت و اهدای جایزه جدید</h3>
+
+  <form id="gcCustomAwardForm">
+    <input
+      id="gcCustomAwardName"
+      placeholder="نام جایزه"
+      required
+    >
+
+    <input
+      id="gcCustomAwardIcon"
+      placeholder="آیکون جایزه"
+      value="🏆"
+    >
+
+    <input
+      id="gcCustomAwardPoints"
+      type="number"
+      min="0"
+      value="50"
+      placeholder="امتیاز جایزه"
+      required
+    >
+
+    <input
+      id="gcCustomAwardDescription"
+      placeholder="توضیحات جایزه"
+    >
+
+    <label>انتخاب بازیکنان دریافت‌کننده:</label>
+    <select id="gcCustomAwardPlayers" multiple required>
+    </select>
+
+    <button type="submit">
+      ثبت و اهدای جایزه
+    </button>
+  </form>
+</div>
+
   <div class="gcp">
     <h3>دریبل‌های بازیکنان</h3>
     <p class="gcm">ثبت دریبل موفق و ناموفق برای هر بازیکن.</p>
