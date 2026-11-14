@@ -710,47 +710,6 @@ function getAchievementReward(playerId) {
 
 window.gcGetAchievementReward = getAchievementReward;
 
-function renderAchievements() {
-  el("gcAchievements").innerHTML = players.map(player => {
-    const total = calculateStats(player).goals;
-    const reward = getAchievementReward(player.id);
-
-    const next = GOAL_ACHIEVEMENT_LEVELS.find(
-      item => total < item.level
-    );
-
-    return `
-      <div class="gcc">
-        <b>${esc(player.name)}</b>
-
-        <p class="gcm">${total} گل در کل دوران</p>
-
-        <div class="gcc">
-          <div class="gcm">عنوان افتخاری</div>
-
-          <h3 style="color:#b9f27c">
-            ${esc(reward.title)}
-          </h3>
-
-          <div class="gcm">امتیاز ویژه افتخارات</div>
-
-          <strong style="font-size:24px;color:#b9f27c">
-            ${reward.points}
-          </strong>
-        </div>
-
-        ${GOAL_ACHIEVEMENT_LEVELS.map(item => {
-          const has = reward.unlocked.some(
-            a => a.key === item.key
-          );
-
-          return `
-            <div style="
-              display:flex;
-              justify-content:space-between;
-              padding:10px 0;
-              border-bottom:1px solid #273329;
-
 const ACHIEVEMENT_CATEGORIES = [
   {key:"goals",label:"گلزنی"},
   {key:"assists",label:"پاس گل"},
