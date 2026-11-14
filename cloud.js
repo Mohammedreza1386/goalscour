@@ -560,6 +560,7 @@
         status(
           "خطا در ذخیره آنلاین: " + error.message
         );
+        return false;
       });
 
     return syncing;
