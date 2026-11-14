@@ -1046,6 +1046,13 @@ function renderPlayers() {
 
   container.innerHTML = players.map(player => {
     const stats = getStats(player.id);
+    const achievement =
+  typeof window.gcGetAchievementReward === "function"
+    ? window.gcGetAchievementReward(player.id)
+    : {
+        title: "بدون عنوان افتخاری",
+        points: 0
+      };
 
     const photo = player.photo
       ? `<img class="avatar" src="${player.photo}" alt="${esc(player.name)}">`
