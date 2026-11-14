@@ -579,9 +579,21 @@
     window.saveData = function () {
       const result = originalSave();
 
-      if (result && isAdmin && initialized) {
-        queueSync();
+      
+if (result && isAdmin && initialized) {
+  const syncPromise = queueSync();
+
+  if (syncPromise && typeof syncPromise.then === "function") {
+    syncPromise.then(saved => {
+      if (
+        saved &&
+        typeof window.gcRefreshMilestones === "function"
+      ) {
+        window.gcRefreshMilestones();
       }
+    });
+  }
+}
 
       return result;
     };
