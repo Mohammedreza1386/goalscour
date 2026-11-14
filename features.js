@@ -1099,6 +1099,70 @@ el("gcPeriodSelect").addEventListener("change", async event => {
 
 
 section.addEventListener("submit", async event => {
+  if (event.target.id === "gcCustomAwardForm") {
+    event.preventDefault();
+
+    try {
+      if (!admin) {
+        throw new Error("فقط مدیر اجازه اهدای جایزه دارد.");
+      }
+
+      const name = el("gcCustomAwardName").value.trim();
+      const description = el("gcCustomAwardDescription").value.trim();
+      const icon = el("gcCustomAwardIcon").value.trim() || "🏆";
+      const points = n(el("gcCustomAwardPoints").value);
+
+      const select = el("gcCustomAwardPlayers");
+      const playerIds = Array.from(select.selectedOptions)
+        .map(option => String(option.value));
+
+      if (!name) {
+        throw new Error("نام جایزه را وارد کن.");
+      }
+
+      if (playerIds.length === 0) {
+        throw new Error("حداقل یک بازیکن انتخاب کن.");
+      }
+
+      const now = new Date().toISOString();
+
+      const rows = playerIds.map(playerId => ({
+        id: "custom-" + crypto.randomUUID(),
+        award_type: "custom",
+        season: "جایزه اختصاصی",
+        candidate_player_ids: playerIds,
+        winner_player_id: playerId,
+        status: "awarded",
+        awarded_at: now,
+        award_name: name,
+        award_description: description,
+        award_points: points,
+        award_icon: icon,
+        is_custom: true
+      }));
+
+      const result = await db
+        .from("goalscour_awards")
+        .insert(rows);
+
+      if (result.error) throw result.error;
+
+      event.target.reset();
+      el("gcCustomAwardIcon").value = "🏆";
+      el("gcCustomAwardPoints").value = 50;
+
+      await load();
+      await render();
+
+      status("جایزه با موفقیت اهدا شد.");
+    } catch (error) {
+      console.error(error);
+      status("خطا: " + error.message);
+    }
+
+    return;
+  }
+
   if (event.target.id !== "gcPeriodForm") return;
 
   try {
