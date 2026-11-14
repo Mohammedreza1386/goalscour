@@ -562,6 +562,7 @@ function renderGoldenBoot(period) {
 }
 
 function renderAwardRanking() {
+function renderAwardRanking() {
   const totals = new Map();
 
   awards.forEach(award => {
@@ -571,15 +572,17 @@ function renderAwardRanking() {
 
     if (!totals.has(id)) {
       totals.set(id, {
-        count:0,
-        ballon:0,
-        boot:0,
-        other:0
+        count: 0,
+        ballon: 0,
+        boot: 0,
+        other: 0,
+        points: 0
       });
     }
 
     const item = totals.get(id);
     item.count++;
+    item.points += Number(award.award_points || 0);
 
     if (award.award_type === "ballon_dor") item.ballon++;
     else if (award.award_type === "golden_boot") item.boot++;
@@ -589,16 +592,24 @@ function renderAwardRanking() {
   const ranking = players.map(player => ({
     player,
     total: totals.get(String(player.id)) || {
-      count:0, ballon:0, boot:0, other:0
+      count: 0,
+      ballon: 0,
+      boot: 0,
+      other: 0,
+      points: 0
     }
-  })).sort((a,b) => b.total.count - a.total.count);
+  })).sort((a, b) =>
+    b.total.points - a.total.points ||
+    b.total.count - a.total.count
+  );
 
-  el("gcAwardRanking").innerHTML = ranking.map((item,index) => `
+  el("gcAwardRanking").innerHTML = ranking.map((item, index) => `
     <div class="gcr">
-      <span>${index+1}. ${esc(item.player.name)}</span>
+      <span>${index + 1}. ${esc(item.player.name)}</span>
       <b>${item.total.count} جایزه</b>
     </div>
     <p class="gcm">
+      امتیاز جوایز: ${item.total.points} |
       توپ طلا: ${item.total.ballon} |
       کفش طلا: ${item.total.boot} |
       سایر: ${item.total.other}
