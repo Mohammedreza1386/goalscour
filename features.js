@@ -650,35 +650,137 @@ async function unlockAchievements() {
   }
 }
 
-function renderAchievements() {
-  const levels = [100,250,500,1000];
 
+const GOAL_ACHIEVEMENT_LEVELS = [
+  {
+    level: 100,
+    key: "goals_100",
+    medal: "🥉",
+    award: "مدال برنز",
+    title: "گلزن صدتایی",
+    points: 100
+  },
+  {
+    level: 250,
+    key: "goals_250",
+    medal: "🥈",
+    award: "مدال نقره",
+    title: "گلزن حرفه‌ای",
+    points: 250
+  },
+  {
+    level: 500,
+    key: "goals_500",
+    medal: "🥇",
+    award: "جام طلا",
+    title: "گلزن افسانه‌ای",
+    points: 500
+  },
+  {
+    level: 1000,
+    key: "goals_1000",
+    medal: "💎",
+    award: "جام الماس",
+    title: "اسطوره Goalscour",
+    points: 1000
+  }
+];
+
+function getAchievementReward(playerId) {
+  const unlockedKeys = new Set(
+    achievements
+      .filter(a => String(a.player_id) === String(playerId))
+      .map(a => a.achievement_key)
+  );
+
+  const unlocked = GOAL_ACHIEVEMENT_LEVELS.filter(
+    item => unlockedKeys.has(item.key)
+  );
+
+  return {
+    points: unlocked.reduce(
+      (sum, item) => sum + item.points, 0
+    ),
+    title: unlocked.length
+      ? unlocked[unlocked.length - 1].title
+      : "بدون عنوان افتخاری",
+    unlocked
+  };
+}
+
+window.gcGetAchievementReward = getAchievementReward;
+
+function renderAchievements() {
   el("gcAchievements").innerHTML = players.map(player => {
     const total = calculateStats(player).goals;
+    const reward = getAchievementReward(player.id);
 
-    const unlocked = achievements.filter(a =>
-      String(a.player_id) === String(player.id)
+    const next = GOAL_ACHIEVEMENT_LEVELS.find(
+      item => total < item.level
     );
 
     return `
       <div class="gcc">
         <b>${esc(player.name)}</b>
+
         <p class="gcm">${total} گل در کل دوران</p>
-        ${levels.map(level => {
-          const has = unlocked.some(a =>
-            a.achievement_key === "goals_" + level
+
+        <div class="gcc">
+          <div class="gcm">عنوان افتخاری</div>
+
+          <h3 style="color:#b9f27c">
+            ${esc(reward.title)}
+          </h3>
+
+          <div class="gcm">امتیاز ویژه افتخارات</div>
+
+          <strong style="font-size:24px;color:#b9f27c">
+            ${reward.points}
+          </strong>
+        </div>
+
+        ${GOAL_ACHIEVEMENT_LEVELS.map(item => {
+          const has = reward.unlocked.some(
+            a => a.key === item.key
           );
 
           return `
-            <span class="gcpill" style="opacity:${has ? 1 : .35}">
-              ${level} گل ${has ? "✓" : "🔒"}
-            </span>
+            <div style="
+              display:flex;
+              justify-content:space-between;
+              padding:10px 0;
+              border-bottom:1px solid #273329;
+              opacity:${has ? 1 : .45}
+            ">
+              <span>
+                ${item.medal} ${item.level} گل
+                · ${item.award}
+              </span>
+
+              <b style="color:#b9f27c">
+                ${has ? "+" + item.points : "🔒"}
+              </b>
+            </div>
+
+            ${has ? `
+              <div class="gcm">
+                عنوان: ${item.title}
+              </div>
+            ` : ""}
           `;
         }).join("")}
+
+        <p class="gcm">
+          ${next
+            ? `فقط ${next.level - total} گل تا جایزه بعدی`
+            : "تمام افتخارات گلزنی دریافت شده‌اند."}
+        </p>
       </div>
     `;
-  }).join("") || '<p class="gcm">بازیکنی ثبت نشده است.</p>';
+  }).join("") ||
+  '<p class="gcm">بازیکنی ثبت نشده است.</p>';
 }
+
 
 async function render() {
   renderPeriods();
