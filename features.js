@@ -1032,6 +1032,16 @@ function renderAchievements() {
 async function render() {
   renderPeriods();
 
+  const adminBox = el("gcCustomAwardAdmin");
+  if (adminBox) adminBox.hidden = !admin;
+
+  const customPlayers = el("gcCustomAwardPlayers");
+  if (customPlayers) {
+    customPlayers.innerHTML = players.map(player =>
+      `<option value="${esc(String(player.id))}">${esc(player.name)}</option>`
+    ).join("");
+  }
+
   const period = selectedPeriod();
 
   renderBallon(period);
