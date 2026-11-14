@@ -750,36 +750,284 @@ function renderAchievements() {
               justify-content:space-between;
               padding:10px 0;
               border-bottom:1px solid #273329;
-              opacity:${has ? 1 : .45}
-            ">
-              <span>
-                ${item.medal} ${item.level} گل
-                · ${item.award}
-              </span>
 
-              <b style="color:#b9f27c">
-                ${has ? "+" + item.points : "🔒"}
-              </b>
-            </div>
+const ACHIEVEMENT_CATEGORIES = [
+  {key:"goals",label:"گلزنی"},
+  {key:"assists",label:"پاس گل"},
+  {key:"appearances",label:"حضور در مسابقات"},
+  {key:"hatTricks",label:"هت‌تریک"},
+  {key:"braces",label:"دوبل"},
+  {key:"dribbles",label:"دریبل"},
+  {key:"contributions",label:"مشارکت گل"},
+  {key:"performance",label:"کیفیت عملکرد"},
+  {key:"special",label:"افتخارات ویژه"}
+];
 
-            ${has ? `
-              <div class="gcm">
-                عنوان: ${item.title}
-              </div>
-            ` : ""}
-          `;
-        }).join("")}
+const MEDALS = ["⚽","🥉","🥈","🥇","💎"];
+
+function makeLevels(category, metric, prefix, values, titles, points) {
+  return values.map((target,index) => ({
+    key: prefix + "_" + target,
+    category,
+    metric,
+    target,
+    medal: MEDALS[Math.min(index + 1, 4)],
+    title: titles[index],
+    award: "دستاورد " + target,
+    points: points[index]
+  }));
+}
+
+const ACHIEVEMENT_LEVELS = [
+  ...makeLevels("goals","goals","goals",
+    [100,250,500,1000],
+    ["گلزن صدتایی","گلزن حرفه‌ای","گلزن افسانه‌ای","اسطوره Goalscour"],
+    [100,250,500,1000]
+  ),
+
+  ...makeLevels("assists","assists","assists",
+    [25,50,100,250,500],
+    ["پاسور پرتلاش","معمار حمله","مهندس بازی","سلطان پاس گل","اسطوره پاس‌سازی"],
+    [25,50,100,250,500]
+  ),
+
+  ...makeLevels("appearances","appearances","appearances",
+    [10,25,50,100,250],
+    ["شروع‌کننده مسیر","بازیکن متعهد","چهره ثابت تیم","ستون تیم","اسطوره وفاداری"],
+    [10,25,50,100,250]
+  ),
+
+  ...makeLevels("hatTricks","hatTricks","hatTricks",
+    [1,5,10,25],
+    ["هت‌تریک‌کن","متخصص هت‌تریک","شکارچی هت‌تریک","افسانه هت‌تریک"],
+    [15,50,100,250]
+  ),
+
+  ...makeLevels("braces","braces","braces",
+    [5,10,25,50],
+    ["دبل‌زن","متخصص دبل","دبل‌زن بزرگ","اسطوره دبل"],
+    [20,40,100,200]
+  ),
+
+  ...makeLevels("dribbles","success","dribbles",
+    [25,50,100,250,500],
+    ["دریبل‌زن نوظهور","بازیکن تکنیکی","هنرمند دریبل","سلطان دریبل","اسطوره تکنیک"],
+    [25,50,100,250,500]
+  ),
+
+  ...makeLevels("contributions","contributions","contributions",
+    [100,250,500,1000,2500],
+    ["بازیکن مؤثر","مهره کلیدی","ستاره تأثیرگذار","رهبر خط حمله","اسطوره تأثیرگذاری"],
+    [50,100,200,400,800]
+  ),
+
+  {
+    key:"rating_8_10",
+    category:"performance",
+    metric:"averageRating",
+    target:8,
+    minimumAppearances:10,
+    medal:"⭐",
+    title:"بازیکن ممتاز",
+    award:"عملکرد عالی",
+    points:100
+  },
+
+  {
+    key:"rating_9_20",
+    category:"performance",
+    metric:"averageRating",
+    target:9,
+    minimumAppearances:20,
+    medal:"🌟",
+    title:"ستاره بی‌نظیر",
+    award:"عملکرد درخشان",
+    points:250
+  },
+
+  {
+    key:"complete_footballer",
+    category:"special",
+    medal:"🏅",
+    title:"فوتبالیست همه‌فن‌حریف",
+    award:"نشان بازیکن کامل",
+    points:300,
+    condition: s =>
+      s.goals >= 50 &&
+      s.assists >= 25 &&
+      s.appearances >= 25 &&
+      s.success >= 50
+  }
+];
+
+function achievementMetrics(player) {
+  const stats = calculateStats(player);
+
+  return {
+    ...stats,
+    contributions: stats.goals + stats.assists
+  };
+}
+
+function achievementIsEarned(item, stats) {
+  if (item.condition) return item.condition(stats);
+
+  if (
+    item.minimumAppearances &&
+    stats.appearances < item.minimumAppearances
+  ) return false;
+
+  return Number(stats[item.metric] || 0) >= Number(item.target || 0);
+}
+
+async function unlockAchievements() {
+  if (!admin) return;
+
+  const known = new Set(
+    achievements.map(a =>
+      String(a.player_id) + ":" + a.achievement_key
+    )
+  );
+
+  const rows = [];
+
+  players.forEach(player => {
+    const stats = achievementMetrics(player);
+
+    ACHIEVEMENT_LEVELS.forEach(item => {
+      const compound = String(player.id) + ":" + item.key;
+
+      if (
+        achievementIsEarned(item, stats) &&
+        !known.has(compound)
+      ) {
+        rows.push({
+          player_id: String(player.id),
+          achievement_key: item.key
+        });
+      }
+    });
+  });
+
+  if (rows.length) {
+    const result = await db
+      .from("goalscour_achievements")
+      .upsert(rows, {
+        onConflict:"player_id,achievement_key"
+      });
+
+    if (result.error) throw result.error;
+
+    await load();
+  }
+}
+
+function getAchievementReward(playerId) {
+  const unlockedKeys = new Set(
+    achievements
+      .filter(a => String(a.player_id) === String(playerId))
+      .map(a => a.achievement_key)
+  );
+
+  const unlocked = ACHIEVEMENT_LEVELS.filter(
+    item => unlockedKeys.has(item.key)
+  );
+
+  return {
+    points: unlocked.reduce(
+      (sum,item) => sum + item.points, 0
+    ),
+    title: unlocked.length
+      ? unlocked[unlocked.length - 1].title
+      : "بدون عنوان افتخاری",
+    unlocked
+  };
+}
+
+window.gcGetAchievementReward = getAchievementReward;
+
+function renderAchievements() {
+  el("gcAchievements").innerHTML = players.map(player => {
+    const stats = achievementMetrics(player);
+    const reward = getAchievementReward(player.id);
+    const unlockedKeys = new Set(
+      reward.unlocked.map(item => item.key)
+    );
+
+    const categoryRows = ACHIEVEMENT_CATEGORIES.map(category => {
+      const items = ACHIEVEMENT_LEVELS.filter(
+        item => item.category === category.key
+      );
+
+      const earned = items.filter(
+        item => unlockedKeys.has(item.key)
+      );
+
+      const next = items.find(
+        item => !unlockedKeys.has(item.key)
+      );
+
+      return `
+        <div class="gcr">
+          <span>${esc(category.label)}</span>
+          <b>${earned.length}/${items.length}</b>
+        </div>
+
+        ${next ? `
+          <div class="gcm">
+            هدف بعدی: ${esc(next.title)}
+            ${next.metric && next.target
+              ? " · " + Math.max(
+                  0,
+                  next.target - Number(stats[next.metric] || 0)
+                ) + " تا رسیدن"
+              : ""}
+          </div>
+        ` : ""}
+      `;
+    }).join("");
+
+    return `
+      <div class="gcc">
+        <b>${esc(player.name)}</b>
 
         <p class="gcm">
-          ${next
-            ? `فقط ${next.level - total} گل تا جایزه بعدی`
-            : "تمام افتخارات گلزنی دریافت شده‌اند."}
+          ${reward.unlocked.length} دستاورد دریافت‌شده
         </p>
+
+        <div class="gcc">
+          <div class="gcm">عنوان افتخاری فعلی</div>
+          <h3 style="color:#b9f27c">
+            ${esc(reward.title)}
+          </h3>
+
+          <div class="gcm">امتیاز ویژه افتخارات</div>
+          <strong style="font-size:24px;color:#b9f27c">
+            ${reward.points}
+          </strong>
+        </div>
+
+        ${categoryRows}
+
+        <div class="gcm" style="margin-top:10px">
+          مدال‌های دریافت‌شده
+        </div>
+
+        <div>
+          ${reward.unlocked.length
+            ? reward.unlocked.map(item =>
+                `<span class="gcpill">
+                  ${item.medal} ${esc(item.title)}
+                </span>`
+              ).join("")
+            : '<span class="gcm">هنوز دستاوردی دریافت نشده است.</span>'}
+        </div>
       </div>
     `;
   }).join("") ||
   '<p class="gcm">بازیکنی ثبت نشده است.</p>';
 }
+
 
 
 async function render() {
