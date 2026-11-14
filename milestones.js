@@ -570,7 +570,6 @@
     }
   }
 
-  
   // به‌روزرسانی خودکار رکوردها پس از تغییر آمار
   let renderRefreshTimer = null;
 
@@ -601,7 +600,8 @@
   window.setInterval(() => {
     if (!document.hidden) load();
   }, 30000);
-  
+
+  window.gcRefreshMilestones = load;
 
   function openTab() {
     document.querySelectorAll(".section").forEach(item => {
