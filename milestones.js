@@ -570,6 +570,39 @@
     }
   }
 
+  
+  // به‌روزرسانی خودکار رکوردها پس از تغییر آمار
+  let renderRefreshTimer = null;
+
+  if (typeof window.renderAll === "function") {
+    const originalRenderAll = window.renderAll;
+
+    window.renderAll = function (...args) {
+      const result = originalRenderAll.apply(this, args);
+
+      clearTimeout(renderRefreshTimer);
+
+      renderRefreshTimer = setTimeout(() => {
+        load();
+      }, 1500);
+
+      return result;
+    };
+  }
+
+  // به‌روزرسانی هنگام بازگشت به صفحه
+  window.addEventListener("focus", load);
+
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) load();
+  });
+
+  // تازه‌سازی خودکار هر ۳۰ ثانیه
+  window.setInterval(() => {
+    if (!document.hidden) load();
+  }, 30000);
+  
+
   function openTab() {
     document.querySelectorAll(".section").forEach(item => {
       item.classList.toggle(
