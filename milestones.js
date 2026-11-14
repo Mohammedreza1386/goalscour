@@ -201,33 +201,31 @@
       : 0;
   }
 
-  function getNextMilestone(goals) {
-    const target = milestones.find(
-      number => goals < number
-    );
+  
+function getNextMilestone(goals) {
+  const achieved = Math.floor(goals / 100) * 100;
+  const target = achieved + 100;
+  const previous = achieved;
 
-    if (!target) return null;
+  const remaining = target - goals;
 
-    const index = milestones.indexOf(target);
-    const previous = milestones[index - 1] || 0;
+  const progress = Math.max(
+    0,
+    Math.min(
+      100,
+      ((goals - previous) / 100) * 100
+    )
+  );
 
-    const remaining = target - goals;
+  return {
+    achieved,
+    target,
+    previous,
+    remaining,
+    progress
+  };
+}
 
-    const progress = Math.max(
-      0,
-      Math.min(
-        100,
-        ((goals - previous) / (target - previous)) * 100
-      )
-    );
-
-    return {
-      target,
-      previous,
-      remaining,
-      progress
-    };
-  }
 
   function photoHTML(photo) {
     if (!photo) {
