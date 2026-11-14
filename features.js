@@ -562,7 +562,6 @@ function renderGoldenBoot(period) {
 }
 
 function renderAwardRanking() {
-function renderAwardRanking() {
   const totals = new Map();
 
   awards.forEach(award => {
