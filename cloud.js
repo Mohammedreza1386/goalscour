@@ -246,46 +246,94 @@
      پشتیبان‌گیری محلی
   ========================= */
 
-  function createLocalBackup() {
+  
+function createLocalBackup() {
+  try {
+    const backup = {
+      app: "Goalscour",
+      version: 3,
+      createdAt: new Date().toISOString(),
+
+      players: Array.isArray(players) ? players : [],
+      matches: Array.isArray(matches) ? matches : [],
+      unofficial: Array.isArray(unofficial) ? unofficial : []
+    };
+
+    const json = JSON.stringify(backup);
+    const key = BACKUP_PREFIX + Date.now();
+
+    const getBackupKeys = () => {
+      const keys = [];
+
+      for (let i = 0; i < localStorage.length; i++) {
+        const currentKey = localStorage.key(i);
+
+        if (currentKey && currentKey.startsWith(BACKUP_PREFIX)) {
+          keys.push(currentKey);
+        }
+      }
+
+      return keys.sort(
+        (a, b) =>
+          Number(a.slice(BACKUP_PREFIX.length)) -
+          Number(b.slice(BACKUP_PREFIX.length))
+      );
+    };
+
     try {
-      const backup = {
-        app: "Goalscour",
-        version: 3,
-        createdAt: new Date().toISOString(),
-
-        players: Array.isArray(players)
-          ? players
-          : [],
-
-        matches: Array.isArray(matches)
-          ? matches
-          : [],
-
-        unofficial: Array.isArray(unofficial)
-          ? unofficial
-          : []
-      };
-
-      const key =
-        BACKUP_PREFIX + Date.now();
-
-      localStorage.setItem(
-        key,
-        JSON.stringify(backup)
-      );
-
-      return true;
-
+      localStorage.setItem(key, json);
     } catch (error) {
-      console.error("Backup failed:", error);
+      const isQuotaError =
+        error.name === "QuotaExceededError" ||
+        error.code === 22 ||
+        error.code === 1014;
 
-      status(
-        "پشتیبان محلی ساخته نشد؛ عملیات متوقف شد."
-      );
+      if (!isQuotaError) throw error;
 
-      return false;
+      const oldKeys = getBackupKeys();
+      let saved = false;
+
+      // همیشه آخرین نسخه پشتیبان قبلی را حفظ می‌کنیم.
+      while (oldKeys.length > 1) {
+        localStorage.removeItem(oldKeys.shift());
+
+        try {
+          localStorage.setItem(key, json);
+          saved = true;
+          break;
+        } catch (retryError) {
+          const stillFull =
+            retryError.name === "QuotaExceededError" ||
+            retryError.code === 22 ||
+            retryError.code === 1014;
+
+          if (!stillFull) throw retryError;
+        }
+      }
+
+      if (!saved) throw error;
     }
+
+    // نگهداری حداکثر سه نسخه پشتیبان
+    const newest = getBackupKeys().reverse();
+
+    newest.slice(3).forEach(oldKey => {
+      localStorage.removeItem(oldKey);
+    });
+
+    return true;
+
+  } catch (error) {
+    console.error("Backup failed:", error);
+
+    status(
+      "ساخت نسخه پشتیبان ناموفق بود: " + error.message
+    );
+
+    return false;
   }
+}
+
 
   /* =========================
      ابزار ادغام رکوردها
