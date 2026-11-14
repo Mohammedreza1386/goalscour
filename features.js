@@ -904,6 +904,9 @@ async function start() {
     await load();
     await unlockAchievements();
     await render();
+    if (typeof window.renderAll === "function") {
+  window.renderAll();
+    }
 
     status(
       admin
