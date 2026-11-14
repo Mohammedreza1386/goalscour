@@ -1145,6 +1145,7 @@ section.addEventListener("click", async event => {
   }
 });
 
+
 async function start() {
   try {
     admin = await checkAdmin();
@@ -1152,9 +1153,6 @@ async function start() {
     await load();
     await unlockAchievements();
     await render();
-    if (typeof window.renderAll === "function") {
-  window.renderAll();
-    }
 
     status(
       admin
@@ -1167,6 +1165,30 @@ async function start() {
     status("خطا در دریافت اطلاعات: " + error.message);
   }
 }
+
+if (
+  typeof window.renderAll === "function" &&
+  !window.__gcAchievementRenderWrapped
+) {
+  const originalRenderAll = window.renderAll;
+
+  window.renderAll = function (...args) {
+    const result = originalRenderAll.apply(this, args);
+
+    clearTimeout(window.__gcAchievementRefreshTimer);
+
+    window.__gcAchievementRefreshTimer = setTimeout(() => {
+      start();
+    }, 350);
+
+    return result;
+  };
+
+  window.__gcAchievementRenderWrapped = true;
+}
+
+window.gcRefreshAchievements = start;
+
 
 start();
 
