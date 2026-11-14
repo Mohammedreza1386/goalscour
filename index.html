@@ -1137,6 +1137,15 @@ function renderPlayers() {
           </div>
         </div>
 
+        <div class="mini" style="margin-top:10px">
+  <span>🏆 عنوان افتخاری</span>
+  <b>${esc(achievement.title)}</b>
+  <span>
+    ⭐ امتیاز ویژه:
+    ${num(achievement.points)}
+  </span>
+</div>
+
         <div class="player-actions">
           <button class="like"
             onclick="likePlayer('${esc(player.id)}')">
