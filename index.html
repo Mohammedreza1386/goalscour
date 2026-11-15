@@ -1730,6 +1730,12 @@ renderAll();
     if (button) menu.appendChild(button);
   });
 
+  const adminPanel = document.querySelector(".gc-panel");
+
+if (adminPanel) {
+  menu.appendChild(adminPanel);
+}
+
   toggle.addEventListener("click", () => {
     menu.style.display =
       menu.style.display === "none" ? "grid" : "none";
