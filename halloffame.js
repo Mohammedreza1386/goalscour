@@ -5,9 +5,9 @@
 const URL="https://zusbebjskchgehdjvpsm.supabase.co";
 const KEY="sb_publishable_WGMEA7-K8FAResrVCL8GJQ_6KCxrvmK";
 
-if(!window.supabase)return;
-
-const db=window.supabase.createClient(URL,KEY);
+const db = window.supabase?.createClient
+  ? window.supabase.createClient(URL, KEY)
+  : null;
 const main=document.querySelector("main");
 const nav=main?.querySelector("nav");
 
