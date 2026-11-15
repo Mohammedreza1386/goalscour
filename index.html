@@ -1713,5 +1713,29 @@ renderAll();
   <script src="/milestones.js"></script>
   <script src="/challenges.js"></script>
   <script src="/halloffame.js"></script>
+  <script>
+(() => {
+  const menu = document.getElementById("gcAdminItems");
+  const toggle = document.getElementById("gcAdminToggle");
+  const nav = document.querySelector("main nav");
+
+  if (!menu || !toggle || !nav) return;
+
+  const adminTabs = ["players", "official", "unofficial", "match-ratings"];
+
+  adminTabs.forEach(id => {
+    const button = nav.querySelector(
+      'button[data-tab="' + id + '"]'
+    );
+    if (button) menu.appendChild(button);
+  });
+
+  toggle.addEventListener("click", () => {
+    menu.style.display =
+      menu.style.display === "none" ? "grid" : "none";
+    menu.style.gap = "8px";
+  });
+})();
+  </script>
 </body>
 </html>
