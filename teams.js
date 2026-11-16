@@ -180,6 +180,46 @@
             font-size:13px}
           .gc-team-table td,.gc-team-table th{
             padding:10px;border-bottom:1px solid #344238;text-align:center}
+            
+/* نمایش جمع‌وجور جدول رده‌بندی در موبایل */
+.gc-team-table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+@media (max-width: 600px) {
+  .gc-team-panel {
+    padding: 9px;
+    overflow: hidden;
+  }
+
+  .gc-team-table {
+    width: 100%;
+    font-size: 10px;
+  }
+
+  .gc-team-table th,
+  .gc-team-table td {
+    padding: 7px 2px;
+    overflow-wrap: anywhere;
+    white-space: normal;
+  }
+
+  /* مخفی کردن مساوی و باخت برای جا شدن جدول */
+  .gc-team-table th:nth-child(5),
+  .gc-team-table td:nth-child(5),
+  .gc-team-table th:nth-child(6),
+  .gc-team-table td:nth-child(6) {
+    display: none;
+  }
+
+  .gc-team-panel h3 {
+    font-size: 15px;
+  }
+}
+
         </style>
 
         <div class="gc-team-panel">
