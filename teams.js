@@ -222,6 +222,73 @@
 }
 
 
+/* نمایش کامل جدول رده‌بندی در موبایل */
+@media (max-width: 600px) {
+  .gc-team-panel:has(.gc-team-table) {
+    padding: 10px;
+    overflow: hidden;
+  }
+
+  .gc-team-table,
+  .gc-team-table tbody {
+    display: block;
+    width: 100%;
+  }
+
+  .gc-team-table thead {
+    display: none;
+  }
+
+  .gc-team-table tbody tr {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    width: 100%;
+    margin-bottom: 12px;
+    border: 1px solid #465448;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .gc-team-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 4px;
+    min-width: 0;
+    padding: 9px 5px;
+    font-size: 11px;
+    border-bottom: 1px solid #344238;
+    text-align: right;
+  }
+
+  .gc-team-table td::before {
+    font-weight: bold;
+    color: #b9f27c;
+    flex-shrink: 0;
+  }
+
+  .gc-team-table td:nth-child(1)::before { content: "رتبه"; }
+  .gc-team-table td:nth-child(2)::before { content: "تیم"; }
+  .gc-team-table td:nth-child(3)::before { content: "بازی"; }
+  .gc-team-table td:nth-child(4)::before { content: "برد"; }
+  .gc-team-table td:nth-child(5)::before { content: "مساوی"; }
+  .gc-team-table td:nth-child(6)::before { content: "باخت"; }
+  .gc-team-table td:nth-child(7)::before { content: "تفاضل"; }
+  .gc-team-table td:nth-child(8)::before { content: "امتیاز"; }
+
+  .gc-team-table td:nth-child(2) {
+    overflow-wrap: anywhere;
+  }
+
+  .gc-team-table td:nth-child(8) {
+    color: #b9f27c;
+    font-weight: bold;
+  }
+}
+
+
+
         </style>
 
         <div class="gc-team-panel">
