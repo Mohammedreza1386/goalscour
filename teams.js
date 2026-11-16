@@ -181,44 +181,46 @@
           .gc-team-table td,.gc-team-table th{
             padding:10px;border-bottom:1px solid #344238;text-align:center}
             
-/* نمایش جمع‌وجور جدول رده‌بندی در موبایل */
+
+/* جدول رده‌بندی واکنش‌گرا */
 .gc-team-table {
   width: 100%;
-  table-layout: fixed;
   border-collapse: collapse;
-  font-size: 13px;
+  table-layout: auto;
+  font-size: 12px;
 }
 
 @media (max-width: 600px) {
   .gc-team-panel {
-    padding: 9px;
+    padding: 8px;
+    max-width: 100%;
     overflow: hidden;
   }
 
   .gc-team-table {
     width: 100%;
-    font-size: 10px;
+    font-size: 9px;
+    table-layout: fixed;
   }
 
   .gc-team-table th,
   .gc-team-table td {
-    padding: 7px 2px;
-    overflow-wrap: anywhere;
+    padding: 6px 1px;
+    text-align: center;
     white-space: normal;
+    overflow-wrap: anywhere;
   }
 
-  /* مخفی کردن مساوی و باخت برای جا شدن جدول */
-  .gc-team-table th:nth-child(5),
-  .gc-team-table td:nth-child(5),
-  .gc-team-table th:nth-child(6),
-  .gc-team-table td:nth-child(6) {
-    display: none;
+  .gc-team-table th:nth-child(2),
+  .gc-team-table td:nth-child(2) {
+    width: 25%;
   }
 
   .gc-team-panel h3 {
     font-size: 15px;
   }
 }
+
 
         </style>
 
