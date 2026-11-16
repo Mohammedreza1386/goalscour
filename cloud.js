@@ -11,6 +11,7 @@
     SUPABASE_URL,
     SUPABASE_KEY
   );
+  
   window.goalscourSupabase = db;
 
   let isAdmin = false;
