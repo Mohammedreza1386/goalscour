@@ -5,10 +5,22 @@
   const db = window.goalscourSupabase;
   const root = document.getElementById("accountApp");
 
-  if (!db || !root) {
-    console.error("Goalscour account: Supabase or accountApp not found.");
-    return;
-  }
+  if (!root) {
+  console.error("Goalscour: accountApp not found.");
+  return;
+}
+
+if (!db) {
+  root.innerHTML = `
+    <div style="padding:15px;background:#321919;color:#ffaaaa;border-radius:12px">
+      خطای اتصال حساب کاربری: Supabase در دسترس نیست.
+      <br>
+      لطفاً اتصال فایل cloud.js را بررسی کنید.
+    </div>
+  `;
+  console.error("Goalscour: Supabase not found.");
+  return;
+}
 
   let currentUser = null;
   let profile = null;
