@@ -541,6 +541,9 @@ opponent: item.opponent || ""
           penalties: Number(item.penalties) || 0,
           assister_id: String(item.assisterId || ""),
           assists: Number(item.assists) || 0,
+          participant_ids: Array.isArray(item.participantIds)
+  ? item.participantIds
+  : [],
           updated_at: new Date().toISOString()
         }))
       },
