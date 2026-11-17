@@ -809,8 +809,12 @@ document.getElementById("unDate").value = today();
 ========================= */
 
 function fillSelects() {
-  const ids = ["scorer", "assister", "unofficialPlayer"];
-
+  const ids = [
+  "scorer",
+  "assister",
+  "unofficialPlayer",
+  "matchParticipants"
+];
   ids.forEach(elementId => {
     const select = document.getElementById(elementId);
     const previousValue = select.value;
