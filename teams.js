@@ -1,3 +1,4 @@
+
 (() => {
   "use strict";
 
@@ -17,26 +18,18 @@
   let activeTeam = null;
   let filter = "all";
 
-  const esc = (value) =>
-    String(value ?? "").replace(/[&<>"']/g, char => ({
-      "&": "&amp;",
-      "<": "&lt;",
-      ">": "&gt;",
-      '"': "&quot;",
-      "'": "&#39;"
-    }[char]));
+  const esc = value => String(value ?? "").replace(/[&<>"']/g, char => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;",
+    '"': "&quot;", "'": "&#39;"
+  }[char]));
 
-  const notify = (message) => {
-    alert(message);
-  };
+  const notify = message => alert(message);
 
-  const dateText = (value) => {
-    if (!value) return "نامشخص";
-    return new Date(value).toLocaleDateString("fa-IR");
-  };
+  const dateText = value =>
+    value ? new Date(value).toLocaleDateString("fa-IR") : "نامشخص";
 
   async function loadData() {
-    root.innerHTML = "<p>در حال دریافت اطلاعات تیم‌ها...</p>";
+    root.innerHTML = '<p style="color:#fff">در حال دریافت اطلاعات تیم‌ها...</p>';
 
     try {
       const results = await Promise.all([
@@ -90,9 +83,8 @@
         match.team_id === teamId ||
         match.opponent_team_id === teamId;
 
-      return belongs && (
-        type === "all" || match.match_type === type
-      );
+      return belongs &&
+        (type === "all" || match.match_type === type);
     });
   }
 
@@ -122,12 +114,7 @@
     });
 
     return {
-      played,
-      wins,
-      draws,
-      losses,
-      scored,
-      conceded,
+      played, wins, draws, losses, scored, conceded,
       difference: scored - conceded,
       points: wins * 3 + draws
     };
@@ -148,142 +135,168 @@
     root.innerHTML = `
       <div class="gc-teams">
         <style>
-          .gc-teams{color:inherit}
-          .gc-teams *{box-sizing:border-box}
-          .gc-team-panel{background:#151b18;border:1px solid #344238;
-            border-radius:14px;padding:15px;margin:12px 0}
-          .gc-team-grid{display:grid;grid-template-columns:
-            repeat(auto-fit,minmax(220px,1fr));gap:12px}
-          .gc-team-card{background:#19221c;border:1px solid #344238;
-            border-radius:13px;padding:14px}
-          .gc-teams button,.gc-teams select,.gc-teams input,
-          .gc-teams textarea{font:inherit}
-          .gc-teams button{background:#b9f27c;color:#152014;
-            border:0;border-radius:9px;padding:10px 14px;
-            margin:4px;cursor:pointer;font-weight:700}
-          .gc-teams button.secondary{background:#303b34;color:white}
-          .gc-teams input,.gc-teams select,.gc-teams textarea{
-            width:100%;padding:10px;margin:6px 0 12px;
-            background:#101612;color:white;border:1px solid #465448;
-            border-radius:8px}
-          .gc-teams label{display:block;font-size:13px;color:#c5d2c5}
-          .gc-team-stats{display:grid;grid-template-columns:
-            repeat(3,1fr);gap:7px;margin-top:12px}
-          .gc-team-stat{background:#101612;padding:9px;border-radius:8px;
-            text-align:center;font-size:13px}
-          .gc-team-stat strong{display:block;color:#b9f27c;font-size:19px}
-          .gc-team-logo{width:54px;height:54px;object-fit:cover;
-            border-radius:50%;background:#303b34}
-          .gc-team-row{display:flex;align-items:center;gap:12px}
-          .gc-team-muted{color:#aab7aa;font-size:13px}
-          .gc-team-table{width:100%;border-collapse:collapse;
-            font-size:13px}
-          .gc-team-table td,.gc-team-table th{
-            padding:10px;border-bottom:1px solid #344238;text-align:center}
+          .gc-teams,
+          .gc-ranking-page {
+            color: #f4f7f2 !important;
+            width: 100%;
+            max-width: 100%;
+            min-width: 0;
+          }
 
-/* جدول رده‌بندی واکنش‌گرا */
-.gc-team-table {
-  width: 100%;
-  border-collapse: collapse;
-  table-layout: auto;
-  font-size: 12px;
-}
+          .gc-teams * ,
+          .gc-ranking-page * {
+            box-sizing: border-box;
+          }
 
-@media (max-width: 600px) {
-  .gc-team-panel {
-    padding: 8px;
-    max-width: 100%;
-    overflow: hidden;
-  }
+          .gc-teams h2,
+          .gc-teams h3,
+          .gc-ranking-page h2,
+          .gc-ranking-page h3 {
+            color: #f4f7f2 !important;
+          }
 
-  .gc-team-table {
-    width: 100%;
-    font-size: 9px;
-    table-layout: fixed;
-  }
+          .gc-team-panel {
+            background: #151b18;
+            color: #f4f7f2 !important;
+            border: 1px solid #344238;
+            border-radius: 14px;
+            padding: 15px;
+            margin: 12px 0;
+            width: 100%;
+            min-width: 0;
+          }
 
-  .gc-team-table th,
-  .gc-team-table td {
-    padding: 6px 1px;
-    text-align: center;
-    white-space: normal;
-    overflow-wrap: anywhere;
-  }
+          .gc-team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit,minmax(220px,1fr));
+            gap: 12px;
+          }
 
-  .gc-team-table th:nth-child(2),
-  .gc-team-table td:nth-child(2) {
-    width: 25%;
-  }
+          .gc-team-card {
+            background: #19221c;
+            color: #f4f7f2 !important;
+            border: 1px solid #344238;
+            border-radius: 13px;
+            padding: 14px;
+          }
 
-  .gc-team-panel h3 {
-    font-size: 15px;
-  }
-}
+          .gc-teams button,
+          .gc-teams select,
+          .gc-teams input,
+          .gc-teams textarea {
+            font: inherit;
+          }
 
-/* نمایش کامل جدول رده‌بندی در موبایل */
-@media (max-width: 600px) {
-  .gc-team-panel:has(.gc-team-table) {
-    padding: 10px;
-    overflow: hidden;
-  }
+          .gc-teams button {
+            background: #b9f27c;
+            color: #152014 !important;
+            border: 0;
+            border-radius: 9px;
+            padding: 10px 14px;
+            margin: 4px;
+            cursor: pointer;
+            font-weight: 700;
+          }
 
-  .gc-team-table,
-  .gc-team-table tbody {
-    display: block;
-    width: 100%;
-  }
+          .gc-teams button.secondary {
+            background: #303b34;
+            color: #fff !important;
+          }
 
-  .gc-team-table thead {
-    display: none;
-  }
+          .gc-teams input,
+          .gc-teams select,
+          .gc-teams textarea {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin: 6px 0 12px;
+            background: #101612 !important;
+            color: #fff !important;
+            border: 1px solid #465448;
+            border-radius: 8px;
+          }
 
-  .gc-team-table tbody tr {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0;
-    width: 100%;
-    margin-bottom: 12px;
-    border: 1px solid #465448;
-    border-radius: 10px;
-    overflow: hidden;
-  }
+          .gc-teams input::placeholder,
+          .gc-teams textarea::placeholder {
+            color: #aab7aa;
+          }
 
-  .gc-team-table td {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 4px;
-    min-width: 0;
-    padding: 9px 5px;
-    font-size: 11px;
-    border-bottom: 1px solid #344238;
-    text-align: right;
-  }
+          .gc-teams label {
+            display: block;
+            font-size: 13px;
+            color: #c5d2c5 !important;
+          }
 
-  .gc-team-table td::before {
-    font-weight: bold;
-    color: #b9f27c;
-    flex-shrink: 0;
-  }
+          .gc-team-stats {
+            display: grid;
+            grid-template-columns: repeat(3,minmax(0,1fr));
+            gap: 7px;
+            margin-top: 12px;
+          }
 
-  .gc-team-table td:nth-child(1)::before { content: "رتبه"; }
-  .gc-team-table td:nth-child(2)::before { content: "تیم"; }
-  .gc-team-table td:nth-child(3)::before { content: "بازی"; }
-  .gc-team-table td:nth-child(4)::before { content: "برد"; }
-  .gc-team-table td:nth-child(5)::before { content: "مساوی"; }
-  .gc-team-table td:nth-child(6)::before { content: "باخت"; }
-  .gc-team-table td:nth-child(7)::before { content: "تفاضل"; }
-  .gc-team-table td:nth-child(8)::before { content: "امتیاز"; }
+          .gc-team-stat {
+            background: #101612;
+            color: #e9eee8 !important;
+            padding: 9px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 13px;
+          }
 
-  .gc-team-table td:nth-child(2) {
-    overflow-wrap: anywhere;
-  }
+          .gc-team-stat strong {
+            display: block;
+            color: #b9f27c !important;
+            font-size: 19px;
+          }
 
-  .gc-team-table td:nth-child(8) {
-    color: #b9f27c;
-    font-weight: bold;
-  }
-}
+          .gc-team-logo {
+            width: 54px;
+            height: 54px;
+            object-fit: cover;
+            border-radius: 50%;
+            background: #303b34;
+          }
+
+          .gc-team-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+          }
+
+          .gc-team-muted {
+            color: #aab7aa !important;
+            font-size: 13px;
+          }
+
+          .gc-team-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            color: #f4f7f2 !important;
+          }
+
+          .gc-team-table td,
+          .gc-team-table th {
+            padding: 10px;
+            border-bottom: 1px solid #344238;
+            text-align: center;
+            color: #f4f7f2 !important;
+          }
+
+          @media(max-width:600px) {
+            .gc-team-panel {
+              padding: 10px;
+              max-width: 100%;
+            }
+
+            .gc-team-grid {
+              grid-template-columns: minmax(0,1fr);
+            }
+
+            .gc-team-stats {
+              grid-template-columns: repeat(3,minmax(0,1fr));
+            }
+          }
         </style>
 
         <div class="gc-team-panel">
@@ -291,8 +304,11 @@
           <p class="gc-team-muted">
             ساخت تیم، ثبت مسابقات و مشاهده فهرست تیم‌ها
           </p>
+
           ${isAdmin ? `
-            <button onclick="GoalscourTeams.showCreate()">＋ ساخت تیم جدید</button>
+            <button onclick="GoalscourTeams.showCreate()">
+              ＋ ساخت تیم جدید
+            </button>
           ` : ""}
         </div>
 
@@ -309,7 +325,7 @@
     renderTeamList();
     renderRankingPage();
   }
-
+  
   function renderRankingPage() {
     const target = document.getElementById("gcTeamRankingApp");
     if (!target) return;
@@ -319,413 +335,345 @@
     target.innerHTML = `
       <div class="gc-teams gc-ranking-page">
         <style>
-          .gc-ranking-page{color:inherit}
-          .gc-ranking-page *{box-sizing:border-box}
-          .gc-ranking-page .gc-team-panel{
-            background:#151b18;border:1px solid #344238;
-            border-radius:16px;padding:16px;margin:12px 0
-          }
-          .gc-ranking-page .gc-team-muted{color:#aab7aa;font-size:13px}
-          .gc-ranking-page select{
-            width:100%;padding:12px;margin:8px 0 14px;
-            background:#101612;color:white;border:1px solid #465448;
-            border-radius:10px;font:inherit
-          }
-          .gc-ranking-page .gc-rank-summary{
-            display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
-            gap:8px;margin:12px 0
-          }
-          .gc-ranking-page .gc-rank-summary div{
-            background:#101612;border:1px solid #344238;
-            border-radius:11px;padding:12px 6px;text-align:center;
-            font-size:12px;color:#aab7aa
-          }
-          .gc-ranking-page .gc-rank-summary strong{
-            display:block;color:#b9f27c;font-size:20px;margin-bottom:4px
-          }
-          .gc-ranking-page .gc-team-table{
-            width:100%;border-collapse:collapse;font-size:13px
-          }
-          .gc-ranking-page .gc-team-table th,
-          .gc-ranking-page .gc-team-table td{
-            padding:12px 8px;border-bottom:1px solid #344238;
-            text-align:center
-          }
-          .gc-ranking-page .gc-team-table th{color:#b9f27c}
-          .gc-ranking-page .gc-team-table td:nth-child(8){
-            color:#b9f27c;font-weight:bold
-          }
-          @media(max-width:600px){
-            .gc-ranking-page .gc-team-panel{padding:11px}
-            .gc-ranking-page .gc-rank-summary{gap:6px}
-            .gc-ranking-page .gc-rank-summary div{font-size:10px;padding:10px 3px}
-            .gc-ranking-page .gc-rank-summary strong{font-size:18px}
-            .gc-ranking-page .gc-team-table,
-            .gc-ranking-page .gc-team-table tbody{
-              display:block;width:100%
-            }
-            .gc-ranking-page .gc-team-table thead{display:none}
-            .gc-ranking-page .gc-team-table tbody tr{
-              display:grid;grid-template-columns:1fr 1fr;
-              margin:10px 0;border:1px solid #465448;
-              border-radius:12px;overflow:hidden
-            }
-            .gc-ranking-page .gc-team-table td{
-              display:flex;justify-content:space-between;align-items:center;
-              gap:6px;min-width:0;padding:10px 7px;
-              font-size:12px;text-align:right;
-              border-bottom:1px solid #344238
-            }
-            .gc-ranking-page .gc-team-table td::before{
-              color:#b9f27c;font-weight:bold;flex-shrink:0
-            }
-            .gc-ranking-page .gc-team-table td:nth-child(1)::before{content:"رتبه"}
-            .gc-ranking-page .gc-team-table td:nth-child(2)::before{content:"تیم"}
-            .gc-ranking-page .gc-team-table td:nth-child(3)::before{content:"بازی"}
-            .gc-ranking-page .gc-team-table td:nth-child(4)::before{content:"برد"}
-            .gc-ranking-page .gc-team-table td:nth-child(5)::before{content:"مساوی"}
-            .gc-ranking-page .gc-team-table td:nth-child(6)::before{content:"باخت"}
-            .gc-ranking-page .gc-team-table td:nth-child(7)::before{content:"تفاضل"}
-
-function renderRankingPage() {
-  const target = document.getElementById("gcTeamRankingApp");
-  if (!target) return;
-
-  const ranking = getLeaderboard();
-
-  target.innerHTML = `
-    <div class="gc-teams gc-ranking-page">
-      <style>
-        .gc-ranking-page {
-          width: 100%;
-          max-width: 100%;
-          min-width: 0;
-          color: inherit;
-        }
-
-        .gc-ranking-page * {
-          box-sizing: border-box;
-        }
-
-        .gc-ranking-page .gc-team-panel {
-          width: 100%;
-          min-width: 0;
-          background: #151b18;
-          border: 1px solid #344238;
-          border-radius: 16px;
-          padding: 16px;
-          margin: 12px 0;
-        }
-
-        .gc-ranking-page .gc-team-muted {
-          color: #aab7aa;
-          font-size: 13px;
-        }
-
-        .gc-ranking-page select {
-          display: block;
-          width: 100%;
-          max-width: 100%;
-          padding: 12px;
-          margin: 8px 0 14px;
-          background: #101612;
-          color: white;
-          border: 1px solid #465448;
-          border-radius: 10px;
-          font: inherit;
-        }
-
-        .gc-ranking-page .gc-rank-summary {
-          display: grid;
-          grid-template-columns: repeat(3, minmax(0, 1fr));
-          gap: 8px;
-          margin: 12px 0;
-        }
-
-        .gc-ranking-page .gc-rank-summary div {
-          min-width: 0;
-          background: #101612;
-          border: 1px solid #344238;
-          border-radius: 11px;
-          padding: 12px 6px;
-          text-align: center;
-          font-size: 12px;
-          color: #aab7aa;
-        }
-
-        .gc-ranking-page .gc-rank-summary strong {
-          display: block;
-          color: #b9f27c;
-          font-size: 20px;
-          margin-bottom: 4px;
-        }
-
-        /* جدول دسکتاپ */
-        .gc-ranking-page .gc-team-table {
-          width: 100%;
-          border-collapse: collapse;
-          font-size: 13px;
-        }
-
-        .gc-ranking-page .gc-team-table th,
-        .gc-ranking-page .gc-team-table td {
-          padding: 12px 8px;
-          border-bottom: 1px solid #344238;
-          text-align: center;
-        }
-
-        .gc-ranking-page .gc-team-table th {
-          color: #b9f27c;
-        }
-
-        .gc-ranking-page .gc-team-table td:last-child {
-          color: #b9f27c;
-          font-weight: bold;
-        }
-
-        /* کارت‌های مخصوص موبایل */
-        .gc-ranking-page .gc-rank-mobile {
-          display: none;
-        }
-
-        @media (max-width: 650px) {
           .gc-ranking-page {
-            overflow: hidden;
+            color: #f4f7f2 !important;
+            width: 100%;
+            max-width: 100%;
+            min-width: 0;
+          }
+
+          .gc-ranking-page * {
+            box-sizing: border-box;
           }
 
           .gc-ranking-page .gc-team-panel {
-            padding: 12px;
-            border-radius: 13px;
-          }
-
-          .gc-ranking-page .gc-rank-summary {
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 5px;
-          }
-
-          .gc-ranking-page .gc-rank-summary div {
-            padding: 9px 3px;
-            font-size: 10px;
-            line-height: 1.7;
-          }
-
-          .gc-ranking-page .gc-rank-summary strong {
-            font-size: 17px;
-          }
-
-          .gc-ranking-page .gc-team-table {
-            display: none;
-          }
-
-          .gc-ranking-page .gc-rank-mobile {
-            display: grid;
-            grid-template-columns: minmax(0, 1fr);
-            gap: 10px;
             width: 100%;
+            background: #151b18 !important;
+            color: #f4f7f2 !important;
+            border: 1px solid #344238;
+            border-radius: 16px;
+            padding: 16px;
+            margin: 12px 0;
           }
 
-          .gc-ranking-page .gc-rank-card {
-            width: 100%;
-            min-width: 0;
-            background: #19221c;
-            border: 1px solid #465448;
-            border-radius: 13px;
-            padding: 12px;
+          .gc-ranking-page h3 {
+            color: #f4f7f2 !important;
           }
 
-          .gc-ranking-page .gc-rank-card-head {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding-bottom: 11px;
-            margin-bottom: 10px;
-            border-bottom: 1px solid #344238;
-          }
-
-          .gc-ranking-page .gc-rank-number {
-            width: 38px;
-            height: 38px;
-            flex: 0 0 38px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 11px;
-            background: #29372b;
-            color: #b9f27c;
-            font-size: 17px;
-            font-weight: 800;
-          }
-
-          .gc-ranking-page .gc-rank-team-name {
-            min-width: 0;
-            font-size: 15px;
-            font-weight: 800;
-            overflow-wrap: anywhere;
-            color: white;
-          }
-
-          .gc-ranking-page .gc-rank-points {
-            margin-right: auto;
-            flex: 0 0 auto;
-            color: #b9f27c;
-            font-size: 17px;
-            font-weight: 900;
-          }
-
-          .gc-ranking-page .gc-rank-stats {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 7px;
-          }
-
-          .gc-ranking-page .gc-rank-stat {
-            min-width: 0;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 5px;
-            padding: 9px;
-            background: #101612;
-            border-radius: 8px;
-            font-size: 12px;
-          }
-
-          .gc-ranking-page .gc-rank-stat span {
-            color: #aab7aa;
-          }
-
-          .gc-ranking-page .gc-rank-stat strong {
-            color: white;
+          .gc-ranking-page .gc-team-muted {
+            color: #aab7aa !important;
             font-size: 13px;
           }
 
-          .gc-ranking-page .gc-rank-stat.points strong {
-            color: #b9f27c;
-            font-size: 16px;
+          .gc-ranking-page select {
+            display: block;
+            width: 100%;
+            max-width: 100%;
+            padding: 12px;
+            margin: 8px 0 14px;
+            background: #101612 !important;
+            color: #fff !important;
+            border: 1px solid #465448;
+            border-radius: 10px;
+            font: inherit;
           }
-        }
-      </style>
 
-      <div class="gc-team-panel">
-        <h3>🏆 جدول رده‌بندی تیم‌ها</h3>
-        <p class="gc-team-muted">
-          رتبه‌بندی بر اساس امتیاز، تفاضل گل و گل زده
-        </p>
+          .gc-ranking-page .gc-rank-summary {
+            display: grid;
+            grid-template-columns: repeat(3,minmax(0,1fr));
+            gap: 8px;
+            margin: 12px 0;
+          }
 
-        <select aria-label="فیلتر مسابقات"
-          onchange="GoalscourTeams.setFilter(this.value)">
-          <option value="all" ${filter === "all" ? "selected" : ""}>
-            همه مسابقات
-          </option>
-          <option value="official" ${filter === "official" ? "selected" : ""}>
-            فقط رسمی
-          </option>
-          <option value="unofficial" ${filter === "unofficial" ? "selected" : ""}>
-            فقط غیررسمی
-          </option>
-        </select>
+          .gc-ranking-page .gc-rank-summary div {
+            min-width: 0;
+            background: #101612 !important;
+            color: #cbd5ca !important;
+            border: 1px solid #344238;
+            border-radius: 11px;
+            padding: 12px 6px;
+            text-align: center;
+            font-size: 12px;
+          }
 
-        <div class="gc-rank-summary">
-          <div>
-            <strong>${ranking.length}</strong>
-            تعداد تیم‌ها
+          .gc-ranking-page .gc-rank-summary strong {
+            display: block;
+            color: #b9f27c !important;
+            font-size: 20px;
+            margin-bottom: 4px;
+          }
+
+          .gc-ranking-page .gc-team-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            color: #f4f7f2 !important;
+          }
+
+          .gc-ranking-page .gc-team-table th,
+          .gc-ranking-page .gc-team-table td {
+            padding: 12px 8px;
+            border-bottom: 1px solid #344238;
+            text-align: center;
+            color: #f4f7f2 !important;
+          }
+
+          .gc-ranking-page .gc-team-table th {
+            color: #b9f27c !important;
+          }
+
+          .gc-ranking-page .gc-team-table td:last-child {
+            color: #b9f27c !important;
+            font-weight: bold;
+          }
+
+          .gc-ranking-page .gc-rank-mobile {
+            display: none;
+          }
+
+          @media(max-width:650px) {
+            .gc-ranking-page {
+              overflow: hidden;
+            }
+
+            .gc-ranking-page .gc-team-panel {
+              padding: 12px;
+              border-radius: 13px;
+            }
+
+            .gc-ranking-page .gc-rank-summary {
+              gap: 5px;
+            }
+
+            .gc-ranking-page .gc-rank-summary div {
+              padding: 9px 3px;
+              font-size: 10px;
+              line-height: 1.7;
+            }
+
+            .gc-ranking-page .gc-rank-summary strong {
+              font-size: 17px;
+            }
+
+            .gc-ranking-page .gc-team-table {
+              display: none;
+            }
+
+            .gc-ranking-page .gc-rank-mobile {
+              display: grid;
+              grid-template-columns: minmax(0,1fr);
+              gap: 10px;
+              width: 100%;
+            }
+
+            .gc-ranking-page .gc-rank-card {
+              width: 100%;
+              min-width: 0;
+              background: #19221c !important;
+              color: #f4f7f2 !important;
+              border: 1px solid #465448;
+              border-radius: 13px;
+              padding: 12px;
+            }
+
+            .gc-ranking-page .gc-rank-card-head {
+              display: flex;
+              align-items: center;
+              gap: 10px;
+              padding-bottom: 11px;
+              margin-bottom: 10px;
+              border-bottom: 1px solid #344238;
+            }
+
+            .gc-ranking-page .gc-rank-number {
+              width: 38px;
+              height: 38px;
+              flex: 0 0 38px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              border-radius: 11px;
+              background: #29372b;
+              color: #b9f27c !important;
+              font-size: 17px;
+              font-weight: 800;
+            }
+
+            .gc-ranking-page .gc-rank-team-name {
+              min-width: 0;
+              font-size: 15px;
+              font-weight: 800;
+              overflow-wrap: anywhere;
+              color: #fff !important;
+            }
+
+            .gc-ranking-page .gc-rank-points {
+              margin-right: auto;
+              flex: 0 0 auto;
+              color: #b9f27c !important;
+              font-size: 17px;
+              font-weight: 900;
+            }
+
+            .gc-ranking-page .gc-rank-points small {
+              font-size: 10px;
+            }
+
+            .gc-ranking-page .gc-rank-stats {
+              display: grid;
+              grid-template-columns: repeat(2,minmax(0,1fr));
+              gap: 7px;
+            }
+
+            .gc-ranking-page .gc-rank-stat {
+              min-width: 0;
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+              gap: 5px;
+              padding: 9px;
+              background: #101612 !important;
+              color: #fff !important;
+              border-radius: 8px;
+              font-size: 12px;
+            }
+
+            .gc-ranking-page .gc-rank-stat span {
+              color: #aab7aa !important;
+            }
+
+            .gc-ranking-page .gc-rank-stat strong {
+              color: #fff !important;
+              font-size: 13px;
+            }
+
+            .gc-ranking-page .gc-rank-stat.points strong {
+              color: #b9f27c !important;
+              font-size: 16px;
+            }
+          }
+        </style>
+
+        <div class="gc-team-panel">
+          <h3>🏆 جدول رده‌بندی تیم‌ها</h3>
+
+          <p class="gc-team-muted">
+            رتبه‌بندی بر اساس امتیاز، تفاضل گل و گل زده
+          </p>
+
+          <select aria-label="فیلتر مسابقات"
+            onchange="GoalscourTeams.setFilter(this.value)">
+            <option value="all" ${filter === "all" ? "selected" : ""}>
+              همه مسابقات
+            </option>
+            <option value="official" ${filter === "official" ? "selected" : ""}>
+              فقط رسمی
+            </option>
+            <option value="unofficial" ${filter === "unofficial" ? "selected" : ""}>
+              فقط غیررسمی
+            </option>
+          </select>
+
+          <div class="gc-rank-summary">
+            <div>
+              <strong>${ranking.length}</strong>
+              تعداد تیم‌ها
+            </div>
+            <div>
+              <strong>${ranking.reduce((sum, team) => sum + team.stats.played, 0)}</strong>
+              بازی ثبت‌شده
+            </div>
+            <div>
+              <strong>${ranking.reduce((sum, team) => sum + team.stats.points, 0)}</strong>
+              مجموع امتیاز
+            </div>
           </div>
-          <div>
-            <strong>${ranking.reduce((sum, team) => sum + team.stats.played, 0)}</strong>
-            بازی ثبت‌شده
-          </div>
-          <div>
-            <strong>${ranking.reduce((sum, team) => sum + team.stats.points, 0)}</strong>
-            مجموع امتیاز
-          </div>
-        </div>
 
-        ${!ranking.length ? `
-          <p class="gc-team-muted">هنوز تیمی ثبت نشده است.</p>
-        ` : `
-          <div class="gc-rank-mobile">
-            ${ranking.map((team, index) => `
-              <div class="gc-rank-card">
-                <div class="gc-rank-card-head">
-                  <div class="gc-rank-number">${index + 1}</div>
-                  <div class="gc-rank-team-name">${esc(team.name)}</div>
-                  <div class="gc-rank-points">
-                    ${team.stats.points}
-                    <small>امتیاز</small>
-                  </div>
-                </div>
-
-                <div class="gc-rank-stats">
-                  <div class="gc-rank-stat">
-                    <span>⚽ بازی</span>
-                    <strong>${team.stats.played}</strong>
-                  </div>
-                  <div class="gc-rank-stat">
-                    <span>🏆 برد</span>
-                    <strong>${team.stats.wins}</strong>
-                  </div>
-                  <div class="gc-rank-stat">
-                    <span>🤝 مساوی</span>
-                    <strong>${team.stats.draws}</strong>
-                  </div>
-                  <div class="gc-rank-stat">
-                    <span>❌ باخت</span>
-                    <strong>${team.stats.losses}</strong>
-                  </div>
-                  <div class="gc-rank-stat">
-                    <span>تفاضل گل</span>
-                    <strong>${team.stats.difference}</strong>
-                  </div>
-                  <div class="gc-rank-stat points">
-                    <span>امتیاز</span>
-                    <strong>${team.stats.points}</strong>
-                  </div>
-                </div>
-              </div>
-            `).join("")}
-          </div>
-
-          <table class="gc-team-table">
-            <thead>
-              <tr>
-                <th>رتبه</th>
-                <th>تیم</th>
-                <th>بازی</th>
-                <th>برد</th>
-                <th>مساوی</th>
-                <th>باخت</th>
-                <th>تفاضل</th>
-                <th>امتیاز</th>
-              </tr>
-            </thead>
-            <tbody>
+          ${!ranking.length ? `
+            <p class="gc-team-muted">هنوز تیمی ثبت نشده است.</p>
+          ` : `
+            <div class="gc-rank-mobile">
               ${ranking.map((team, index) => `
-                <tr>
-                  <td>${index + 1}</td>
-                  <td>${esc(team.name)}</td>
-                  <td>${team.stats.played}</td>
-                  <td>${team.stats.wins}</td>
-                  <td>${team.stats.draws}</td>
-                  <td>${team.stats.losses}</td>
-                  <td>${team.stats.difference}</td>
-                  <td><strong>${team.stats.points}</strong></td>
-                </tr>
-              `).join("")}
-            </tbody>
-          </table>
-        `}
-      </div>
-    </div>
-  `;
-}
+                <div class="gc-rank-card">
+                  <div class="gc-rank-card-head">
+                    <div class="gc-rank-number">${index + 1}</div>
+                    <div class="gc-rank-team-name">${esc(team.name)}</div>
+                    <div class="gc-rank-points">
+                      ${team.stats.points}
+                      <small>امتیاز</small>
+                    </div>
+                  </div>
 
+                  <div class="gc-rank-stats">
+                    <div class="gc-rank-stat">
+                      <span>⚽ بازی</span>
+                      <strong>${team.stats.played}</strong>
+                    </div>
+                    <div class="gc-rank-stat">
+                      <span>🏆 برد</span>
+                      <strong>${team.stats.wins}</strong>
+                    </div>
+                    <div class="gc-rank-stat">
+                      <span>🤝 مساوی</span>
+                      <strong>${team.stats.draws}</strong>
+                    </div>
+                    <div class="gc-rank-stat">
+                      <span>❌ باخت</span>
+                      <strong>${team.stats.losses}</strong>
+                    </div>
+                    <div class="gc-rank-stat">
+                      <span>تفاضل گل</span>
+                      <strong>${team.stats.difference}</strong>
+                    </div>
+                    <div class="gc-rank-stat points">
+                      <span>امتیاز</span>
+                      <strong>${team.stats.points}</strong>
+                    </div>
+                  </div>
+                </div>
+              `).join("")}
+            </div>
+
+            <table class="gc-team-table">
+              <thead>
+                <tr>
+                  <th>رتبه</th>
+                  <th>تیم</th>
+                  <th>بازی</th>
+                  <th>برد</th>
+                  <th>مساوی</th>
+                  <th>باخت</th>
+                  <th>تفاضل</th>
+                  <th>امتیاز</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${ranking.map((team, index) => `
+                  <tr>
+                    <td>${index + 1}</td>
+                    <td>${esc(team.name)}</td>
+                    <td>${team.stats.played}</td>
+                    <td>${team.stats.wins}</td>
+                    <td>${team.stats.draws}</td>
+                    <td>${team.stats.losses}</td>
+                    <td>${team.stats.difference}</td>
+                    <td><strong>${team.stats.points}</strong></td>
+                  </tr>
+                `).join("")}
+              </tbody>
+            </table>
+          `}
+        </div>
+      </div>
+    `;
+  }
 
   function renderTeamList() {
     const target = document.getElementById("gcTeamList");
     if (!target) return;
 
     if (!teams.length) {
-      target.innerHTML = "<p>هنوز تیمی ساخته نشده است.</p>";
+      target.innerHTML = '<p style="color:#fff">هنوز تیمی ساخته نشده است.</p>';
       return;
     }
 
@@ -740,35 +688,42 @@ function renderRankingPage() {
               ? `<img class="gc-team-logo" src="${esc(team.logo_url)}" alt="">`
               : `<div class="gc-team-logo"></div>`}
             <div>
-              <strong>${esc(team.name)}</strong>
+              <strong style="color:#fff">${esc(team.name)}</strong>
               <div class="gc-team-muted">
-                ${team.team_type === "roster" ? "تیم دارای بازیکنان" : "تیم مستقل"}
+                ${team.team_type === "roster"
+                  ? "تیم دارای بازیکنان"
+                  : "تیم مستقل"}
               </div>
             </div>
           </div>
 
           <div class="gc-team-stats">
-            <div class="gc-team-stat"><strong>${stats.played}</strong>بازی</div>
-            <div class="gc-team-stat"><strong>${stats.wins}</strong>برد</div>
-            <div class="gc-team-stat"><strong>${stats.points}</strong>امتیاز</div>
+            <div class="gc-team-stat">
+              <strong>${stats.played}</strong>بازی
+            </div>
+            <div class="gc-team-stat">
+              <strong>${stats.wins}</strong>برد
+            </div>
+            <div class="gc-team-stat">
+              <strong>${stats.points}</strong>امتیاز
+            </div>
           </div>
-                    ${team.team_type === "roster"
+
+          ${team.team_type === "roster"
             ? `<p class="gc-team-muted">تعداد اعضا: ${count}</p>`
             : ""}
 
           <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px">
             <button
               onclick="GoalscourTeams.openTeam('${team.id}')"
-              style="flex:1"
-            >
+              style="flex:1">
               مشاهده جزئیات
             </button>
 
             ${isAdmin ? `
               <button
                 onclick="GoalscourTeams.openTeam('${team.id}'); GoalscourTeams.showMatch('${team.id}')"
-                style="flex:1"
-              >
+                style="flex:1">
                 ＋ ثبت مسابقه
               </button>
             ` : ""}
@@ -777,7 +732,7 @@ function renderRankingPage() {
       `;
     }).join("");
   }
-
+  
   function showCreate() {
     if (!isAdmin) return;
 
@@ -924,7 +879,9 @@ function renderRankingPage() {
           <option value="سایر">سایر</option>
         </select>
 
-        <button onclick="GoalscourTeams.saveMember('${teamId}')">افزودن به تیم</button>
+        <button onclick="GoalscourTeams.saveMember('${teamId}')">
+          افزودن به تیم
+        </button>
       </div>
     `;
   }
@@ -994,17 +951,22 @@ function renderRankingPage() {
     const stats = getStats(teamId);
     const teamMembers = members.filter(m => m.team_id === teamId);
     const history = teamMatches(teamId);
-
     const target = document.getElementById("gcTeamDetails");
 
     target.innerHTML = `
       <div class="gc-team-panel">
         <h2>${esc(team.name)}</h2>
         <p>${esc(team.description || "")}</p>
+
         <p class="gc-team-muted">
-          نوع تیم: ${team.team_type === "roster" ? "دارای بازیکنان" : "مستقل"}
+          نوع تیم: ${team.team_type === "roster"
+            ? "دارای بازیکنان"
+            : "مستقل"}
         </p>
-        <p class="gc-team-muted">تاریخ تأسیس: ${dateText(team.founded_on)}</p>
+
+        <p class="gc-team-muted">
+          تاریخ تأسیس: ${dateText(team.founded_on)}
+        </p>
 
         <div class="gc-team-stats">
           <div class="gc-team-stat"><strong>${stats.played}</strong>بازی</div>
@@ -1023,20 +985,32 @@ function renderRankingPage() {
 
         ${team.team_type === "roster" ? `
           <h3>👥 بازیکنان تیم</h3>
-          ${isAdmin ? `<button onclick="GoalscourTeams.addMember('${teamId}')">＋ افزودن بازیکن</button>` : ""}
+
+          ${isAdmin ? `
+            <button onclick="GoalscourTeams.addMember('${teamId}')">
+              ＋ افزودن بازیکن
+            </button>
+          ` : ""}
+
           <div id="gcAddMember"></div>
 
           ${teamMembers.length ? teamMembers.map(member => {
             const player = players.find(p => p.id === member.player_id);
+
             return `
               <div class="gc-team-card gc-team-row">
-                ${player?.photo ? `<img class="gc-team-logo" src="${esc(player.photo)}" alt="">` : ""}
+                ${player?.photo
+                  ? `<img class="gc-team-logo" src="${esc(player.photo)}" alt="">`
+                  : ""}
+
                 <div style="flex:1">
                   <strong>${esc(player?.name || "بازیکن")}</strong>
                   <div class="gc-team-muted">
-                    شماره ${esc(member.shirt_number ?? "-")} · ${esc(member.position || "نامشخص")}
+                    شماره ${esc(member.shirt_number ?? "-")} ·
+                    ${esc(member.position || "نامشخص")}
                   </div>
                 </div>
+
                 ${isAdmin ? `
                   <button class="secondary"
                     onclick="GoalscourTeams.removeMember('${member.id}','${teamId}')">
@@ -1049,6 +1023,7 @@ function renderRankingPage() {
         ` : ""}
 
         <h3>📅 تاریخچه مسابقات</h3>
+
         ${history.length ? history.map(match => {
           const home = match.team_id === teamId;
           const opponent = match.opponent_team_id
@@ -1063,12 +1038,15 @@ function renderRankingPage() {
               <strong>${esc(team.name)}</strong>
               ${gf} - ${ga}
               <strong>${esc(opponent || match.opponent_name || "حریف")}</strong>
+
               <p class="gc-team-muted">
                 ${dateText(match.match_date)} ·
                 ${match.match_type === "official" ? "رسمی" : "غیررسمی"}
                 ${match.competition ? " · " + esc(match.competition) : ""}
               </p>
+
               ${match.notes ? `<p>${esc(match.notes)}</p>` : ""}
+
               ${isAdmin ? `
                 <button class="secondary"
                   onclick="GoalscourTeams.deleteMatch('${match.id}','${teamId}')">
@@ -1088,6 +1066,7 @@ function renderRankingPage() {
     if (!isAdmin) return;
 
     const target = document.getElementById("gcTeamDetails");
+
     const opponentOptions = teams
       .filter(t => t.id !== teamId)
       .map(t => `<option value="${t.id}">${esc(t.name)}</option>`)
@@ -1127,7 +1106,9 @@ function renderRankingPage() {
         <label>توضیحات</label>
         <textarea id="gcMatchNotes"></textarea>
 
-        <button onclick="GoalscourTeams.saveMatch('${teamId}')">ثبت مسابقه</button>
+        <button onclick="GoalscourTeams.saveMatch('${teamId}')">
+          ثبت مسابقه
+        </button>
       </div>
     `);
   }
@@ -1135,14 +1116,23 @@ function renderRankingPage() {
   async function saveMatch(teamId) {
     if (!isAdmin) return;
 
-    const opponentId = document.getElementById("gcOpponentTeam").value || null;
-    const opponentName = document.getElementById("gcOpponentName").value.trim();
+    const opponentId =
+      document.getElementById("gcOpponentTeam").value || null;
 
-    const goalsFor = Number(document.getElementById("gcGoalsFor").value);
-    const goalsAgainst = Number(document.getElementById("gcGoalsAgainst").value);
+    const opponentName =
+      document.getElementById("gcOpponentName").value.trim();
 
-    const matchDate = document.getElementById("gcMatchDate").value;
-    const matchType = document.getElementById("gcMatchType").value;
+    const goalsFor =
+      Number(document.getElementById("gcGoalsFor").value);
+
+    const goalsAgainst =
+      Number(document.getElementById("gcGoalsAgainst").value);
+
+    const matchDate =
+      document.getElementById("gcMatchDate").value;
+
+    const matchType =
+      document.getElementById("gcMatchType").value;
 
     if (!matchDate || goalsFor < 0 || goalsAgainst < 0 ||
         !Number.isInteger(goalsFor) || !Number.isInteger(goalsAgainst)) {
@@ -1165,8 +1155,10 @@ function renderRankingPage() {
       goals_against: goalsAgainst,
       match_date: matchDate,
       match_type: matchType,
-      competition: document.getElementById("gcCompetition").value.trim() || null,
-      notes: document.getElementById("gcMatchNotes").value.trim() || null
+      competition:
+        document.getElementById("gcCompetition").value.trim() || null,
+      notes:
+        document.getElementById("gcMatchNotes").value.trim() || null
     });
 
     if (error) {
