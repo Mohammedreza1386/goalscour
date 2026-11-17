@@ -1115,17 +1115,34 @@ document.getElementById("matchForm").addEventListener("submit", event => {
     return;
   }
 
-  const record = {
-    id: id(),
-    opponent,
-    date,
-    against,
-    scorerId,
-    goals,
-    penalties,
-    assisterId: assisterId || "",
-    assists
-  };
+  const participantSelect =
+  document.getElementById("matchParticipants");
+
+const participantIds = participantSelect
+  ? Array.from(participantSelect.selectedOptions)
+      .map(option => String(option.value))
+  : [];
+
+[scorerId, assisterId]
+  .filter(Boolean)
+  .forEach(playerId => {
+    if (!participantIds.includes(String(playerId))) {
+      participantIds.push(String(playerId));
+    }
+  });
+
+const record = {
+  id: id(),
+  opponent,
+  date,
+  against,
+  scorerId,
+  goals,
+  penalties,
+  assisterId: assisterId || "",
+  assists,
+  participantIds
+};
 
   matches.push(record);
 
