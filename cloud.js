@@ -485,6 +485,8 @@ function createLocalBackup() {
         matchId: item.match_id || "",
         opponent: item.opponent || ""
       }))
+   };
+  }
 
   /* =========================
      ذخیره محلی
