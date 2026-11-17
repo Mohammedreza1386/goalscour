@@ -774,7 +774,10 @@ const unofficialAppearanceIds = new Set(
     goalContributions,
     likes: num(player?.likes),
 
-    appearances: num(rated.appearances),
+    appearances:
+  num(rated.appearances) +
+  officialAppearanceIds.size +
+  unofficialAppearanceIds.size,
     totalRating: num(rated.totalRating),
     averageRating: num(rated.averageRating),
     goalsPerMatch: num(rated.goalsPerMatch),
