@@ -180,7 +180,6 @@
             font-size:13px}
           .gc-team-table td,.gc-team-table th{
             padding:10px;border-bottom:1px solid #344238;text-align:center}
-            
 
 /* جدول رده‌بندی واکنش‌گرا */
 .gc-team-table {
@@ -220,7 +219,6 @@
     font-size: 15px;
   }
 }
-
 
 /* نمایش کامل جدول رده‌بندی در موبایل */
 @media (max-width: 600px) {
@@ -286,15 +284,12 @@
     font-weight: bold;
   }
 }
-
-
-
         </style>
 
         <div class="gc-team-panel">
           <h2>⚽ تیم‌های Goalscour</h2>
           <p class="gc-team-muted">
-            ساخت تیم، ثبت مسابقات و مشاهده جدول رده‌بندی
+            ساخت تیم، ثبت مسابقات و مشاهده فهرست تیم‌ها
           </p>
           ${isAdmin ? `
             <button onclick="GoalscourTeams.showCreate()">＋ ساخت تیم جدید</button>
@@ -305,64 +300,140 @@
         <div id="gcTeamDetails"></div>
 
         <div class="gc-team-panel">
-          <h3>🏆 جدول رده‌بندی تیم‌ها</h3>
-          <select onchange="GoalscourTeams.setFilter(this.value)">
-            <option value="all" ${filter === "all" ? "selected" : ""}>همه مسابقات</option>
-            <option value="official" ${filter === "official" ? "selected" : ""}>فقط رسمی</option>
-            <option value="unofficial" ${filter === "unofficial" ? "selected" : ""}>فقط غیررسمی</option>
-          </select>
-          <div id="gcTeamRanking"></div>
-        </div>
-
-        <div class="gc-team-panel">
           <h3>📋 فهرست تیم‌ها</h3>
           <div id="gcTeamList" class="gc-team-grid"></div>
         </div>
       </div>
     `;
 
-    renderRanking();
     renderTeamList();
+    renderRankingPage();
   }
 
-  function renderRanking() {
-    const target = document.getElementById("gcTeamRanking");
+  function renderRankingPage() {
+    const target = document.getElementById("gcTeamRankingApp");
     if (!target) return;
 
     const ranking = getLeaderboard();
 
-    if (!ranking.length) {
-      target.innerHTML = "<p>هنوز تیمی ثبت نشده است.</p>";
-      return;
-    }
-
     target.innerHTML = `
-      <table class="gc-team-table">
-        <thead>
-          <tr>
-            <th>رتبه</th><th>تیم</th><th>بازی</th>
-            <th>برد</th><th>مساوی</th><th>باخت</th>
-            <th>تفاضل</th><th>امتیاز</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${ranking.map((team, index) => `
-            <tr>
-              <td>${index + 1}</td>
-              <td>${esc(team.name)}</td>
-              <td>${team.stats.played}</td>
-              <td>${team.stats.wins}</td>
-              <td>${team.stats.draws}</td>
-              <td>${team.stats.losses}</td>
-              <td>${team.stats.difference}</td>
-              <td><strong>${team.stats.points}</strong></td>
-            </tr>
-          `).join("")}
-        </tbody>
-      </table>
+      <div class="gc-teams gc-ranking-page">
+        <style>
+          .gc-ranking-page{color:inherit}
+          .gc-ranking-page *{box-sizing:border-box}
+          .gc-ranking-page .gc-team-panel{
+            background:#151b18;border:1px solid #344238;
+            border-radius:16px;padding:16px;margin:12px 0
+          }
+          .gc-ranking-page .gc-team-muted{color:#aab7aa;font-size:13px}
+          .gc-ranking-page select{
+            width:100%;padding:12px;margin:8px 0 14px;
+            background:#101612;color:white;border:1px solid #465448;
+            border-radius:10px;font:inherit
+          }
+          .gc-ranking-page .gc-rank-summary{
+            display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+            gap:8px;margin:12px 0
+          }
+          .gc-ranking-page .gc-rank-summary div{
+            background:#101612;border:1px solid #344238;
+            border-radius:11px;padding:12px 6px;text-align:center;
+            font-size:12px;color:#aab7aa
+          }
+          .gc-ranking-page .gc-rank-summary strong{
+            display:block;color:#b9f27c;font-size:20px;margin-bottom:4px
+          }
+          .gc-ranking-page .gc-team-table{
+            width:100%;border-collapse:collapse;font-size:13px
+          }
+          .gc-ranking-page .gc-team-table th,
+          .gc-ranking-page .gc-team-table td{
+            padding:12px 8px;border-bottom:1px solid #344238;
+            text-align:center
+          }
+          .gc-ranking-page .gc-team-table th{color:#b9f27c}
+          .gc-ranking-page .gc-team-table td:nth-child(8){
+            color:#b9f27c;font-weight:bold
+          }
+          @media(max-width:600px){
+            .gc-ranking-page .gc-team-panel{padding:11px}
+            .gc-ranking-page .gc-rank-summary{gap:6px}
+            .gc-ranking-page .gc-rank-summary div{font-size:10px;padding:10px 3px}
+            .gc-ranking-page .gc-rank-summary strong{font-size:18px}
+            .gc-ranking-page .gc-team-table,
+            .gc-ranking-page .gc-team-table tbody{
+              display:block;width:100%
+            }
+            .gc-ranking-page .gc-team-table thead{display:none}
+            .gc-ranking-page .gc-team-table tbody tr{
+              display:grid;grid-template-columns:1fr 1fr;
+              margin:10px 0;border:1px solid #465448;
+              border-radius:12px;overflow:hidden
+            }
+            .gc-ranking-page .gc-team-table td{
+              display:flex;justify-content:space-between;align-items:center;
+              gap:6px;min-width:0;padding:10px 7px;
+              font-size:12px;text-align:right;
+              border-bottom:1px solid #344238
+            }
+            .gc-ranking-page .gc-team-table td::before{
+              color:#b9f27c;font-weight:bold;flex-shrink:0
+            }
+            .gc-ranking-page .gc-team-table td:nth-child(1)::before{content:"رتبه"}
+            .gc-ranking-page .gc-team-table td:nth-child(2)::before{content:"تیم"}
+            .gc-ranking-page .gc-team-table td:nth-child(3)::before{content:"بازی"}
+            .gc-ranking-page .gc-team-table td:nth-child(4)::before{content:"برد"}
+            .gc-ranking-page .gc-team-table td:nth-child(5)::before{content:"مساوی"}
+            .gc-ranking-page .gc-team-table td:nth-child(6)::before{content:"باخت"}
+            .gc-ranking-page .gc-team-table td:nth-child(7)::before{content:"تفاضل"}
+            .gc-ranking-page .gc-team-table td:nth-child(8)::before{content:"امتیاز"}
+            .gc-ranking-page .gc-team-table td:nth-child(2){overflow-wrap:anywhere}
+          }
+        </style>
+        <div class="gc-team-panel">
+          <h3>🏆 جدول رده‌بندی تیم‌ها</h3>
+          <p class="gc-team-muted">رتبه‌بندی بر اساس امتیاز، تفاضل گل و گل زده</p>
+          <select aria-label="فیلتر مسابقات" onchange="GoalscourTeams.setFilter(this.value)">
+            <option value="all" ${filter === "all" ? "selected" : ""}>همه مسابقات</option>
+            <option value="official" ${filter === "official" ? "selected" : ""}>فقط رسمی</option>
+            <option value="unofficial" ${filter === "unofficial" ? "selected" : ""}>فقط غیررسمی</option>
+          </select>
+          <div class="gc-rank-summary">
+            <div><strong>${ranking.length}</strong>تیم</div>
+            <div><strong>${ranking.reduce((sum, team) => sum + team.stats.played, 0)}</strong>بازی ثبت‌شده برای تیم‌ها</div>
+            <div><strong>${ranking.reduce((sum, team) => sum + team.stats.points, 0)}</strong>مجموع امتیاز تیم‌ها</div>
+          </div>
+          ${!ranking.length ? '<p class="gc-team-muted">هنوز تیمی ثبت نشده است.</p>' : `
+            <table class="gc-team-table">
+              <thead>
+                <tr>
+                  <th>رتبه</th><th>تیم</th><th>بازی</th>
+                  <th>برد</th><th>مساوی</th><th>باخت</th>
+                  <th>تفاضل</th><th>امتیاز</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${ranking.map((team, index) => `
+                  <tr>
+                    <td>${index + 1}</td>
+                    <td>${esc(team.name)}</td>
+                    <td>${team.stats.played}</td>
+                    <td>${team.stats.wins}</td>
+                    <td>${team.stats.draws}</td>
+                    <td>${team.stats.losses}</td>
+                    <td>${team.stats.difference}</td>
+                    <td><strong>${team.stats.points}</strong></td>
+                  </tr>
+                `).join("")}
+              </tbody>
+            </table>
+          `}
+        </div>
+      </div>
     `;
   }
-    function renderTeamList() {
+
+  function renderTeamList() {
     const target = document.getElementById("gcTeamList");
     if (!target) return;
 
@@ -394,30 +465,27 @@
             <div class="gc-team-stat"><strong>${stats.wins}</strong>برد</div>
             <div class="gc-team-stat"><strong>${stats.points}</strong>امتیاز</div>
           </div>
-
-          ${team.team_type === "roster"
+                    ${team.team_type === "roster"
             ? `<p class="gc-team-muted">تعداد اعضا: ${count}</p>`
             : ""}
 
-          
-<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px">
-  <button
-    onclick="GoalscourTeams.openTeam('${team.id}')"
-    style="flex:1"
-  >
-    مشاهده جزئیات
-  </button>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px">
+            <button
+              onclick="GoalscourTeams.openTeam('${team.id}')"
+              style="flex:1"
+            >
+              مشاهده جزئیات
+            </button>
 
-  ${isAdmin ? `
-    <button
-      onclick="GoalscourTeams.openTeam('${team.id}'); GoalscourTeams.showMatch('${team.id}')"
-      style="flex:1"
-    >
-      ＋ ثبت مسابقه
-    </button>
-  ` : ""}
-</div>
-
+            ${isAdmin ? `
+              <button
+                onclick="GoalscourTeams.openTeam('${team.id}'); GoalscourTeams.showMatch('${team.id}')"
+                style="flex:1"
+              >
+                ＋ ثبت مسابقه
+              </button>
+            ` : ""}
+          </div>
         </div>
       `;
     }).join("");
@@ -629,7 +697,8 @@
     await loadData();
     openTeam(teamId);
   }
-    function openTeam(teamId) {
+
+  function openTeam(teamId) {
     activeTeam = teamId;
 
     const team = teams.find(t => t.id === teamId);
@@ -843,7 +912,7 @@
 
   function setFilter(value) {
     filter = value;
-    renderRanking();
+    renderRankingPage();
   }
 
   window.GoalscourTeams = {
