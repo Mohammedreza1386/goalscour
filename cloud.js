@@ -559,6 +559,8 @@ opponent: item.opponent || ""
           assists: Number(item.assists) || 0,
           record_date: item.date,
           note: String(item.note || ""),
+          match_id: item.matchId || null,
+opponent: String(item.opponent || ""),
           updated_at: new Date().toISOString()
         }))
       }
