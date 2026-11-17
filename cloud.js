@@ -469,6 +469,9 @@ function createLocalBackup() {
         penalties: item.penalties,
         assisterId: item.assister_id || "",
         assists: item.assists
+        participantIds: Array.isArray(item.participant_ids)
+  ? item.participant_ids.map(String)
+  : []
       })),
 
       unofficial: (results[2].data || []).map(item => ({
