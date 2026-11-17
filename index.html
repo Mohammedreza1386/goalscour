@@ -676,6 +676,39 @@ function getStats(playerId) {
     u => String(u.playerId) === String(playerId)
   );
 
+  // محاسبه مسابقات رسمی
+const officialAppearanceIds = new Set();
+
+matches.forEach(match => {
+
+  if (isRatedDuplicate(match)) return;
+
+  const participants = Array.isArray(match.participantIds)
+    ? match.participantIds.map(String)
+    : [];
+
+  const participated =
+    participants.includes(String(playerId)) ||
+    String(match.scorerId) === String(playerId) ||
+    String(match.assisterId) === String(playerId);
+
+  if (participated) {
+    officialAppearanceIds.add(String(match.id));
+  }
+
+});
+
+// محاسبه مسابقات غیررسمی
+const unofficialAppearanceIds = new Set(
+  unofficialRecords.map(record => {
+
+    return record.matchId
+      ? "match:" + String(record.matchId)
+      : "record:" + String(record.id);
+
+  })
+);
+
   const rated = typeof window.gcGetMatchStats === "function"
     ? window.gcGetMatchStats(playerId)
     : {
