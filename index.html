@@ -432,8 +432,18 @@ td{color:#e3e9e0}
           <input id="against" type="number" min="0" max="99" value="0">
         </div>
       </div>
-      <label>گلزن</label>
-      <select id="scorer" required></select>
+      <label>بازیکنان حاضر در مسابقه</label>
+<select id="matchParticipants" multiple size="5"
+  style="width:100%;min-height:110px;margin:8px 0 14px">
+</select>
+
+<div class="notice">
+برای انتخاب چند بازیکن، نام تمام بازیکنان حاضر را انتخاب کن.
+گلزن و پاسور هم خودکار به فهرست حضور اضافه می‌شوند.
+</div>
+
+<label>گلزن</label>
+<select id="scorer" required></select>
       <div class="form-grid">
         <div>
           <label>تعداد گل بازیکن</label>
