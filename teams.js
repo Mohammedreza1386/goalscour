@@ -399,9 +399,25 @@
             ? `<p class="gc-team-muted">تعداد اعضا: ${count}</p>`
             : ""}
 
-          <button onclick="GoalscourTeams.openTeam('${team.id}')">
-            مشاهده جزئیات
-          </button>
+          
+<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px">
+  <button
+    onclick="GoalscourTeams.openTeam('${team.id}')"
+    style="flex:1"
+  >
+    مشاهده جزئیات
+  </button>
+
+  ${isAdmin ? `
+    <button
+      onclick="GoalscourTeams.openTeam('${team.id}'); GoalscourTeams.showMatch('${team.id}')"
+      style="flex:1"
+    >
+      ＋ ثبت مسابقه
+    </button>
+  ` : ""}
+</div>
+
         </div>
       `;
     }).join("");
