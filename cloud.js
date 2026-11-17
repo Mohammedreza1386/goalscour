@@ -482,6 +482,8 @@ function createLocalBackup() {
         assists: item.assists,
         date: item.record_date,
         note: item.note || ""
+        matchId: item.match_id || "",
+opponent: item.opponent || ""
       }))
     };
   }
