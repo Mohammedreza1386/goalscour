@@ -459,7 +459,7 @@ function createLocalBackup() {
         photo: item.photo || ""
       })),
 
-      matches: (results[1].data || []).map(item => ({
+           matches: (results[1].data || []).map(item => ({
         id: item.id,
         opponent: item.opponent,
         date: item.match_date,
@@ -468,10 +468,10 @@ function createLocalBackup() {
         goals: item.goals,
         penalties: item.penalties,
         assisterId: item.assister_id || "",
-        assists: item.assists
+        assists: item.assists,
         participantIds: Array.isArray(item.participant_ids)
-  ? item.participant_ids.map(String)
-  : []
+          ? item.participant_ids.map(String)
+          : []
       })),
 
       unofficial: (results[2].data || []).map(item => ({
@@ -481,12 +481,10 @@ function createLocalBackup() {
         penalties: item.penalties,
         assists: item.assists,
         date: item.record_date,
-        note: item.note || ""
+        note: item.note || "",
         matchId: item.match_id || "",
-opponent: item.opponent || ""
+        opponent: item.opponent || ""
       }))
-    };
-  }
 
   /* =========================
      ذخیره محلی
