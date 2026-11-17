@@ -8,13 +8,14 @@ const KEY="sb_publishable_WGMEA7-K8FAResrVCL8GJQ_6KCxrvmK";
 const db = window.supabase?.createClient
   ? window.supabase.createClient(URL, KEY)
   : null;
+
 const main=document.querySelector("main");
 const nav=main?.querySelector("nav");
 
-if(!main||!nav||document.getElementById("gcHallOfFame"))return;
+if(!main||!nav)return;
 
 const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({
-"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;',"\'":"&#39;"
+"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;',"'":"&#39;"
 }[c]));
 
 const num=v=>{
@@ -22,132 +23,50 @@ const n=Number(v??0);
 return Number.isFinite(n)&&n>0?n:0;
 };
 
-const tab=document.createElement("button");
+// استفاده از بخش موجود در index.html
+let tab=nav.querySelector('button[data-tab="gcHallOfFame"]');
+
+if(!tab){
+tab=document.createElement("button");
 tab.type="button";
 tab.dataset.tab="gcHallOfFame";
-tab.textContent="تالار افتخارات";
+tab.textContent="🏆 تالار افتخارات";
 nav.appendChild(tab);
+}
 
-const section=document.createElement("section");
+const existingSection=document.getElementById("gcHallOfFame");
+const section=existingSection||document.createElement("section");
+
 section.id="gcHallOfFame";
 section.className="section";
 
-section.innerHTML=`
-<style>
-#gcHallOfFame{direction:rtl}
-#gcHallOfFame .hf-wrap{display:grid;gap:15px}
-#gcHallOfFame .hf-hero,
-#gcHallOfFame .hf-panel{
-padding:17px;
-border:1px solid #273329;
-border-radius:17px;
-background:#111812;
-}
-#gcHallOfFame .hf-hero{
-background:linear-gradient(135deg,#253522,#111812);
-}
-#gcHallOfFame h2,#gcHallOfFame h3{
-color:#b9f27c;
-}
-#gcHallOfFame .hf-grid{
-display:grid;
-gap:13px;
-}
-#gcHallOfFame .hf-list{
-display:grid;
-gap:9px;
-}
-#gcHallOfFame .hf-player{
-display:flex;
-align-items:center;
-gap:10px;
-padding:10px;
-border:1px solid #273329;
-border-radius:13px;
-background:#0c130d;
-}
-#gcHallOfFame .hf-player:first-child{
-border-color:#b9f27c;
-}
-#gcHallOfFame .hf-rank{
-color:#b9f27c;
-font-weight:bold;
-}
-#gcHallOfFame .hf-photo{
-width:43px;
-height:43px;
-border-radius:50%;
-object-fit:cover;
-}
-#gcHallOfFame .hf-info{
-flex:1;
-min-width:0;
-}
-#gcHallOfFame .hf-name{
-font-weight:bold;
-font-size:13px;
-}
-#gcHallOfFame .hf-gap{
-font-size:11px;
-color:#89958a;
-margin-top:4px;
-}
-#gcHallOfFame .hf-value{
-font-size:18px;
-font-weight:bold;
-color:#b9f27c;
-}
-#gcHallOfFame .hf-empty{
-color:#89958a;
-padding:12px;
-}
-@media(min-width:700px){
-#gcHallOfFame .hf-grid{
-grid-template-columns:repeat(2,minmax(0,1fr));
-}
-}
-</style>
+const box=document.getElementById("hfCategories");
+const status=document.getElementById("hfStatus");
 
-<div class="hf-wrap">
+if(!box||!status)return;
 
-<div class="hf-hero">
-<h2>🏆 تالار افتخارات Goalscour</h2>
-<p>برترین بازیکنان تاریخ Goalscour</p>
-<span>رتبه‌بندی زنده · سه نفر برتر هر بخش</span>
-</div>
+box.innerHTML="در حال دریافت اطلاعات...";
 
-<div class="hf-grid" id="hfCategories">
-در حال دریافت اطلاعات...
-</div>
-
-<div id="hfStatus" class="hf-gap"></div>
-
-</div>
-`;
-
-main.appendChild(section);
-
-function openTab(){
-
-document.querySelectorAll(".section")
-.forEach(e=>e.classList.toggle(
-"active",e.id==="gcHallOfFame"
-));
-
-document.querySelectorAll("nav button[data-tab]")
-.forEach(e=>e.classList.toggle(
-"active",e===tab
-));
-
-load();
-}
-
-tab.addEventListener("click",openTab);
+if(!existingSection)main.appendChild(section);
 
 function matchKey(date,opponent){
 return String(date||"").slice(0,10)+"|"+
 String(opponent||"").trim().toLowerCase();
 }
+
+function openTab(){
+document.querySelectorAll(".section").forEach(e=>{
+e.classList.toggle("active",e.id==="gcHallOfFame");
+});
+
+document.querySelectorAll("nav button[data-tab]").forEach(e=>{
+e.classList.toggle("active",e===tab);
+});
+
+load();
+}
+
+tab.addEventListener("click",openTab);
 
 function render(stats){
 
@@ -166,10 +85,8 @@ const cats=[
 ["بهترین دریبل‌زن","successfulDribbles","دریبل موفق"]
 ];
 
-const box=document.getElementById("hfCategories");
-
 if(!stats.length){
-box.innerHTML='<div class="hf-panel hf-empty">هنوز بازیکنی ثبت نشده است.</div>';
+box.innerHTML='<div class="hf-empty">هنوز بازیکنی ثبت نشده است.</div>';
 return;
 }
 
@@ -220,10 +137,13 @@ return `
 
 async function load(){
 
-const box=document.getElementById("hfCategories");
-const status=document.getElementById("hfStatus");
-
 if(!box||!status)return;
+
+if(!db){
+box.innerHTML='<div class="hf-panel hf-empty">اتصال Supabase برقرار نیست.</div>';
+status.textContent="کتابخانه Supabase بارگذاری نشده است.";
+return;
+}
 
 box.innerHTML="در حال دریافت آمار واقعی...";
 
@@ -241,6 +161,7 @@ db.from("goalscour_match_performances").select("match_id,player_id,goals,assists
 ]);
 
 const failed=results.find(r=>r.error);
+
 if(failed)throw failed.error;
 
 const players=results[0].data||[];
@@ -330,10 +251,11 @@ successfulDribbles:num(d.successful)
 render(stats);
 
 status.textContent=
-"آمار "+players.length+
-" بازیکن از Supabase دریافت شد.";
+"آمار "+players.length+" بازیکن از Supabase دریافت شد.";
 
 }catch(error){
+
+console.error("Goalscour Hall of Fame:",error);
 
 box.innerHTML=
 '<div class="hf-panel hf-empty">خطا در دریافت اطلاعات.</div>';
@@ -346,7 +268,9 @@ status.textContent=error.message||"خطای نامشخص";
 
 window.gcRefreshHallOfFame=load;
 
-window.addEventListener("focus",load);
+window.addEventListener("focus",()=>{
+if(!document.hidden)load();
+});
 
 document.addEventListener("visibilitychange",()=>{
 if(!document.hidden)load();
@@ -375,4 +299,3 @@ return result;
 load();
 
 })();
-  
