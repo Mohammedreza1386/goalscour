@@ -1185,7 +1185,7 @@ document.addEventListener("submit", async event => {
       const rows = playerIds.map(playerId => ({
         id: "custom-" + crypto.randomUUID(),
         award_type: "custom",
-        season: "جایزه اختصاصی",
+        season: "custom:" + crypto.randomUUID(),
         candidate_player_ids: playerIds,
         winner_player_id: playerId,
         status: "awarded",
