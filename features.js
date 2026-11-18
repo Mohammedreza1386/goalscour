@@ -1,4 +1,3 @@
-
 (() => {
 "use strict";
 
@@ -23,6 +22,13 @@ style.textContent = `
 #gcFeatures .gcform{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
 #gcFeatures .gcform input{min-width:125px}
 #gcFeatures h3{margin-top:8px}
+#gcAdminItems #gcCustomAwardAdmin{background:#111812;border:1px solid #40513d;border-radius:13px;padding:14px;margin-top:8px;color:#fff}
+#gcAdminItems #gcCustomAwardAdmin form{display:grid;gap:9px}
+#gcAdminItems #gcCustomAwardAdmin input,#gcAdminItems #gcCustomAwardAdmin select{box-sizing:border-box;width:100%;min-height:42px;background:#090d0a;color:#fff;border:1px solid #40513d;border-radius:8px;padding:9px}
+#gcAdminItems #gcCustomAwardAdmin select[multiple]{min-height:120px}
+#gcAdminItems #gcCustomAwardAdmin button{background:#b9f27c;color:#10170d;border:0;border-radius:8px;padding:11px;font-weight:bold}
+#gcAdminItems #gcCustomAwardAdmin h3{color:#b9f27c;margin:0 0 8px}
+#gcCustomAwardStatus{color:#b9f27c;font-size:12px;line-height:1.8;min-height:20px}
 `;
 
 document.head.appendChild(style);
@@ -121,6 +127,7 @@ section.innerHTML = `
     <button type="submit">
       ثبت و اهدای جایزه
     </button>
+    <p id="gcCustomAwardStatus" role="status" aria-live="polite"></p>
   </form>
 </div>
 
@@ -168,7 +175,11 @@ const esc = value =>
   })[c]);
 
 function status(message) {
-  el("gcFeatureStatus").textContent = message || "";
+  const featureStatus = el("gcFeatureStatus");
+  const awardStatus = el("gcCustomAwardStatus");
+
+  if (featureStatus) featureStatus.textContent = message || "";
+  if (awardStatus) awardStatus.textContent = message || "";
 }
 
 function inRange(date, period) {
@@ -425,8 +436,7 @@ async function saveAward(type, winnerId, candidateIds, period) {
   const result = await db
     .from("goalscour_awards")
     .upsert(payload, {onConflict:"id"});
-
-  if (result.error) throw result.error;
+    if (result.error) throw result.error;
 
   await load();
   await render();
@@ -863,7 +873,7 @@ const ACHIEVEMENT_LEVELS = [
     minimumAppearances:20,
     medal:"🌟",
     title:"ستاره بی‌نظیر",
-    award:"عملکرد درخشان",
+        award:"عملکرد درخشان",
     points:250
   },
 
@@ -1056,7 +1066,14 @@ async function render() {
   renderPeriods();
 
   const adminBox = el("gcCustomAwardAdmin");
-  if (adminBox) adminBox.hidden = !admin;
+  if (adminBox) {
+    adminBox.hidden = !admin;
+
+    const adminMenu = el("gcAdminItems");
+    if (adminMenu && adminBox.parentElement !== adminMenu) {
+      adminMenu.appendChild(adminBox);
+    }
+  }
 
   const customPlayers = el("gcCustomAwardPlayers");
   if (customPlayers) {
@@ -1097,7 +1114,7 @@ el("gcPeriodSelect").addEventListener("change", async event => {
 });
 
 
-section.addEventListener("submit", async event => {
+document.addEventListener("submit", async event => {
   if (event.target.id === "gcCustomAwardForm") {
     event.preventDefault();
 
