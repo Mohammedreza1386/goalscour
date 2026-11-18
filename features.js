@@ -1089,24 +1089,8 @@ function renderAchievements() {
 async function render() {
   renderPeriods();
 
-  const adminBox = el("gcCustomAwardAdmin");
-const adminMenu = el("gcAdminItems");
-
-if (adminBox) {
-  if (admin && adminMenu) {
-    if (adminBox.parentElement !== adminMenu) {
-      adminMenu.appendChild(adminBox);
-    }
-
-    adminBox.hidden = false;
-    adminBox.style.display = "block";
-    adminBox.setAttribute("data-admin-mounted", "true");
-  } else {
-    adminBox.hidden = true;
-    adminBox.style.display = "none";
-  }
-}
-
+  mountCustomAwardAdmin();
+  
   const customPlayers = el("gcCustomAwardPlayers");
   if (customPlayers) {
     customPlayers.innerHTML = players.map(player =>
