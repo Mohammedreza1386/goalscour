@@ -1173,6 +1173,7 @@ function renderAchievements() {
 
 async function render() {
   renderPeriods();
+  renderLegendsRanking();
 
   mountCustomAwardAdmin();
   
