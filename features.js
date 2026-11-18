@@ -686,7 +686,7 @@ function renderHistory() {
       String(p.id) === String(award.winner_player_id)
     );
 
-    const label = periodLabel(award.period_id) || award.season || "قدیمی";
+    const label = award.is_custom ? "جایزه اختصاصی" : (periodLabel(award.period_id) || award.season || "قدیمی");
 
     const title = award.is_custom
       ? `${award.award_icon || "🏆"} ${award.award_name || "جایزه اختصاصی"}`
