@@ -50,6 +50,13 @@ section.className = "section";
 
 section.innerHTML = `
   <h2>جوایز و آمار بازیکنان</h2>
+  <div class="gcp" id="gcLegendsRanking">
+  <h3>👑 سه اسطوره برتر تاریخ Goalscour</h3>
+  <p class="gcm">
+    رتبه‌بندی خودکار بر اساس عملکرد تمام‌دوره بازیکنان
+  </p>
+  <div id="gcLegendsTop3" class="gcg"></div>
+</div>
 
   <div class="gcp">
     <h3>مدیریت دوره مسابقات</h3>
