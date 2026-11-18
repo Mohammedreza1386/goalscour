@@ -1066,14 +1066,22 @@ async function render() {
   renderPeriods();
 
   const adminBox = el("gcCustomAwardAdmin");
-  if (adminBox) {
-    adminBox.hidden = !admin;
+const adminMenu = el("gcAdminItems");
 
-    const adminMenu = el("gcAdminItems");
-    if (adminMenu && adminBox.parentElement !== adminMenu) {
+if (adminBox) {
+  if (admin && adminMenu) {
+    if (adminBox.parentElement !== adminMenu) {
       adminMenu.appendChild(adminBox);
     }
+
+    adminBox.hidden = false;
+    adminBox.style.display = "block";
+    adminBox.setAttribute("data-admin-mounted", "true");
+  } else {
+    adminBox.hidden = true;
+    adminBox.style.display = "none";
   }
+}
 
   const customPlayers = el("gcCustomAwardPlayers");
   if (customPlayers) {
