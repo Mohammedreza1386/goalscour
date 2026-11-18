@@ -185,6 +185,30 @@ const el = id => document.getElementById(id);
 }
 
 window.gcMountCustomAwardForm = mountCustomAwardAdmin;
+  function mountCustomAwardAdmin() {
+  const box = el("gcCustomAwardAdmin");
+  const menu = el("gcAdminItems");
+
+  if (!box || !menu) return false;
+
+  if (!admin) {
+    box.hidden = true;
+    box.style.display = "none";
+    return false;
+  }
+
+  if (box.parentElement !== menu) {
+    menu.appendChild(box);
+  }
+
+  box.hidden = false;
+  box.style.display = "block";
+  box.removeAttribute("aria-hidden");
+
+  return true;
+}
+
+window.gcMountCustomAwardForm = mountCustomAwardAdmin;
 
 const n = value =>
   Math.max(0, Math.floor(Number(value) || 0));
