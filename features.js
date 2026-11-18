@@ -420,6 +420,60 @@ function goldenBootRanking(period) {
   );
 }
 
+  function renderLegendsRanking() {
+  const box = el("gcLegendsTop3");
+  if (!box) return;
+
+  const ranking = players.map(player => {
+    const stats = calculateStats(player);
+
+    const awardPoints = awards
+      .filter(a => String(a.winner_player_id) === String(player.id))
+      .reduce((sum, a) => sum + Number(a.award_points || 0), 0);
+
+    const achievementPoints =
+      getAchievementReward(player.id).points;
+
+    const score =
+      stats.officialGoals * 3 +
+      stats.assists * 2 +
+      stats.unofficialGoals +
+      stats.hatTricks * 5 +
+      awardPoints +
+      achievementPoints;
+
+    return { player, stats, score };
+  })
+  .sort((a, b) => b.score - a.score)
+  .slice(0, 3);
+
+  const medals = ["🥇", "🥈", "🥉"];
+
+  box.innerHTML = ranking.map((item, index) => `
+    <div class="gcc">
+      <span class="gcpill">${medals[index]} رتبه ${index + 1}</span>
+      <h3>${esc(item.player.name)}</h3>
+      <div class="gcr">
+        <span>گل رسمی</span>
+        <b>${item.stats.officialGoals}</b>
+      </div>
+      <div class="gcr">
+        <span>پاس گل</span>
+        <b>${item.stats.assists}</b>
+      </div>
+      <div class="gcr">
+        <span>گل غیررسمی</span>
+        <b>${item.stats.unofficialGoals}</b>
+      </div>
+      <div class="gcr">
+        <span>امتیاز کل</span>
+        <b>${item.score}</b>
+      </div>
+    </div>
+  `).join("") ||
+  '<p class="gcm">هنوز بازیکنی ثبت نشده است.</p>';
+  }
+
 function awardLabel(type) {
   if (type === "ballon_dor") return "توپ طلا";
   if (type === "golden_boot") return "کفش طلا";
