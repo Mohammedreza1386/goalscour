@@ -1990,10 +1990,15 @@ if (adminPanel) {
 }
 
   toggle.addEventListener("click", () => {
-    menu.style.display =
-      menu.style.display === "none" ? "grid" : "none";
-    menu.style.gap = "8px";
-  });
+  menu.style.display =
+    menu.style.display === "none" ? "grid" : "none";
+
+  menu.style.gap = "8px";
+
+  if (typeof window.gcMountCustomAwardForm === "function") {
+    window.gcMountCustomAwardForm();
+  }
+});
 })();
   </script>
 </body>
