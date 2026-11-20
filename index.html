@@ -794,6 +794,9 @@ unofficialHeadedGoals += num(u.headedGoals);
   const totalGoals = officialGoals + unofficialGoalCount;
   const totalPenalties = officialPenalties + unofficialPenalties;
   const totalAssists = officialAssistCount + unofficialAssistCount;
+  const totalRightFootGoals = officialRightFootGoals + unofficialRightFootGoals;
+const totalLeftFootGoals = officialLeftFootGoals + unofficialLeftFootGoals;
+const totalHeadedGoals = officialHeadedGoals + unofficialHeadedGoals;
 
   const hatTricks =
     officialMatches.filter(m => num(m.goals) >= 3).length +
