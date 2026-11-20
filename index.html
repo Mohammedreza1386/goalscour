@@ -1156,6 +1156,17 @@ document.getElementById("matchForm").addEventListener("submit", event => {
   const scorerId = document.getElementById("scorer").value;
   const goals = num(document.getElementById("goals").value);
   const penalties = num(document.getElementById("officialPenalties").value);
+  const rightFootGoals = num(
+  document.getElementById("rightFootGoals").value
+);
+
+const leftFootGoals = num(
+  document.getElementById("leftFootGoals").value
+);
+
+const headedGoals = num(
+  document.getElementById("headedGoals").value
+);
   const assisterId = document.getElementById("assister").value;
   const assists = num(document.getElementById("assists").value);
 
