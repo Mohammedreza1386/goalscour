@@ -161,7 +161,6 @@
             0,
             goals - penalties
           ),
-
           contributions: goals + assists,
 
           hatTricks:
