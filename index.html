@@ -1754,6 +1754,7 @@ function renderIndividualRankings() {
    جدول کامل رتبه‌بندی
 ========================= */
 
+
 function renderRanking() {
   const body = document.getElementById("rankingBody");
 
@@ -1763,7 +1764,7 @@ function renderRanking() {
 
   if (!sorted.length) {
     body.innerHTML = `
-      <tr><td colspan="19">هنوز بازیکنی ثبت نشده است.</td></tr>
+      <tr><td colspan="22">هنوز بازیکنی ثبت نشده است.</td></tr>
     `;
     return;
   }
@@ -1777,28 +1778,29 @@ function renderRanking() {
         <td>${stats.officialGoals}</td>
         <td>${stats.unofficialGoals}</td>
         <td><strong>${stats.totalGoals}</strong></td>
+        <td>${stats.totalRightFootGoals}</td>
+        <td>${stats.totalLeftFootGoals}</td>
+        <td>${stats.totalHeadedGoals}</td>
         <td>${stats.officialPenalties}</td>
         <td>${stats.unofficialPenalties}</td>
         <td>${stats.nonPenaltyGoals}</td>
         <td>${stats.officialAssists}</td>
         <td>${stats.unofficialAssists}</td>
         <td>${stats.totalAssists}</td>
-        
-<td>${stats.hatTricks}</td>
-<td>${stats.braces}</td>
-<td><strong>${stats.goalContributions}</strong></td>
-
-<td>${stats.appearances}</td>
-<td>${stats.totalRating.toFixed(2)}</td>
-<td>${stats.averageRating.toFixed(2)}</td>
-<td>${stats.goalsPerMatch.toFixed(2)}</td>
-<td>${stats.assistsPerMatch.toFixed(2)}</td>
-
+        <td>${stats.hatTricks}</td>
+        <td>${stats.braces}</td>
+        <td><strong>${stats.goalContributions}</strong></td>
+        <td>${stats.appearances}</td>
+        <td>${stats.totalRating.toFixed(2)}</td>
+        <td>${stats.averageRating.toFixed(2)}</td>
+        <td>${stats.goalsPerMatch.toFixed(2)}</td>
+        <td>${stats.assistsPerMatch.toFixed(2)}</td>
         <td>${stats.likes}</td>
       </tr>
     `;
   }).join("");
 }
+
 
 /* =========================
    تاریخچه مسابقات رسمی
