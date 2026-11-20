@@ -773,6 +773,9 @@ let unofficialHeadedGoals = 0;
   officialMatches.forEach(m => {
     officialGoals += num(m.goals);
     officialPenalties += getOfficialPenalties(m);
+    officialRightFootGoals += num(m.rightFootGoals);
+officialLeftFootGoals += num(m.leftFootGoals);
+officialHeadedGoals += num(m.headedGoals);
   });
 
   officialAssists.forEach(m => {
