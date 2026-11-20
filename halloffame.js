@@ -147,6 +147,44 @@
             (sum, r) => sum + n(r.penalties), 0
           );
 
+        const rightFootGoals =
+          official.reduce(
+            (sum, m) => sum + n(m.right_foot_goals), 0
+          ) +
+          un.reduce(
+            (sum, r) => sum + n(r.right_foot_goals), 0
+          );
+
+        const leftFootGoals =
+          official.reduce(
+            (sum, m) => sum + n(m.left_foot_goals), 0
+          ) +
+          un.reduce(
+            (sum, r) => sum + n(r.left_foot_goals), 0
+          );
+
+        const headedGoals =
+          official.reduce(
+            (sum, m) => sum + n(m.headed_goals), 0
+          ) +
+          un.reduce(
+            (sum, r) => sum + n(r.headed_goals), 0
+          );
+
+        const perfectHatTricks =
+          official.filter(
+            m =>
+              n(m.right_foot_goals) >= 1 &&
+              n(m.left_foot_goals) >= 1 &&
+              n(m.headed_goals) >= 1
+          ).length +
+          un.filter(
+            r =>
+              n(r.right_foot_goals) >= 1 &&
+              n(r.left_foot_goals) >= 1 &&
+              n(r.headed_goals) >= 1
+          ).length;
+
         return {
           ...player,
           goals,
@@ -161,6 +199,12 @@
             0,
             goals - penalties
           ),
+
+          rightFootGoals,
+          leftFootGoals,
+          headedGoals,
+          perfectHatTricks,
+
           contributions: goals + assists,
 
           hatTricks:
@@ -188,6 +232,10 @@
         ["بهترین گلزن رسمی", "officialGoals", "گل"],
         ["بهترین گلزن غیررسمی", "unofficialGoals", "گل"],
         ["بهترین گلزن بدون پنالتی", "nonPenaltyGoals", "گل"],
+        ["بیشترین گل با پای راست", "rightFootGoals", "گل"],
+        ["بیشترین گل با پای چپ", "leftFootGoals", "گل"],
+        ["بیشترین گل با ضربه سر", "headedGoals", "گل"],
+        ["بیشترین هت‌تریک کامل", "perfectHatTricks", "هت‌تریک کامل"],
         ["بهترین پنالتی‌زن", "penalties", "پنالتی"],
         ["بهترین پاسور کل", "assists", "پاس گل"],
         ["بهترین پاسور رسمی", "officialAssists", "پاس گل"],
