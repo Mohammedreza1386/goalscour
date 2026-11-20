@@ -762,6 +762,13 @@ const unofficialAppearanceIds = new Set(
   let unofficialGoalCount = 0;
   let unofficialPenalties = 0;
   let unofficialAssistCount = 0;
+  let officialRightFootGoals = 0;
+let officialLeftFootGoals = 0;
+let officialHeadedGoals = 0;
+
+let unofficialRightFootGoals = 0;
+let unofficialLeftFootGoals = 0;
+let unofficialHeadedGoals = 0;
 
   officialMatches.forEach(m => {
     officialGoals += num(m.goals);
