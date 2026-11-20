@@ -1304,6 +1304,19 @@ const headedGoals = num(
     return;
   }
 
+  if (
+  !Number.isInteger(rightFootGoals) ||
+  !Number.isInteger(leftFootGoals) ||
+  !Number.isInteger(headedGoals) ||
+  rightFootGoals < 0 ||
+  leftFootGoals < 0 ||
+  headedGoals < 0 ||
+  rightFootGoals + leftFootGoals + headedGoals > goals
+) {
+  alert("مجموع گل‌های پای راست، پای چپ و سر نباید از کل گل‌ها بیشتر باشد.");
+  return;
+                                                           }
+
   if (goals === 0 && assists === 0) {
     alert("حداقل یک گل یا پاس گل ثبت کن.");
     return;
