@@ -830,6 +830,11 @@ const totalHeadedGoals = officialHeadedGoals + unofficialHeadedGoals;
     p => String(p.id) === String(playerId)
   );
 
+  const totalAppearances =
+  num(rated.appearances) +
+  officialAppearanceIds.size +
+  unofficialAppearanceIds.size;
+
   return {
     officialGoals,
     unofficialGoals: unofficialGoalCount,
