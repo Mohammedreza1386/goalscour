@@ -855,14 +855,18 @@ totalHeadedGoals,
     goalContributions,
     likes: num(player?.likes),
 
-    appearances:
-  num(rated.appearances) +
-  officialAppearanceIds.size +
-  unofficialAppearanceIds.size,
-    totalRating: num(rated.totalRating),
-    averageRating: num(rated.averageRating),
-    goalsPerMatch: num(rated.goalsPerMatch),
-    assistsPerMatch: num(rated.assistsPerMatch)
+    appearances: totalAppearances,
+
+totalRating: num(rated.totalRating),
+averageRating: num(rated.averageRating),
+
+goalsPerMatch: totalAppearances > 0
+  ? Number((totalGoals / totalAppearances).toFixed(2))
+  : 0,
+
+assistsPerMatch: totalAppearances > 0
+  ? Number((totalAssists / totalAppearances).toFixed(2))
+  : 0
   };
 }
   
