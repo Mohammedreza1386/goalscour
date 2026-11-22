@@ -22,6 +22,11 @@ style.textContent = `
 #gcFeatures .gcform{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
 #gcFeatures .gcform input{min-width:125px}
 #gcFeatures h3{margin-top:8px}
+#gcFeatures .gc-period-card{background:#0c130d;border:1px solid #354536;border-radius:14px;padding:14px;margin:8px 0;display:flex;align-items:center;justify-content:space-between;gap:12px}
+#gcFeatures .gc-period-card button{white-space:nowrap}
+#gcFeatures #gcPeriodDetail[hidden],#gcFeatures #gcFeaturesHome[hidden]{display:none!important}
+#gcFeatures .gc-back{background:#263525;color:#b9f27c}
+#gcFeatures .gc-period-empty{padding:14px;border:1px dashed #40513d;border-radius:12px;color:#89958a}
 #gcAdminItems #gcCustomAwardAdmin{background:#111812;border:1px solid #40513d;border-radius:13px;padding:14px;margin-top:8px;color:#fff}
 #gcAdminItems #gcCustomAwardAdmin form{display:grid;gap:9px}
 #gcAdminItems #gcCustomAwardAdmin input,#gcAdminItems #gcCustomAwardAdmin select{box-sizing:border-box;width:100%;min-height:42px;background:#090d0a;color:#fff;border:1px solid #40513d;border-radius:8px;padding:9px}
@@ -50,6 +55,7 @@ section.className = "section";
 
 section.innerHTML = `
   <h2>جوایز و آمار بازیکنان</h2>
+  <div id="gcFeaturesHome">
   <div class="gcp" id="gcLegendsRanking">
   <h3>👑 سه اسطوره برتر تاریخ Goalscour</h3>
   <p class="gcm">
@@ -64,26 +70,7 @@ section.innerHTML = `
 
     <div id="gcPeriodAdmin"></div>
 
-    <div class="gcform">
-      <label>دوره انتخاب‌شده:</label>
-      <select id="gcPeriodSelect"></select>
-    </div>
-
-    <div id="gcPeriodInfo" class="gcm"></div>
-  </div>
-
-  <div class="gcp">
-    <h3>توپ طلای Goalscour</h3>
-    <p class="gcm">پنج نامزد برتر با توجه به عملکرد بازیکنان در دوره انتخاب‌شده پیشنهاد می‌شوند. انتخاب نهایی با مدیر است.</p>
-    <div id="gcBallon" class="gcg"></div>
-    <div id="gcBallonAdmin"></div>
-  </div>
-
-  <div class="gcp">
-    <h3>کفش طلای Goalscour</h3>
-    <p class="gcm">رتبه‌بندی بر اساس گل‌های رسمی در دوره انتخاب‌شده محاسبه می‌شود.</p>
-    <div id="gcGoldenBoot" class="gcg"></div>
-    <div id="gcBootAdmin"></div>
+    <div id="gcPeriodCards" class="gcp"></div>
   </div>
 
   <div class="gcp">
@@ -148,6 +135,26 @@ section.innerHTML = `
     <h3>مدال دستاورد گلزنی</h3>
     <p class="gcm">مدال‌های ۱۰۰، ۲۵۰، ۵۰۰ و ۱۰۰۰ گل به‌صورت خودکار محاسبه می‌شوند.</p>
     <div id="gcAchievements" class="gcg"></div>
+  </div>
+
+  </div>
+
+  <div id="gcPeriodDetail" class="gcp" hidden>
+    <button type="button" class="gc-back" id="gcBackToPeriods">← بازگشت به فهرست دوره‌ها</button>
+    <h2 id="gcPeriodDetailTitle">صفحه دوره</h2>
+    <p id="gcPeriodDetailMeta" class="gcm"></p>
+    <div class="gcp">
+      <h3>🏆 توپ طلای Goalscour</h3>
+      <p class="gcm">نامزدها و برنده توپ طلای این دوره</p>
+      <div id="gcBallon" class="gcg"></div>
+      <div id="gcBallonAdmin"></div>
+    </div>
+    <div class="gcp">
+      <h3>🥇 کفش طلای Goalscour</h3>
+      <p class="gcm">رتبه‌بندی گلزنان رسمی همین دوره</p>
+      <div id="gcGoldenBoot" class="gcg"></div>
+      <div id="gcBootAdmin"></div>
+    </div>
   </div>
 
   <p id="gcFeatureStatus" class="gcm"></p>
@@ -291,7 +298,13 @@ async function load() {
   matchEvents = results[7].data || [];
   performances = results[8].data || [];
 
-  if (!periods.some(p => p.id === currentPeriodId)) {
+  const hashMatch = location.hash.match(/^#gc-period=(.+)$/);
+  const hashPeriodId = hashMatch ? decodeURIComponent(hashMatch[1]) : "";
+  if (hashPeriodId && periods.some(p => String(p.id) === String(hashPeriodId))) {
+    currentPeriodId = hashPeriodId;
+  }
+
+  if (!periods.some(p => String(p.id) === String(currentPeriodId))) {
     const active = periods.find(p => p.status === "active");
     currentPeriodId = active?.id || periods[0]?.id || "";
   }
@@ -473,8 +486,7 @@ function goldenBootRanking(period) {
   `).join("") ||
   '<p class="gcm">هنوز بازیکنی ثبت نشده است.</p>';
   }
-
-function awardLabel(type) {
+  function awardLabel(type) {
   if (type === "ballon_dor") return "توپ طلا";
   if (type === "golden_boot") return "کفش طلا";
   return type || "جایزه";
@@ -520,9 +532,10 @@ async function savePeriod(event) {
 
   currentPeriodId = id;
   await load();
+  location.hash = "gc-period=" + encodeURIComponent(id);
   await render();
 
-  status("دوره جدید با موفقیت ساخته شد.");
+  status("دوره جدید ساخته شد و صفحه اختصاصی آن باز شد.");
 }
 
 async function saveAward(type, winnerId, candidateIds, period) {
@@ -553,6 +566,7 @@ async function saveAward(type, winnerId, candidateIds, period) {
 
 function renderPeriods() {
   const adminBox = el("gcPeriodAdmin");
+  const cardsBox = el("gcPeriodCards");
 
   adminBox.innerHTML = admin ? `
     <form id="gcPeriodForm">
@@ -567,17 +581,29 @@ function renderPeriods() {
     </form>
   ` : '<p class="gcm">ساخت و مدیریت دوره‌ها فقط برای مدیر فعال است.</p>';
 
-  el("gcPeriodSelect").innerHTML = periods.map(p => `
-    <option value="${esc(p.id)}" ${p.id === currentPeriodId ? "selected" : ""}>
-      ${esc(p.title)}
-    </option>
-  `).join("");
+  cardsBox.innerHTML = periods.length ? periods.map(p => `
+    <div class="gc-period-card">
+      <div>
+        <b>${esc(p.title)}</b>
+        <div class="gcm">${esc(p.start_date)} تا ${esc(p.end_date)} · وضعیت: ${esc(p.status || "ثبت‌شده")}</div>
+      </div>
+      <button type="button" data-open-period="${esc(p.id)}">مشاهده دوره ←</button>
+    </div>
+  `).join("") : '<div class="gc-period-empty">هنوز دوره‌ای ساخته نشده است.</div>';
 
   const p = selectedPeriod();
+  const detail = el("gcPeriodDetail");
+  const home = el("gcFeaturesHome");
+  const isDetail = !!p && location.hash.startsWith("#gc-period=");
 
-  el("gcPeriodInfo").textContent = p
-    ? `${p.title} | ${p.start_date} تا ${p.end_date} | وضعیت: ${p.status}`
-    : "هنوز دوره‌ای ساخته نشده است.";
+  home.hidden = isDetail;
+  detail.hidden = !isDetail;
+
+  if (isDetail) {
+    el("gcPeriodDetailTitle").textContent = p.title;
+    el("gcPeriodDetailMeta").textContent =
+      `${p.start_date} تا ${p.end_date} · وضعیت: ${p.status || "ثبت‌شده"}`;
+  }
 }
 
 function renderBallon(period) {
@@ -918,8 +944,7 @@ function makeLevels(category, metric, prefix, values, titles, points) {
     points: points[index]
   }));
 }
-
-const ACHIEVEMENT_LEVELS = [
+  const ACHIEVEMENT_LEVELS = [
   ...makeLevels("goals","goals","goals",
     [100,250,500,1000],
     ["گلزن صدتایی","گلزن حرفه‌ای","گلزن افسانه‌ای","اسطوره Goalscour"],
@@ -1176,7 +1201,7 @@ async function render() {
   renderLegendsRanking();
 
   mountCustomAwardAdmin();
-  
+
   const customPlayers = el("gcCustomAwardPlayers");
   if (customPlayers) {
     customPlayers.innerHTML = players.map(player =>
@@ -1194,6 +1219,15 @@ async function render() {
   renderAchievements();
 }
 
+window.addEventListener("hashchange", async () => {
+  const match = location.hash.match(/^#gc-period=(.+)$/);
+  const id = match ? decodeURIComponent(match[1]) : "";
+  if (id && periods.some(p => String(p.id) === String(id))) {
+    currentPeriodId = id;
+  }
+  await render();
+});
+
 nav.addEventListener("click", event => {
   const button = event.target.closest(
     "button[data-tab='gcFeatures']"
@@ -1209,12 +1243,6 @@ nav.addEventListener("click", event => {
     item.classList.toggle("active", item === section);
   });
 });
-
-el("gcPeriodSelect").addEventListener("change", async event => {
-  currentPeriodId = event.target.value;
-  await render();
-});
-
 
 document.addEventListener("submit", async event => {
   if (event.target.id === "gcCustomAwardForm") {
@@ -1292,6 +1320,20 @@ document.addEventListener("submit", async event => {
 
 section.addEventListener("click", async event => {
   try {
+    const openPeriodButton = event.target.closest("[data-open-period]");
+    if (openPeriodButton) {
+      currentPeriodId = openPeriodButton.dataset.openPeriod;
+      location.hash = "gc-period=" + encodeURIComponent(currentPeriodId);
+      await render();
+      return;
+    }
+
+    if (event.target.closest("#gcBackToPeriods")) {
+      location.hash = "";
+      await render();
+      return;
+    }
+
     const dribbleButton = event.target.closest("[data-dribble]");
 
     if (dribbleButton) {
