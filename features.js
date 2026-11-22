@@ -407,6 +407,38 @@ function selectedAwardType() {
   function calculateStats(player, period = null) {
   const id = String(player.id);
 
+  
+  // آمار کلی از موتور مشترک گل‌اسکور
+  if (
+    !period &&
+    typeof window.gcGetUnifiedStats === "function"
+  ) {
+    const unified = window.gcGetUnifiedStats(player.id);
+
+    const dribble = dribbles.find(
+      x => String(x.player_id) === id
+    ) || {};
+
+    return {
+      officialGoals: unified.officialGoals,
+      unofficialGoals: unified.unofficialGoals,
+      goals: unified.totalGoals,
+
+      assists: unified.totalAssists,
+
+      hatTricks: unified.hatTricks,
+      braces: unified.braces,
+
+      appearances: unified.appearances,
+      ratingTotal: unified.totalRating,
+      averageRating: unified.averageRating,
+
+      success: n(dribble.successful),
+      fail: n(dribble.unsuccessful)
+    };
+  }
+    
+
   const eventsInRange = matchEvents.filter(event =>
     !period || inRange(event.match_date, period)
   );
