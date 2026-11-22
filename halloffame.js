@@ -85,6 +85,44 @@
       const stats = players.map(player => {
         const id = String(player.id);
 
+      
+const unified = window.gcGetUnifiedStats
+  ? window.gcGetUnifiedStats(player.id)
+  : null;
+
+if (unified) {
+  const dribble = dribbles.find(
+    r => String(r.player_id) === id
+  ) || {};
+
+  return {
+    ...player,
+
+    goals: unified.totalGoals,
+    officialGoals: unified.officialGoals,
+    unofficialGoals: unified.unofficialGoals,
+
+    assists: unified.totalAssists,
+    officialAssists: unified.officialAssists,
+    unofficialAssists: unified.unofficialAssists,
+
+    penalties: unified.totalPenalties,
+    nonPenaltyGoals: unified.nonPenaltyGoals,
+
+    rightFootGoals: unified.totalRightFootGoals,
+    leftFootGoals: unified.totalLeftFootGoals,
+    headedGoals: unified.totalHeadedGoals,
+
+    perfectHatTricks: unified.perfectHatTricks,
+    hatTricks: unified.hatTricks,
+    braces: unified.braces,
+
+    contributions: unified.goalContributions,
+    successfulDribbles: n(dribble.successful)
+  };
+}
+        
+
         const official = matches.filter(
           m => String(m.scorer_id) === id
         );
