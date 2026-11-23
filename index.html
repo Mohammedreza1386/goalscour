@@ -1158,41 +1158,52 @@ function likePlayer(playerId) {
    حذف بازیکن
 ========================= */
 
-function deletePlayer(playerId) {
-  const player = players.find(p => String(p.id) === String(playerId));
-  if (!player) return;
+/* =========================
+   بایگانی بازیکن
+========================= */
 
-  if (!confirm(`بازیکن «${player.name}» و سوابق گلزنی او حذف شود؟`)) {
-    return;
-  }
-
-  const oldPlayers = players;
-  const oldMatches = matches;
-  const oldUnofficial = unofficial;
-
-  players = players.filter(p => String(p.id) !== String(playerId));
-
-  matches = matches
-    .filter(m => String(m.scorerId) !== String(playerId))
-    .map(m => {
-      if (String(m.assisterId) === String(playerId)) {
-        return { ...m, assisterId: "", assists: 0 };
-      }
-      return m;
-    });
-
-  unofficial = unofficial.filter(
-    u => String(u.playerId) !== String(playerId)
+async function deletePlayer(playerId) {
+  const player = players.find(
+    p => String(p.id) === String(playerId)
   );
 
-  if (!saveData()) {
-    players = oldPlayers;
-    matches = oldMatches;
-    unofficial = oldUnofficial;
+  if (!player) return;
+
+  if (!confirm(
+    `بازیکن «${player.name}» بایگانی شود؟\n\nسوابق مسابقات، گل‌ها و آمار او حفظ خواهند شد.`
+  )) {
     return;
   }
 
-  renderAll();
+  try {
+    if (typeof window.gcArchivePlayer !== "function") {
+      throw new Error("تابع بایگانی سرور در دسترس نیست.");
+    }
+
+    await window.gcArchivePlayer(playerId);
+
+    const oldPlayers = players;
+
+    players = players.filter(
+      p => String(p.id) !== String(playerId)
+    );
+
+    if (!saveData()) {
+      players = oldPlayers;
+      return;
+    }
+
+    renderAll();
+
+    alert("بازیکن با موفقیت بایگانی شد. سوابق او حفظ شده‌اند.");
+
+  } catch (error) {
+    console.error("Archive player error:", error);
+
+    alert(
+      "بایگانی بازیکن انجام نشد:\n" + error.message
+    );
+  }
 }
 
 /* =========================
