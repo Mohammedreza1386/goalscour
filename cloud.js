@@ -703,7 +703,11 @@ if (result && isAdmin && initialized) {
   async function mergeLocalAndCloud() {
     const remote = await fetchCloud();
 
-    const localPlayers = validArray(players);
+    const archivedIds = new Set(remote.archivedPlayerIds || []);
+
+const localPlayers = validArray(players).filter(
+  item => !archivedIds.has(String(item.id))
+);
     const localMatches = validArray(matches);
     const localUnofficial = validArray(unofficial);
 
