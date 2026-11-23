@@ -629,6 +629,95 @@ function calculateOverallScores() {
     return `<div class="pp-list">${records.map(([label,value]) => `<div class="pp-row"><span>${label}</span><b>${fmt(value)}</b></div>`).join("")}</div>`;
   }
 
+   function radarChartHtml(score) {
+  if (!score) return "";
+
+  const items = [
+    ["گل‌زنی", score.categories.scoring],
+    ["بازی‌سازی", score.categories.playmaking],
+    ["دریبل", score.categories.dribbling],
+    ["عملکرد", score.categories.matchPerformance],
+    ["ثبات", score.categories.consistency],
+    ["تأثیرگذاری", score.categories.impact],
+    ["افتخارات", score.categories.honors]
+  ];
+
+  const cx = 180;
+  const cy = 135;
+  const radius = 85;
+
+  const point = (value, index, scale = 1) => {
+    const angle = -Math.PI / 2 + index * 2 * Math.PI / items.length;
+    const r = radius * scale * value / 100;
+
+    return {
+      x: cx + Math.cos(angle) * r,
+      y: cy + Math.sin(angle) * r
+    };
+  };
+
+  const polygon = scale => items.map((item, index) => {
+    const p = point(100, index, scale);
+    return `${p.x},${p.y}`;
+  }).join(" ");
+
+  const values = items.map((item, index) => {
+    const p = point(
+      Math.max(0, Math.min(100, n(item[1]))),
+      index
+    );
+    return `${p.x},${p.y}`;
+  }).join(" ");
+
+  const axes = items.map((item, index) => {
+    const p = point(100, index);
+    const label = point(100, index, 1.27);
+
+    return `
+      <line x1="${cx}" y1="${cy}" x2="${p.x}" y2="${p.y}"
+        stroke="#344436" stroke-width="1"/>
+      <text x="${label.x}" y="${label.y}"
+        fill="#b9f27c" font-size="10"
+        text-anchor="middle" dominant-baseline="middle">
+        ${item[0]}
+      </text>
+    `;
+  }).join("");
+
+  return `
+    <div class="pp-panel">
+      <h3>نمودار راداری توانایی بازیکن</h3>
+      <p class="pp-muted">مقایسه تصویری هفت معیار امتیازدهی از ۱۰۰</p>
+
+      <svg viewBox="0 0 360 285"
+        style="width:100%;max-width:430px;display:block;margin:auto"
+        role="img" aria-label="نمودار راداری امتیاز بازیکن">
+
+        ${[0.25, 0.5, 0.75, 1].map(scale => `
+          <polygon points="${polygon(scale)}"
+            fill="none" stroke="#344436" stroke-width="1"/>
+        `).join("")}
+
+        ${axes}
+
+        <polygon points="${values}"
+          fill="#b9f27c" fill-opacity="0.22"
+          stroke="#b9f27c" stroke-width="2.5"/>
+
+        ${items.map((item, index) => {
+          const p = point(
+            Math.max(0, Math.min(100, n(item[1]))),
+            index
+          );
+
+          return `<circle cx="${p.x}" cy="${p.y}" r="4"
+            fill="#b9f27c"/>`;
+        }).join("")}
+      </svg>
+    </div>
+  `;
+   }
+
   function performanceHtml(player) {
     const s = statsFor(player);
     const score = scoreFor(playerId(player));
