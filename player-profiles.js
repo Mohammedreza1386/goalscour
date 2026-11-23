@@ -464,6 +464,58 @@ function calculateOverallScores() {
     return `<div class="pp-stat"><span>${label}</span><strong>${fmt(value)}</strong></div>`;
   }
 
+   function scoreDetailsHtml(score) {
+  if (!score) return "";
+
+  const items = [
+    ["گل‌زنی", "scoring", 25, "میانگین گل در هر مسابقه"],
+    ["بازی‌سازی", "playmaking", 20, "میانگین پاس گل در هر مسابقه"],
+    ["دریبل", "dribbling", 15, "نرخ موفقیت دریبل‌ها"],
+    ["عملکرد مسابقه", "matchPerformance", 15, "میانگین امتیاز مسابقات"],
+    ["ثبات عملکرد", "consistency", 10, "درصد مسابقات با امتیاز ۷ یا بالاتر"],
+    ["تأثیرگذاری", "impact", 10, "مشارکت گل در هر مسابقه"],
+    ["افتخارات", "honors", 5, "امتیاز افتخارات کسب‌شده"]
+  ];
+
+  return `
+    <div class="pp-panel">
+      <h3>تحلیل تخصصی امتیاز بازیکن</h3>
+      <p class="pp-muted">
+        امتیاز هر معیار از ۱۰۰ محاسبه می‌شود و وزن آن در امتیاز کلی متفاوت است.
+      </p>
+
+      ${items.map(([label, key, weight, description]) => {
+        const value = Math.max(
+          0,
+          Math.min(100, n(score.categories[key]))
+        );
+
+        const contribution = value * weight / 100;
+
+        return `
+          <div class="pp-card">
+            <div class="pp-row">
+              <strong>${label}</strong>
+              <b>${fmt(value)} از ۱۰۰</b>
+            </div>
+
+            <div class="pp-bar">
+              <i style="width:${value}%"></i>
+            </div>
+
+            <div class="pp-muted">
+              وزن معیار: ${weight}٪
+              • سهم در امتیاز خام: ${contribution.toFixed(2)}
+            </div>
+
+            <div class="pp-muted">${description}</div>
+          </div>
+        `;
+      }).join("")}
+    </div>
+  `;
+   }
+
   function overviewHtml(player) {
     const s = statsFor(player);
     const score = scoreFor(playerId(player));
