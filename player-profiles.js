@@ -225,48 +225,119 @@
     return maximum > 0 ? Math.max(0, Math.min(100, value / maximum * 100)) : 0;
   }
 
-  function calculateOverallScores() {
-    const rows = state.players.map(player => ({
-      player,
-      stats: statsFor(player),
-      dribble: dribbleFor(playerId(player)),
-      awardPoints: awardPointsFor(playerId(player))
-    }));
-    const maxGoals = Math.max(0.01, ...rows.map(row => row.stats.goalsPerMatch));
-    const maxAssists = Math.max(0.01, ...rows.map(row => row.stats.assistsPerMatch));
-    const maxDribbles = Math.max(0.01, ...rows.map(row => row.dribble.rate));
-    const maxImpact = Math.max(0.01, ...rows.map(row =>
-      row.stats.goalContributions / Math.max(1, row.stats.appearances)
-    ));
-    const maxAwards = Math.max(1, ...rows.map(row => row.awardPoints));
+  
+function calculateOverallScores() {
+  const rows = state.players.map(player => {
+    const id = playerId(player);
+    const stats = statsFor(player);
+    const dribble = dribbleFor(id);
+    const awardPoints = awardPointsFor(id);
 
-    return rows.map(row => {
-      const s = row.stats;
-      const categories = {
-        scoring: scale(s.goalsPerMatch, maxGoals),
-        playmaking: scale(s.assistsPerMatch, maxAssists),
-        dribbling: scale(row.dribble.rate, maxDribbles),
-        matchPerformance: Math.min(100, s.averageRating * 10),
-        consistency: Math.min(100, s.appearances * 5),
-        impact: scale(s.goalContributions / Math.max(1, s.appearances), maxImpact),
-        honors: scale(row.awardPoints, maxAwards)
-      };
-      const raw =
-        categories.scoring * 0.25 +
-        categories.playmaking * 0.20 +
-        categories.dribbling * 0.15 +
-        categories.matchPerformance * 0.15 +
-        categories.consistency * 0.10 +
-        categories.impact * 0.10 +
-        categories.honors * 0.05;
-      const sampleFairness = Math.min(1, Math.sqrt(s.appearances / 10));
-      return {
-        ...row,
-        categories,
-        score: Math.round(raw * sampleFairness * 10) / 10
-      };
-    }).sort((a, b) => b.score - a.score);
-  }
+    const ratedMatches = state.performances.filter(row =>
+      String(row.player_id) === id &&
+      row.rating != null &&
+      Number.isFinite(Number(row.rating))
+    );
+
+    const goodMatches = ratedMatches.filter(row =>
+      n(row.rating) >= 7
+    ).length;
+
+    const consistency = ratedMatches.length
+      ? (goodMatches / ratedMatches.length) * 100
+      : 50;
+
+    return {
+      player,
+      stats,
+      dribble,
+      awardPoints,
+      ratedMatches,
+      consistency
+    };
+  });
+
+  const maxGoals = Math.max(
+    0.01,
+    ...rows.map(row => row.stats.goalsPerMatch)
+  );
+
+  const maxAssists = Math.max(
+    0.01,
+    ...rows.map(row => row.stats.assistsPerMatch)
+  );
+
+  const maxImpact = Math.max(
+    0.01,
+    ...rows.map(row =>
+      row.stats.goalContributions /
+      Math.max(1, row.stats.appearances)
+    )
+  );
+
+  const maxAwards = Math.max(
+    1,
+    ...rows.map(row => row.awardPoints)
+  );
+
+  const scored = rows.map(row => {
+    const s = row.stats;
+
+    const categories = {
+      scoring: scale(s.goalsPerMatch, maxGoals),
+
+      playmaking: scale(s.assistsPerMatch, maxAssists),
+
+      dribbling: row.dribble.total
+        ? row.dribble.rate * 100
+        : 50,
+
+      matchPerformance: row.ratedMatches.length
+        ? Math.min(100, s.averageRating * 10)
+        : 50,
+
+      consistency: row.consistency,
+
+      impact: scale(
+        s.goalContributions / Math.max(1, s.appearances),
+        maxImpact
+      ),
+
+      honors: scale(row.awardPoints, maxAwards)
+    };
+
+    const raw =
+      categories.scoring * 0.25 +
+      categories.playmaking * 0.20 +
+      categories.dribbling * 0.15 +
+      categories.matchPerformance * 0.15 +
+      categories.consistency * 0.10 +
+      categories.impact * 0.10 +
+      categories.honors * 0.05;
+
+    // تعدیل امتیاز با توجه به تعداد مسابقات
+    const reliability = s.appearances /
+      (s.appearances + 5);
+
+    const finalScore =
+      50 + (raw - 50) * reliability;
+
+    return {
+      ...row,
+      categories,
+      reliability: Math.round(reliability * 100),
+      score: Math.round(
+        Math.max(0, Math.min(100, finalScore)) * 10
+      ) / 10
+    };
+  });
+
+  return scored.sort((a, b) =>
+    b.score - a.score ||
+    b.stats.appearances - a.stats.appearances ||
+    b.stats.goalContributions - a.stats.goalContributions
+  );
+}
 
   function levelFor(score) {
     if (score >= 90) return "افسانه‌ای";
