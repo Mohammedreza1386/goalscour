@@ -430,28 +430,36 @@ function createLocalBackup() {
   ========================= */
 
   async function fetchCloud() {
-    const results = await Promise.all([
-      db.from("goalscour_players")
-        .select("*")
-        .order("updated_at"),
+  const results = await Promise.all([
+    db.from("goalscour_players")
+      .select("*")
+      .order("updated_at"),
 
-      db.from("goalscour_matches")
-        .select("*")
-        .order("match_date"),
+    db.from("goalscour_matches")
+      .select("*")
+      .order("match_date"),
 
-      db.from("goalscour_unofficial")
-        .select("*")
-        .order("record_date")
-    ]);
+    db.from("goalscour_unofficial")
+      .select("*")
+      .order("record_date")
+  ]);
 
-    for (const result of results) {
-      if (result.error) {
-        throw result.error;
-      }
+  for (const result of results) {
+    if (result.error) {
+      throw result.error;
     }
+  }
 
-    return {
-      players: (results[0].data || []).map(item => ({
+  const playerRows = results[0].data || [];
+
+  return {
+    archivedPlayerIds: playerRows
+      .filter(item => item.is_archived === true)
+      .map(item => String(item.id)),
+
+    players: playerRows
+      .filter(item => item.is_archived !== true)
+      .map(item => ({
         id: item.id,
         name: item.name,
         age: item.age,
@@ -459,40 +467,40 @@ function createLocalBackup() {
         photo: item.photo || ""
       })),
 
-           matches: (results[1].data || []).map(item => ({
-        id: item.id,
-        opponent: item.opponent,
-        date: item.match_date,
-        against: item.against_goals,
-        scorerId: item.scorer_id,
-        goals: item.goals,
-        rightFootGoals: item.right_foot_goals || 0,
-leftFootGoals: item.left_foot_goals || 0,
-headedGoals: item.headed_goals || 0,
-        penalties: item.penalties,
-        assisterId: item.assister_id || "",
-        assists: item.assists,
-        participantIds: Array.isArray(item.participant_ids)
-          ? item.participant_ids.map(String)
-          : []
-      })),
+    matches: (results[1].data || []).map(item => ({
+      id: item.id,
+      opponent: item.opponent,
+      date: item.match_date,
+      against: item.against_goals,
+      scorerId: item.scorer_id,
+      goals: item.goals,
+      rightFootGoals: item.right_foot_goals || 0,
+      leftFootGoals: item.left_foot_goals || 0,
+      headedGoals: item.headed_goals || 0,
+      penalties: item.penalties,
+      assisterId: item.assister_id || "",
+      assists: item.assists,
+      participantIds: Array.isArray(item.participant_ids)
+        ? item.participant_ids.map(String)
+        : []
+    })),
 
-      unofficial: (results[2].data || []).map(item => ({
-        id: item.id,
-        playerId: item.player_id,
-        goals: item.goals,
-        rightFootGoals: item.right_foot_goals || 0,
-leftFootGoals: item.left_foot_goals || 0,
-headedGoals: item.headed_goals || 0,
-        penalties: item.penalties,
-        assists: item.assists,
-        date: item.record_date,
-        note: item.note || "",
-        matchId: item.match_id || "",
-        opponent: item.opponent || ""
-      }))
-   };
-  }
+    unofficial: (results[2].data || []).map(item => ({
+      id: item.id,
+      playerId: item.player_id,
+      goals: item.goals,
+      rightFootGoals: item.right_foot_goals || 0,
+      leftFootGoals: item.left_foot_goals || 0,
+      headedGoals: item.headed_goals || 0,
+      penalties: item.penalties,
+      assists: item.assists,
+      date: item.record_date,
+      note: item.note || "",
+      matchId: item.match_id || "",
+      opponent: item.opponent || ""
+    }))
+  };
+}
 
   /* =========================
      ذخیره محلی
