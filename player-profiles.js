@@ -517,9 +517,11 @@ function calculateOverallScores() {
    }
 
   function overviewHtml(player) {
-    const s = statsFor(player);
-    const score = scoreFor(playerId(player));
-    return `<div class="pp-grid">
+  const s = statsFor(player);
+  const score = scoreFor(playerId(player));
+
+  return `
+    <div class="pp-grid">
       ${statCard("مجموع گل", s.totalGoals)}
       ${statCard("گل رسمی", s.officialGoals)}
       ${statCard("گل غیررسمی", s.unofficialGoals)}
@@ -529,15 +531,10 @@ function calculateOverallScores() {
       ${statCard("گل بدون پنالتی", s.nonPenaltyGoals)}
       ${statCard("مشارکت گل (G+A)", s.goalContributions)}
     </div>
-    <div class="pp-panel"><h3>شاخص‌های امتیازدهی</h3>
-      ${score ? Object.entries({
-        "گلزنی":score.categories.scoring,"بازی‌سازی":score.categories.playmaking,
-        "دریبل":score.categories.dribbling,"عملکرد مسابقه":score.categories.matchPerformance,
-        "ثبات":score.categories.consistency,"تأثیرگذاری":score.categories.impact,
-        "افتخارات":score.categories.honors
-      }).map(([label,value]) => `<div class="pp-row"><span>${label}</span><b>${fmt(value)}/۱۰۰</b></div><div class="pp-bar"><i style="width:${value}%"></i></div>`).join("") : "اطلاعاتی موجود نیست"}
-    </div>`;
-  }
+
+    ${scoreDetailsHtml(score)}
+  `;
+}
 
   function statsHtml(player) {
     const s = statsFor(player);
