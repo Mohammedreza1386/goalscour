@@ -87,7 +87,9 @@
         "goalscour_dribbles"
       ];
       const data = await Promise.all(tables.map(readTable));
-      state.players = data[0].map(normalizePlayer);
+      state.players = data[0]
+  .filter(item => item.is_archived !== true)
+  .map(normalizePlayer);
       state.matches = data[1];
       state.unofficial = data[2];
       state.performances = data[3];
