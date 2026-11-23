@@ -503,6 +503,38 @@ function createLocalBackup() {
 }
 
   /* =========================
+   بایگانی بازیکن در سرور
+========================= */
+
+async function archivePlayerInCloud(playerId) {
+  if (!isAdmin) {
+    throw new Error("دسترسی مدیر تأیید نشد.");
+  }
+
+  const result = await db
+    .from("goalscour_players")
+    .update({
+      is_archived: true,
+      updated_at: new Date().toISOString()
+    })
+    .eq("id", String(playerId))
+    .select("id")
+    .maybeSingle();
+
+  if (result.error) {
+    throw result.error;
+  }
+
+  if (!result.data) {
+    throw new Error("بازیکن در دیتابیس پیدا نشد.");
+  }
+
+  return true;
+}
+
+window.gcArchivePlayer = archivePlayerInCloud;
+
+  /* =========================
      ذخیره محلی
   ========================= */
 
