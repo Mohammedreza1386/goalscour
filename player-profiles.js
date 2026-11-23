@@ -719,21 +719,32 @@ function calculateOverallScores() {
    }
 
   function performanceHtml(player) {
-    const s = statsFor(player);
-    const score = scoreFor(playerId(player));
-    const cats = score?.categories || {};
-    return `<div class="pp-panel">
+  const s = statsFor(player);
+  const score = scoreFor(playerId(player));
+  const cats = score?.categories || {};
+
+  return `
+    <div class="pp-panel">
       <h3>تحلیل عملکرد</h3>
+
       <div class="pp-grid">
-        ${statCard("میانگین امتیاز مسابقه",s.averageRating.toFixed(1))}
-        ${statCard("گل در هر بازی",s.goalsPerMatch.toFixed(2))}
-        ${statCard("پاس گل در هر بازی",s.assistsPerMatch.toFixed(2))}
-        ${statCard("مجموع مشارکت گل",s.goalContributions)}
+        ${statCard("میانگین امتیاز مسابقه", s.averageRating.toFixed(1))}
+        ${statCard("گل در هر بازی", s.goalsPerMatch.toFixed(2))}
+        ${statCard("پاس گل در هر بازی", s.assistsPerMatch.toFixed(2))}
+        ${statCard("مجموع مشارکت گل", s.goalContributions)}
       </div>
-      <p class="pp-muted">امتیاز کلی با وزن‌دهی به گلزنی، بازی‌سازی، دریبل، عملکرد مسابقه، ثبات، تأثیرگذاری و افتخارات محاسبه می‌شود. برای رعایت عدالت، تعداد بازی‌ها نیز در امتیاز نهایی اثر دارد.</p>
-      ${Object.entries(cats).map(([key,value]) => `<div class="pp-row"><span>${esc(key)}</span><b>${fmt(value)}/۱۰۰</b></div><div class="pp-bar"><i style="width:${value}%"></i></div>`).join("")}
-    </div>`;
-  }
+
+      <p class="pp-muted">
+        امتیاز کلی با وزن‌دهی به هفت معیار تخصصی محاسبه می‌شود.
+        تعداد مسابقات نیز برای رعایت عدالت در امتیاز نهایی اثر دارد.
+      </p>
+    </div>
+
+    ${radarChartHtml(score)}
+
+    ${scoreDetailsHtml(score)}
+  `;
+}
 
   function compareHtml(player) {
     const others = state.scores.filter(row => playerId(row.player) !== playerId(player)).slice(0,5);
