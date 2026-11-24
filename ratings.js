@@ -357,6 +357,7 @@
             readonly>
         </div>
 
+        
         <div>
           <label>گل</label>
 
@@ -368,7 +369,45 @@
         </div>
 
         <div>
+          <label>گل با پای راست</label>
+
+          <input class="gc-rating-right-goals"
+            type="number"
+            min="0"
+            max="99"
+            value="0">
+        </div>
+
+        <div>
+          <label>گل با پای چپ</label>
+
+          <input class="gc-rating-left-goals"
+            type="number"
+            min="0"
+            max="99"
+            value="0">
+        </div>
+
+        <div>
+          <label>گل با ضربه سر</label>
+
+          <input class="gc-rating-headed-goals"
+            type="number"
+            min="0"
+            max="99"
+            value="0">
+        </div>
+
+        <div>
           <label>پنالتی</label>
+
+          <input class="gc-rating-penalties"
+            type="number"
+            min="0"
+            max="99"
+            value="0">
+        </div>
+
 
           <input class="gc-rating-penalties"
             type="number"
