@@ -447,7 +447,7 @@
     });
 
     row.querySelectorAll(
-      ".gc-rating-goals, .gc-rating-penalties, .gc-rating-assists"
+      ".gc-rating-goals, .gc-rating-right-goals, .gc-rating-left-goals, .gc-rating-headed-goals, .gc-rating-penalties, .gc-rating-assists"
     ).forEach(input => {
       input.addEventListener("input", updateAutomaticRatings);
     });
