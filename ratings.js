@@ -197,6 +197,18 @@
         row.querySelector(".gc-rating-assists").value || 0
       );
 
+            const rightFootGoals = Number(
+        row.querySelector(".gc-rating-right-goals").value || 0
+      );
+
+      const leftFootGoals = Number(
+        row.querySelector(".gc-rating-left-goals").value || 0
+      );
+
+      const headedGoals = Number(
+        row.querySelector(".gc-rating-headed-goals").value || 0
+      );
+
       const score = calculateRating(
         goals,
         penalties,
