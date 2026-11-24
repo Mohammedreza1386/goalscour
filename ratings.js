@@ -544,6 +544,9 @@
         goals,
         penalties,
         assists,
+        rightFootGoals,
+        leftFootGoals,
+        headedGoals,
 
         goalsPerMatch: appearances
           ? Number((goals / appearances).toFixed(2))
