@@ -197,18 +197,6 @@
         row.querySelector(".gc-rating-assists").value || 0
       );
 
-            const rightFootGoals = Number(
-        row.querySelector(".gc-rating-right-goals").value || 0
-      );
-
-      const leftFootGoals = Number(
-        row.querySelector(".gc-rating-left-goals").value || 0
-      );
-
-      const headedGoals = Number(
-        row.querySelector(".gc-rating-headed-goals").value || 0
-      );
-
       const score = calculateRating(
         goals,
         penalties,
@@ -369,7 +357,6 @@
             readonly>
         </div>
 
-        
         <div>
           <label>گل</label>
 
@@ -412,14 +399,6 @@
 
         <div>
           <label>پنالتی</label>
-
-          <input class="gc-rating-penalties"
-            type="number"
-            min="0"
-            max="99"
-            value="0">
-        </div>
-
 
           <input class="gc-rating-penalties"
             type="number"
@@ -475,6 +454,7 @@
     updateAutomaticRatings();
   }
 
+  
   async function verifyAdmin() {
     const { data, error } = await db.auth.getUser();
 
@@ -517,7 +497,7 @@
         (sum, item) => sum + Number(item.assists || 0), 0
       );
 
-            const rightFootGoals = rows.reduce(
+      const rightFootGoals = rows.reduce(
         (sum, item) => sum + Number(item.right_foot_goals || 0), 0
       );
 
@@ -650,12 +630,23 @@
         row.querySelector(".gc-rating-assists").value
       );
 
+      const rightFootGoals = Number(
+        row.querySelector(".gc-rating-right-goals").value
+      );
+
+      const leftFootGoals = Number(
+        row.querySelector(".gc-rating-left-goals").value
+      );
+
+      const headedGoals = Number(
+        row.querySelector(".gc-rating-headed-goals").value
+      );
+
       if (!playerId) {
         status("برای تمام ردیف‌ها بازیکن انتخاب کن.");
         return;
       }
 
-      
       if (
         !Number.isInteger(goals) ||
         goals < 0 || goals > 99 ||
@@ -675,7 +666,7 @@
         return;
       }
 
-            records.push({
+      records.push({
         player_id: playerId,
         goals,
         right_foot_goals: rightFootGoals,
@@ -684,6 +675,7 @@
         penalties,
         assists
       });
+    }
 
     if (
       new Set(records.map(item => item.player_id)).size !==
@@ -861,35 +853,37 @@
   async function initialize() {
     buildInterface();
 
-    const allowed = await verifyAdmin();
-
-    const form = document.getElementById("gcRatingAdminForm");
-
-    if (form) {
-      form.classList.toggle("gc-hidden", !allowed);
-    }
-
     try {
+      const allowed = await verifyAdmin();
+      const form = document.getElementById("gcRatingAdminForm");
+
+      if (form) {
+        form.classList.toggle("gc-hidden", !allowed);
+      }
+
       await loadRatings();
     } catch (error) {
-      status("خطا در دریافت اطلاعات: " + error.message);
+      status("خطا در دریافت اطلاعات: " + (error?.message || error));
 
-      document.getElementById("gcRatedMatchHistory").textContent =
-        "دریافت اطلاعات ناموفق بود.";
+      const history = document.getElementById("gcRatedMatchHistory");
+      if (history) {
+        history.textContent = "دریافت اطلاعات ناموفق بود.";
+      }
     }
 
     db.auth.onAuthStateChange(async () => {
-      const admin = await verifyAdmin();
+      try {
+        const admin = await verifyAdmin();
+        const adminForm = document.getElementById("gcRatingAdminForm");
 
-      const adminForm = document.getElementById(
-        "gcRatingAdminForm"
-      );
+        if (adminForm) {
+          adminForm.classList.toggle("gc-hidden", !admin);
+        }
 
-      if (adminForm) {
-        adminForm.classList.toggle("gc-hidden", !admin);
+        renderHistory();
+      } catch (error) {
+        status("خطا در بررسی دسترسی مدیر: " + (error?.message || error));
       }
-
-      renderHistory();
     });
   }
 
@@ -904,4 +898,3 @@
   }
 
 })();
-       
