@@ -517,6 +517,18 @@
         (sum, item) => sum + Number(item.assists || 0), 0
       );
 
+            const rightFootGoals = rows.reduce(
+        (sum, item) => sum + Number(item.right_foot_goals || 0), 0
+      );
+
+      const leftFootGoals = rows.reduce(
+        (sum, item) => sum + Number(item.left_foot_goals || 0), 0
+      );
+
+      const headedGoals = rows.reduce(
+        (sum, item) => sum + Number(item.headed_goals || 0), 0
+      );
+
       const totalRating = rows.reduce(
         (sum, item) => sum + Number(item.rating || 0), 0
       );
