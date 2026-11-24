@@ -791,6 +791,9 @@
             ${Number(item.rating).toFixed(2)}
           </b>
           — گل: ${item.goals}
+          — پای راست: ${Number(item.right_foot_goals || 0)}
+          — پای چپ: ${Number(item.left_foot_goals || 0)}
+          — ضربه سر: ${Number(item.headed_goals || 0)}
           — پنالتی: ${item.penalties}
           — پاس گل: ${item.assists}
         </div>
