@@ -640,17 +640,26 @@
         return;
       }
 
+      
       if (
         !Number.isInteger(goals) ||
         goals < 0 || goals > 99 ||
         !Number.isInteger(penalties) ||
         penalties < 0 || penalties > goals ||
+        !Number.isInteger(rightFootGoals) ||
+        rightFootGoals < 0 || rightFootGoals > 99 ||
+        !Number.isInteger(leftFootGoals) ||
+        leftFootGoals < 0 || leftFootGoals > 99 ||
+        !Number.isInteger(headedGoals) ||
+        headedGoals < 0 || headedGoals > 99 ||
+        rightFootGoals + leftFootGoals + headedGoals !== goals ||
         !Number.isInteger(assists) ||
         assists < 0 || assists > 99
       ) {
-        status("اطلاعات گل، پنالتی یا پاس گل معتبر نیست.");
+        status("مجموع گل‌های پای راست، پای چپ و سر باید دقیقاً برابر تعداد کل گل باشد.");
         return;
       }
+
 
       records.push({
         player_id: playerId,
