@@ -660,14 +660,15 @@
         return;
       }
 
-
-      records.push({
+            records.push({
         player_id: playerId,
         goals,
+        right_foot_goals: rightFootGoals,
+        left_foot_goals: leftFootGoals,
+        headed_goals: headedGoals,
         penalties,
         assists
       });
-    }
 
     if (
       new Set(records.map(item => item.player_id)).size !==
