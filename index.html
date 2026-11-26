@@ -321,6 +321,11 @@ td{color:#e3e9e0}
   }
   
 </style>
+<script>
+  if (new URLSearchParams(window.location.search).get("admin") !== "1") {
+    document.documentElement.classList.add("gc-public-view");
+  }
+</script>
 </head>
 <body>
 <header>
