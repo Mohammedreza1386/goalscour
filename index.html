@@ -1269,7 +1269,7 @@ function likePlayer(playerId) {
 
   player.likes = num(player.likes) + 1;
 
-  if (!saveData()) return;
+  if (!window.saveData()) return;
 
   renderAll();
 }
