@@ -1148,6 +1148,8 @@ function editPlayer(playerId) {
   document.getElementById("playerName").value = player.name || "";
   document.getElementById("playerAge").value = player.age ?? "";
   document.getElementById("playerLikes").value = num(player.likes);
+  document.getElementById("playerAppearancesOverride").value =
+  player.appearancesOverride ?? "";
 
   selectedPhoto = "";
 
