@@ -661,40 +661,60 @@ appearances_override:
      همگام‌سازی امن
   ========================= */
 
-  async function syncAll() {
-    if (!isAdmin) {
+  
+async function syncAll() {
+  if (!isAdmin) {
+    throw new Error("فقط مدیر اجازه تغییر اطلاعات را دارد.");
+  }
+
+  if (!createLocalBackup()) {
+    throw new Error(
+      "پشتیبان‌گیری ناموفق بود؛ همگام‌سازی متوقف شد."
+    );
+  }
+
+  const groups = prepareGroups();
+
+  for (const group of groups) {
+    if (!group.rows.length) continue;
+
+    const result = await db
+      .from(group.table)
+      .upsert(group.rows)
+      .select("id");
+
+    if (result.error) {
       throw new Error(
-        "فقط مدیر اجازه تغییر اطلاعات را دارد."
+        "خطا در جدول " + group.table + ": " +
+        result.error.message
       );
     }
 
-    if (!createLocalBackup()) {
-      throw new Error(
-        "پشتیبان‌گیری ناموفق بود؛ همگام‌سازی متوقف شد."
-      );
-    }
-
-    const groups = prepareGroups();
-
-    for (const group of groups) {
-      if (!group.rows.length) continue;
-
-      const result = await db
-        .from(group.table)
-        .upsert(group.rows);
-
-      if (result.error) {
-        throw result.error;
-      }
-    }
-
-    status(
-      "اطلاعات با موفقیت همگام‌سازی شد.",
-      true
+    const savedIds = new Set(
+      (result.data || []).map(item => String(item.id))
     );
 
-    return true;
+    const missing = group.rows.filter(
+      item => !savedIds.has(String(item.id))
+    );
+
+    if (missing.length > 0) {
+      throw new Error(
+        "تأیید ذخیره در جدول " + group.table +
+        " ناموفق بود. تعداد تأییدنشده: " +
+        missing.length
+      );
+    }
   }
+
+  status(
+    "ذخیره و تأیید اطلاعات در دیتابیس موفق بود.",
+    true
+  );
+
+  return true;
+}
+
 
   /* =========================
      صف ذخیره‌سازی
