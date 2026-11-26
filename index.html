@@ -1077,8 +1077,26 @@ playerForm.addEventListener("submit", event => {
   const name = document.getElementById("playerName").value.trim();
   const ageValue = document.getElementById("playerAge").value;
   const age = ageValue === "" ? null : Number(ageValue);
-  const likes = num(document.getElementById("playerLikes").value);
-  const editId = document.getElementById("editPlayerId").value;
+  
+const likes = num(document.getElementById("playerLikes").value);
+const appearancesValue = document.getElementById("playerAppearancesOverride").value.trim();
+
+const manualAppearances =
+  appearancesValue === "" ? null : Number(appearancesValue);
+
+const editId = document.getElementById("editPlayerId").value;
+
+if (
+  manualAppearances !== null &&
+  (
+    !Number.isInteger(manualAppearances) ||
+    manualAppearances < 0 ||
+    manualAppearances > 100000
+  )
+) {
+  alert("تعداد بازی باید یک عدد صحیح بین صفر تا ۱۰۰۰۰۰ باشد.");
+  return;
+}
 
   if (!name) {
     alert("نام بازیکن را وارد کن.");
