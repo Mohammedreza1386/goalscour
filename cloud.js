@@ -1,19 +1,27 @@
+
 (() => {
   "use strict";
+
+  // فقط صفحه‌ای که با ?admin=1 باز شده پنل مدیریت را فعال می‌کند.
   const isAdminPage =
-  new URLSearchParams(window.location.search).get("admin") === "1";
+    new URLSearchParams(window.location.search).get("admin") === "1";
 
   const SUPABASE_URL =
     "https://zusbebjskchgehdjvpsm.supabase.co";
 
   const SUPABASE_KEY =
-  "sb_publishable_WGMEA7-K8FAResrVCL8GJQ_6KCxrvmK"
+    "sb_publishable_WGMEA7-K8FAResrVCL8GJQ_6KCxrvm";
+
+  if (!window.supabase || !window.supabase.createClient) {
+    console.error("Supabase library is not loaded.");
+    return;
+  }
 
   const db = window.supabase.createClient(
     SUPABASE_URL,
     SUPABASE_KEY
   );
-  
+
   window.goalscourSupabase = db;
 
   let isAdmin = false;
@@ -101,7 +109,7 @@
   document.head.appendChild(style);
 
   /* =========================
-     پنل مدیریت
+     ساخت پنل مدیریت
   ========================= */
 
   const panel = document.createElement("section");
@@ -224,13 +232,16 @@
     </button>
   `;
 
+  // پنل ورود فقط در صفحه مستقل مدیریت ساخته و نمایش داده می‌شود.
   if (isAdminPage) {
-  const nav = document.querySelector("main nav");
+    const nav = document.querySelector("main nav");
 
-  if (nav) {
-    nav.insertAdjacentElement("afterend", panel);
+    if (nav) {
+      nav.insertAdjacentElement("afterend", panel);
+    } else {
+      document.body.prepend(panel);
+    }
   }
-}
 
   /* =========================
      پیام‌های وضعیت
@@ -252,94 +263,95 @@
      پشتیبان‌گیری محلی
   ========================= */
 
-  
-function createLocalBackup() {
-  try {
-    const backup = {
-      app: "Goalscour",
-      version: 3,
-      createdAt: new Date().toISOString(),
-
-      players: Array.isArray(players) ? players : [],
-      matches: Array.isArray(matches) ? matches : [],
-      unofficial: Array.isArray(unofficial) ? unofficial : []
-    };
-
-    const json = JSON.stringify(backup);
-    const key = BACKUP_PREFIX + Date.now();
-
-    const getBackupKeys = () => {
-      const keys = [];
-
-      for (let i = 0; i < localStorage.length; i++) {
-        const currentKey = localStorage.key(i);
-
-        if (currentKey && currentKey.startsWith(BACKUP_PREFIX)) {
-          keys.push(currentKey);
-        }
-      }
-
-      return keys.sort(
-        (a, b) =>
-          Number(a.slice(BACKUP_PREFIX.length)) -
-          Number(b.slice(BACKUP_PREFIX.length))
-      );
-    };
-
+  function createLocalBackup() {
     try {
-      localStorage.setItem(key, json);
-    } catch (error) {
-      const isQuotaError =
-        error.name === "QuotaExceededError" ||
-        error.code === 22 ||
-        error.code === 1014;
+      const backup = {
+        app: "Goalscour",
+        version: 3,
+        createdAt: new Date().toISOString(),
 
-      if (!isQuotaError) throw error;
+        players: Array.isArray(players) ? players : [],
+        matches: Array.isArray(matches) ? matches : [],
+        unofficial: Array.isArray(unofficial) ? unofficial : []
+      };
 
-      const oldKeys = getBackupKeys();
-      let saved = false;
+      const json = JSON.stringify(backup);
+      const key = BACKUP_PREFIX + Date.now();
 
-      // همیشه آخرین نسخه پشتیبان قبلی را حفظ می‌کنیم.
-      while (oldKeys.length > 1) {
-        localStorage.removeItem(oldKeys.shift());
+      const getBackupKeys = () => {
+        const keys = [];
 
-        try {
-          localStorage.setItem(key, json);
-          saved = true;
-          break;
-        } catch (retryError) {
-          const stillFull =
-            retryError.name === "QuotaExceededError" ||
-            retryError.code === 22 ||
-            retryError.code === 1014;
+        for (let i = 0; i < localStorage.length; i++) {
+          const currentKey = localStorage.key(i);
 
-          if (!stillFull) throw retryError;
+          if (
+            currentKey &&
+            currentKey.startsWith(BACKUP_PREFIX)
+          ) {
+            keys.push(currentKey);
+          }
         }
+
+        return keys.sort(
+          (a, b) =>
+            Number(a.slice(BACKUP_PREFIX.length)) -
+            Number(b.slice(BACKUP_PREFIX.length))
+        );
+      };
+
+      try {
+        localStorage.setItem(key, json);
+      } catch (error) {
+        const isQuotaError =
+          error.name === "QuotaExceededError" ||
+          error.code === 22 ||
+          error.code === 1014;
+
+        if (!isQuotaError) throw error;
+
+        const oldKeys = getBackupKeys();
+        let saved = false;
+
+        // آخرین نسخه پشتیبان قبلی حفظ می‌شود.
+        while (oldKeys.length > 1) {
+          localStorage.removeItem(oldKeys.shift());
+
+          try {
+            localStorage.setItem(key, json);
+            saved = true;
+            break;
+          } catch (retryError) {
+            const stillFull =
+              retryError.name === "QuotaExceededError" ||
+              retryError.code === 22 ||
+              retryError.code === 1014;
+
+            if (!stillFull) throw retryError;
+          }
+        }
+
+        if (!saved) throw error;
       }
 
-      if (!saved) throw error;
+      // حداکثر سه نسخه پشتیبان نگهداری می‌شود.
+      const newest = getBackupKeys().reverse();
+
+      newest.slice(3).forEach(oldKey => {
+        localStorage.removeItem(oldKey);
+      });
+
+      return true;
+
+    } catch (error) {
+      console.error("Backup failed:", error);
+
+      status(
+        "ساخت نسخه پشتیبان ناموفق بود: " + error.message
+      );
+
+      return false;
     }
-
-    // نگهداری حداکثر سه نسخه پشتیبان
-    const newest = getBackupKeys().reverse();
-
-    newest.slice(3).forEach(oldKey => {
-      localStorage.removeItem(oldKey);
-    });
-
-    return true;
-
-  } catch (error) {
-    console.error("Backup failed:", error);
-
-    status(
-      "ساخت نسخه پشتیبان ناموفق بود: " + error.message
-    );
-
-    return false;
   }
-}
-
 
   /* =========================
      ابزار ادغام رکوردها
@@ -368,7 +380,9 @@ function createLocalBackup() {
   }
 
   /* پایان پارت اول */
-   /* =========================
+
+ 
+  /* =========================
      کنترل دسترسی مدیر
   ========================= */
 
@@ -434,109 +448,114 @@ function createLocalBackup() {
   ========================= */
 
   async function fetchCloud() {
-  const results = await Promise.all([
-    db.from("goalscour_players")
-      .select("*")
-      .order("updated_at"),
+    const results = await Promise.all([
+      db.from("goalscour_players")
+        .select("*")
+        .order("updated_at"),
 
-    db.from("goalscour_matches")
-      .select("*")
-      .order("match_date"),
+      db.from("goalscour_matches")
+        .select("*")
+        .order("match_date"),
 
-    db.from("goalscour_unofficial")
-      .select("*")
-      .order("record_date")
-  ]);
+      db.from("goalscour_unofficial")
+        .select("*")
+        .order("record_date")
+    ]);
 
-  for (const result of results) {
+    for (const result of results) {
+      if (result.error) {
+        throw result.error;
+      }
+    }
+
+    const playerRows = results[0].data || [];
+
+    return {
+      archivedPlayerIds: playerRows
+        .filter(item => item.is_archived === true)
+        .map(item => String(item.id)),
+
+      players: playerRows
+        .filter(item => item.is_archived !== true)
+        .map(item => ({
+          id: item.id,
+          name: item.name,
+          age: item.age,
+          likes: item.likes,
+
+          // مقدار دستی تعداد بازی از دیتابیس خوانده می‌شود.
+          appearancesOverride:
+            item.appearances_override ?? null,
+
+          photo: item.photo || ""
+        })),
+
+      matches: (results[1].data || []).map(item => ({
+        id: item.id,
+        opponent: item.opponent,
+        date: item.match_date,
+        against: item.against_goals,
+        scorerId: item.scorer_id,
+        goals: item.goals,
+        rightFootGoals: item.right_foot_goals || 0,
+        leftFootGoals: item.left_foot_goals || 0,
+        headedGoals: item.headed_goals || 0,
+        penalties: item.penalties,
+        assisterId: item.assister_id || "",
+        assists: item.assists,
+        participantIds: Array.isArray(item.participant_ids)
+          ? item.participant_ids.map(String)
+          : []
+      })),
+
+      unofficial: (results[2].data || []).map(item => ({
+        id: item.id,
+        playerId: item.player_id,
+        goals: item.goals,
+        rightFootGoals: item.right_foot_goals || 0,
+        leftFootGoals: item.left_foot_goals || 0,
+        headedGoals: item.headed_goals || 0,
+        penalties: item.penalties,
+        assists: item.assists,
+        date: item.record_date,
+        note: item.note || "",
+        matchId: item.match_id || "",
+        opponent: item.opponent || ""
+      }))
+    };
+  }
+
+  /* =========================
+     بایگانی بازیکن در سرور
+  ========================= */
+
+  async function archivePlayerInCloud(playerId) {
+    if (!isAdmin) {
+      throw new Error("دسترسی مدیر تأیید نشد.");
+    }
+
+    const result = await db
+      .from("goalscour_players")
+      .update({
+        is_archived: true,
+        updated_at: new Date().toISOString()
+      })
+      .eq("id", String(playerId))
+      .select("id")
+      .maybeSingle();
+
     if (result.error) {
       throw result.error;
     }
+
+    if (!result.data) {
+      throw new Error("بازیکن در دیتابیس پیدا نشد.");
+    }
+
+    return true;
   }
 
-  const playerRows = results[0].data || [];
-
-  return {
-    archivedPlayerIds: playerRows
-      .filter(item => item.is_archived === true)
-      .map(item => String(item.id)),
-
-    players: playerRows
-      .filter(item => item.is_archived !== true)
-      .map(item => ({
-        id: item.id,
-        name: item.name,
-        age: item.age,
-        likes: item.likes,
-        photo: item.photo || ""
-      })),
-
-    matches: (results[1].data || []).map(item => ({
-      id: item.id,
-      opponent: item.opponent,
-      date: item.match_date,
-      against: item.against_goals,
-      scorerId: item.scorer_id,
-      goals: item.goals,
-      rightFootGoals: item.right_foot_goals || 0,
-      leftFootGoals: item.left_foot_goals || 0,
-      headedGoals: item.headed_goals || 0,
-      penalties: item.penalties,
-      assisterId: item.assister_id || "",
-      assists: item.assists,
-      participantIds: Array.isArray(item.participant_ids)
-        ? item.participant_ids.map(String)
-        : []
-    })),
-
-    unofficial: (results[2].data || []).map(item => ({
-      id: item.id,
-      playerId: item.player_id,
-      goals: item.goals,
-      rightFootGoals: item.right_foot_goals || 0,
-      leftFootGoals: item.left_foot_goals || 0,
-      headedGoals: item.headed_goals || 0,
-      penalties: item.penalties,
-      assists: item.assists,
-      date: item.record_date,
-      note: item.note || "",
-      matchId: item.match_id || "",
-      opponent: item.opponent || ""
-    }))
-  };
-}
-
-  /* =========================
-   بایگانی بازیکن در سرور
-========================= */
-
-async function archivePlayerInCloud(playerId) {
-  if (!isAdmin) {
-    throw new Error("دسترسی مدیر تأیید نشد.");
-  }
-
-  const result = await db
-    .from("goalscour_players")
-    .update({
-      is_archived: true,
-      updated_at: new Date().toISOString()
-    })
-    .eq("id", String(playerId))
-    .select("id")
-    .maybeSingle();
-
-  if (result.error) {
-    throw result.error;
-  }
-
-  if (!result.data) {
-    throw new Error("بازیکن در دیتابیس پیدا نشد.");
-  }
-
-  return true;
-}
-
-window.gcArchivePlayer = archivePlayerInCloud;
+  window.gcArchivePlayer = archivePlayerInCloud;
 
   /* =========================
      ذخیره محلی
@@ -573,6 +592,15 @@ window.gcArchivePlayer = archivePlayerInCloud;
           name: String(item.name || ""),
           age: item.age ? Number(item.age) : null,
           likes: Number(item.likes) || 0,
+
+          // مقدار خالی یعنی محاسبه خودکار.
+          appearances_override:
+            item.appearancesOverride === null ||
+            item.appearancesOverride === undefined ||
+            item.appearancesOverride === ""
+              ? null
+              : Number(item.appearancesOverride),
+
           photo: item.photo || "",
           updated_at: new Date().toISOString()
         }))
@@ -589,14 +617,14 @@ window.gcArchivePlayer = archivePlayerInCloud;
           scorer_id: String(item.scorerId || ""),
           goals: Number(item.goals) || 0,
           right_foot_goals: Number(item.rightFootGoals) || 0,
-left_foot_goals: Number(item.leftFootGoals) || 0,
-headed_goals: Number(item.headedGoals) || 0,
+          left_foot_goals: Number(item.leftFootGoals) || 0,
+          headed_goals: Number(item.headedGoals) || 0,
           penalties: Number(item.penalties) || 0,
           assister_id: String(item.assisterId || ""),
           assists: Number(item.assists) || 0,
           participant_ids: Array.isArray(item.participantIds)
-  ? item.participantIds
-  : [],
+            ? item.participantIds
+            : [],
           updated_at: new Date().toISOString()
         }))
       },
@@ -609,14 +637,14 @@ headed_goals: Number(item.headedGoals) || 0,
           player_id: String(item.playerId),
           goals: Number(item.goals) || 0,
           right_foot_goals: Number(item.rightFootGoals) || 0,
-left_foot_goals: Number(item.leftFootGoals) || 0,
-headed_goals: Number(item.headedGoals) || 0,
+          left_foot_goals: Number(item.leftFootGoals) || 0,
+          headed_goals: Number(item.headedGoals) || 0,
           penalties: Number(item.penalties) || 0,
           assists: Number(item.assists) || 0,
           record_date: item.date,
           note: String(item.note || ""),
           match_id: item.matchId || null,
-opponent: String(item.opponent || ""),
+          opponent: String(item.opponent || ""),
           updated_at: new Date().toISOString()
         }))
       }
@@ -654,7 +682,6 @@ opponent: String(item.opponent || ""),
       }
     }
 
-    
     status(
       "اطلاعات با موفقیت همگام‌سازی شد.",
       true
@@ -662,7 +689,6 @@ opponent: String(item.opponent || ""),
 
     return true;
   }
-
 
   /* =========================
      صف ذخیره‌سازی
@@ -679,6 +705,7 @@ opponent: String(item.opponent || ""),
         status(
           "خطا در ذخیره آنلاین: " + error.message
         );
+
         return false;
       });
 
@@ -695,26 +722,31 @@ opponent: String(item.opponent || ""),
     window.saveData = function () {
       const result = originalSave();
 
-      
-if (result && isAdmin && initialized) {
-  const syncPromise = queueSync();
+      if (result && isAdmin && initialized) {
+        const syncPromise = queueSync();
 
-  if (syncPromise && typeof syncPromise.then === "function") {
-    syncPromise.then(saved => {
-      if (
-        saved &&
-        typeof window.gcRefreshMilestones === "function"
-      ) {
-        window.gcRefreshMilestones();
+        if (
+          syncPromise &&
+          typeof syncPromise.then === "function"
+        ) {
+          syncPromise.then(saved => {
+            if (
+              saved &&
+              typeof window.gcRefreshMilestones === "function"
+            ) {
+              window.gcRefreshMilestones();
+            }
+          });
+        }
       }
-    });
-  }
-}
 
       return result;
     };
   }
 
+  /* پایان پارت دوم */
+
+ 
   /* =========================
      بررسی مجوز مدیر
   ========================= */
@@ -739,11 +771,14 @@ if (result && isAdmin && initialized) {
   async function mergeLocalAndCloud() {
     const remote = await fetchCloud();
 
-    const archivedIds = new Set(remote.archivedPlayerIds || []);
+    const archivedIds = new Set(
+      remote.archivedPlayerIds || []
+    );
 
-const localPlayers = validArray(players).filter(
-  item => !archivedIds.has(String(item.id))
-);
+    const localPlayers = validArray(players).filter(
+      item => !archivedIds.has(String(item.id))
+    );
+
     const localMatches = validArray(matches);
     const localUnofficial = validArray(unofficial);
 
@@ -773,8 +808,7 @@ const localPlayers = validArray(players).filter(
     };
   }
 
-  /* پایان پارت دوم */
-   /* =========================
+  /* =========================
      اعتبارسنجی فایل پشتیبان
   ========================= */
 
@@ -815,6 +849,26 @@ const localPlayers = validArray(players).filter(
       }
     }
 
+    // کنترل مقدار دستی تعداد بازی در فایل پشتیبان
+    for (const player of data.players) {
+      const value = player.appearancesOverride;
+
+      if (
+        value !== null &&
+        value !== undefined &&
+        value !== "" &&
+        (
+          !Number.isInteger(Number(value)) ||
+          Number(value) < 0 ||
+          Number(value) > 100000
+        )
+      ) {
+        throw new Error(
+          "تعداد بازی دستی یکی از بازیکنان معتبر نیست."
+        );
+      }
+    }
+
     return true;
   }
 
@@ -831,7 +885,7 @@ const localPlayers = validArray(players).filter(
     try {
       const backup = {
         app: "Goalscour",
-        version: 3,
+        version: 4,
         createdAt: new Date().toISOString(),
         players: validArray(players),
         matches: validArray(matches),
@@ -840,7 +894,9 @@ const localPlayers = validArray(players).filter(
 
       const blob = new Blob(
         [JSON.stringify(backup, null, 2)],
-        { type: "application/json;charset=utf-8" }
+        {
+          type: "application/json;charset=utf-8"
+        }
       );
 
       const url = URL.createObjectURL(blob);
@@ -862,12 +918,19 @@ const localPlayers = validArray(players).filter(
 
     } catch (error) {
       console.error(error);
-      status("خطا در تهیه فایل پشتیبان: " + error.message);
+
+      status(
+        "خطا در تهیه فایل پشتیبان: " + error.message
+      );
     }
   }
 
-  document.getElementById("gcExportBackup")
-    .addEventListener("click", exportBackup);
+  const exportButton =
+    document.getElementById("gcExportBackup");
+
+  if (exportButton) {
+    exportButton.addEventListener("click", exportBackup);
+  }
 
   /* =========================
      بازیابی فایل JSON
@@ -880,7 +943,7 @@ const localPlayers = validArray(players).filter(
     }
 
     const input = document.getElementById("gcImportFile");
-    const file = input.files && input.files[0];
+    const file = input?.files?.[0];
 
     if (!file) {
       status("ابتدا فایل JSON را انتخاب کن.");
@@ -941,7 +1004,6 @@ const localPlayers = validArray(players).filter(
       try {
         saveLocal();
       } catch (storageError) {
-        // در صورت شکست ذخیره، وضعیت قبلی را برمی‌گردانیم.
         players = oldPlayers;
         matches = oldMatches;
         unofficial = oldUnofficial;
@@ -962,7 +1024,13 @@ const localPlayers = validArray(players).filter(
         true
       );
 
-      await queueSync();
+      const syncResult = await queueSync();
+
+      if (syncResult === false) {
+        status(
+          "اطلاعات محلی بازیابی شدند، اما همگام‌سازی آنلاین ناموفق بود."
+        );
+      }
 
     } catch (error) {
       console.error("Import failed:", error);
@@ -973,9 +1041,16 @@ const localPlayers = validArray(players).filter(
     }
   }
 
-  document.getElementById("gcImportBackup")
-    .addEventListener("click", importBackup);
+  const importButton =
+    document.getElementById("gcImportBackup");
 
+  if (importButton) {
+    importButton.addEventListener("click", importBackup);
+  }
+
+  /* پایان پارت سوم */
+
+ 
   /* =========================
      راه‌اندازی اولیه
   ========================= */
@@ -992,7 +1067,10 @@ const localPlayers = validArray(players).filter(
 
       const session = sessionResult.data.session;
 
-      isAdmin = await checkAdmin(session?.user);
+      // حساب مدیر فقط در صفحه مستقل مدیریت مجوز می‌گیرد.
+      isAdmin =
+        isAdminPage &&
+        await checkAdmin(session?.user);
 
       if (isAdmin) {
         status("در حال ادغام اطلاعات محلی و سرور...");
@@ -1028,7 +1106,9 @@ const localPlayers = validArray(players).filter(
         );
       } else {
         status(
-          "حالت مشاهده عمومی فعال است.",
+          isAdminPage
+            ? "برای مدیریت سایت وارد حساب مدیر شو."
+            : "حالت مشاهده عمومی فعال است.",
           true
         );
       }
@@ -1046,53 +1126,66 @@ const localPlayers = validArray(players).filter(
      نمایش فرم ورود
   ========================= */
 
-  document.getElementById("gcShowLogin")
-    .addEventListener("click", () => {
+  const showLoginButton =
+    document.getElementById("gcShowLogin");
+
+  if (showLoginButton) {
+    showLoginButton.addEventListener("click", () => {
       const form = document.getElementById("gcLoginForm");
+
+      if (!form) return;
 
       form.dataset.open = "yes";
       form.classList.remove("gc-hidden");
     });
+  }
 
   /* =========================
      بازیابی رمز عبور
   ========================= */
 
-  document.getElementById("gcForgotPassword")
-    .addEventListener("click", async () => {
-      const email = document
-        .getElementById("gcEmail")
-        .value.trim();
+  const forgotPasswordButton =
+    document.getElementById("gcForgotPassword");
 
-      if (!email) {
-        status("ابتدا ایمیل مدیر را وارد کن.");
-        return;
-      }
+  if (forgotPasswordButton) {
+    forgotPasswordButton.addEventListener(
+      "click",
+      async () => {
+        const email = document
+          .getElementById("gcEmail")
+          ?.value.trim();
 
-      status("در حال ارسال ایمیل بازیابی...");
-
-      try {
-        const result = await db.auth.resetPasswordForEmail(
-          email,
-          {
-            redirectTo:
-              "https://goalscour-econova4.vercel.app/"
-          }
-        );
-
-        if (result.error) {
-          throw result.error;
+        if (!email) {
+          status("ابتدا ایمیل مدیر را وارد کن.");
+          return;
         }
 
-        status(
-          "درخواست بازیابی ارسال شد؛ ایمیل خود را بررسی کن.",
-          true
-        );
+        status("در حال ارسال ایمیل بازیابی...");
 
-      } catch (error) {
-        status("خطا: " + error.message);
+        try {
+          const result = await db.auth.resetPasswordForEmail(
+            email,
+            {
+              redirectTo:
+                "https://goalscour-econova4.vercel.app/index.html?admin=1"
+            }
+          );
+
+          if (result.error) {
+            throw result.error;
+          }
+
+          status(
+            "درخواست بازیابی ارسال شد؛ ایمیل خود را بررسی کن.",
+            true
+          );
+
+        } catch (error) {
+          status("خطا: " + error.message);
+        }
       }
-    });
+    );
+  }
 
   /* =========================
      تشخیص لینک بازیابی رمز
@@ -1100,8 +1193,9 @@ const localPlayers = validArray(players).filter(
 
   db.auth.onAuthStateChange(event => {
     if (event === "PASSWORD_RECOVERY") {
-      document.getElementById("gcNewPasswordForm")
-        .classList.remove("gc-hidden");
+      document
+        .getElementById("gcNewPasswordForm")
+        ?.classList.remove("gc-hidden");
 
       status("رمز عبور جدید را وارد کن.");
     }
@@ -1111,106 +1205,146 @@ const localPlayers = validArray(players).filter(
      ثبت رمز جدید
   ========================= */
 
-  document.getElementById("gcNewPasswordForm")
-    .addEventListener("submit", async event => {
-      event.preventDefault();
+  const newPasswordForm =
+    document.getElementById("gcNewPasswordForm");
 
-      const password = document
-        .getElementById("gcNewPassword")
-        .value;
+  if (newPasswordForm) {
+    newPasswordForm.addEventListener(
+      "submit",
+      async event => {
+        event.preventDefault();
 
-      if (password.length < 8) {
-        status("رمز عبور باید حداقل ۸ کاراکتر باشد.");
-        return;
-      }
+        const password = document
+          .getElementById("gcNewPassword")
+          ?.value || "";
 
-      status("در حال تغییر رمز عبور...");
-
-      try {
-        const result = await db.auth.updateUser({
-          password
-        });
-
-        if (result.error) {
-          throw result.error;
+        if (password.length < 8) {
+          status("رمز عبور باید حداقل ۸ کاراکتر باشد.");
+          return;
         }
 
-        document.getElementById("gcNewPasswordForm")
-          .classList.add("gc-hidden");
+        status("در حال تغییر رمز عبور...");
 
-        status("رمز عبور با موفقیت تغییر کرد.", true);
+        try {
+          const result = await db.auth.updateUser({
+            password
+          });
 
-      } catch (error) {
-        status("خطا: " + error.message);
+          if (result.error) {
+            throw result.error;
+          }
+
+          document
+            .getElementById("gcNewPasswordForm")
+            ?.classList.add("gc-hidden");
+
+          status(
+            "رمز عبور با موفقیت تغییر کرد.",
+            true
+          );
+
+        } catch (error) {
+          status("خطا: " + error.message);
+        }
       }
-    });
+    );
+  }
 
   /* =========================
      ورود مدیر
   ========================= */
 
-  document.getElementById("gcLoginForm")
-    .addEventListener("submit", async event => {
-      event.preventDefault();
+  const loginForm =
+    document.getElementById("gcLoginForm");
 
-      const email = document
-        .getElementById("gcEmail")
-        .value.trim();
+  if (loginForm) {
+    loginForm.addEventListener(
+      "submit",
+      async event => {
+        event.preventDefault();
 
-      const password = document
-        .getElementById("gcPassword")
-        .value;
-
-      status("در حال بررسی حساب مدیر...");
-
-      try {
-        const result = await db.auth.signInWithPassword({
-          email,
-          password
-        });
-
-        if (result.error) {
-          throw result.error;
+        if (!isAdminPage) {
+          status("ورود مدیر فقط از صفحه مستقل مدیریت امکان‌پذیر است.");
+          return;
         }
 
-        const allowed = await checkAdmin(result.data.user);
+        const email = document
+          .getElementById("gcEmail")
+          ?.value.trim();
 
-        if (!allowed) {
-          await db.auth.signOut();
+        const password = document
+          .getElementById("gcPassword")
+          ?.value || "";
 
-          throw new Error(
-            "این حساب مجوز مدیریت ندارد."
-          );
+        status("در حال بررسی حساب مدیر...");
+
+        try {
+          const result = await db.auth.signInWithPassword({
+            email,
+            password
+          });
+
+          if (result.error) {
+            throw result.error;
+          }
+
+          const allowed = await checkAdmin(result.data.user);
+
+          if (!allowed) {
+            await db.auth.signOut();
+
+            throw new Error(
+              "این حساب مجوز مدیریت ندارد."
+            );
+          }
+
+          loginForm.classList.add("gc-hidden");
+
+          await initialize();
+
+        } catch (error) {
+          status("ورود ناموفق: " + error.message);
         }
-
-        document.getElementById("gcLoginForm")
-          .classList.add("gc-hidden");
-
-        await initialize();
-
-      } catch (error) {
-        status("ورود ناموفق: " + error.message);
       }
-    });
+    );
+  }
 
   /* =========================
      خروج مدیر
   ========================= */
 
-  document.getElementById("gcLogout")
-    .addEventListener("click", async () => {
-      try {
-        await db.auth.signOut();
+  const logoutButton =
+    document.getElementById("gcLogout");
 
-        isAdmin = false;
-        initialized = false;
+  if (logoutButton) {
+    logoutButton.addEventListener(
+      "click",
+      async () => {
+        try {
+          const result = await db.auth.signOut();
 
-        await initialize();
+          if (result.error) {
+            throw result.error;
+          }
 
-      } catch (error) {
-        status("خطا در خروج: " + error.message);
+          isAdmin = false;
+          initialized = false;
+
+          const login = document.getElementById("gcLoginForm");
+
+          if (login) {
+            login.dataset.open = "no";
+            login.classList.add("gc-hidden");
+          }
+
+          await initialize();
+
+        } catch (error) {
+          status("خطا در خروج: " + error.message);
+        }
       }
-    });
+    );
+  }
 
   /* =========================
      تازه‌سازی اطلاعات عمومی
