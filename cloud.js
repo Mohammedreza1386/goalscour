@@ -936,6 +936,26 @@ players.forEach(player => {
       }
     }
 
+        // کنترل مقدار مبنای تعداد بازی
+    for (const player of data.players) {
+      const base = player.appearancesBase;
+
+      if (
+        base !== null &&
+        base !== undefined &&
+        base !== "" &&
+        (
+          !Number.isInteger(Number(base)) ||
+          Number(base) < -100000 ||
+          Number(base) > 100000
+        )
+      ) {
+        throw new Error(
+          "مقدار مبنای تعداد بازی یکی از بازیکنان معتبر نیست."
+        );
+      }
+    }
+
     return true;
   }
 
