@@ -858,10 +858,25 @@ const totalHeadedGoals = officialHeadedGoals + unofficialHeadedGoals;
     p => String(p.id) === String(playerId)
   );
 
-  const totalAppearances =
+  
+const automaticAppearances =
   num(rated.appearances) +
   officialAppearanceIds.size +
   unofficialAppearanceIds.size;
+
+const player = players.find(
+  p => String(p.id) === String(playerId)
+);
+
+const hasAppearancesOverride =
+  player?.appearancesOverride !== null &&
+  player?.appearancesOverride !== undefined &&
+  player?.appearancesOverride !== "";
+
+const totalAppearances = hasAppearancesOverride
+  ? Math.max(0, num(player.appearancesOverride))
+  : automaticAppearances;
+
 
   return {
     officialGoals,
