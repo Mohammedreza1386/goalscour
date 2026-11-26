@@ -1217,8 +1217,10 @@ function editPlayer(playerId) {
   document.getElementById("playerAge").value = player.age ?? "";
   document.getElementById("playerLikes").value = num(player.likes);
   document.getElementById("playerAppearancesOverride").value =
-  player.appearancesOverride ?? "";
-
+  player.appearancesBase !== null &&
+  player.appearancesBase !== undefined
+    ? getStats(player.id).appearances
+    : player.appearancesOverride ?? "";
   selectedPhoto = "";
 
   const preview = document.getElementById("photoPreview");
