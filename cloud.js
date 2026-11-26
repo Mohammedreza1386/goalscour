@@ -10,7 +10,7 @@
     "https://zusbebjskchgehdjvpsm.supabase.co";
 
   const SUPABASE_KEY =
-    eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1c2JlYmpza2NoZ2VoZGp2cHNtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIyNDg1OTEsImV4cCI6MjEwNzgyNDU5MX0.2D86j8JssnCDpmh633zXPlF25oGsN9WIAwWMF7W0IeA
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1c2JlYmpza2NoZ2VoZGp2cHNtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIyNDg1OTEsImV4cCI6MjEwNzgyNDU5MX0.2D86j8JssnCDpmh633zXPlF25oGsN9WIAwWMF7W0IeA";
 
   if (!window.supabase || !window.supabase.createClient) {
     console.error("Supabase library is not loaded.");
