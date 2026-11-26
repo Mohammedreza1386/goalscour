@@ -594,14 +594,19 @@ appearancesOverride:
           age: item.age ? Number(item.age) : null,
           likes: Number(item.likes) || 0,
 
-          // مقدار خالی یعنی محاسبه خودکار.
-          appearances_override:
-            item.appearancesOverride === null ||
-            item.appearancesOverride === undefined ||
-            item.appearancesOverride === ""
-              ? null
-              : Number(item.appearancesOverride),
+          appearances_base:
+  item.appearancesBase === null ||
+  item.appearancesBase === undefined ||
+  item.appearancesBase === ""
+    ? null
+    : Number(item.appearancesBase),
 
+appearances_override:
+  item.appearancesOverride === null ||
+  item.appearancesOverride === undefined ||
+  item.appearancesOverride === ""
+    ? null
+    : Number(item.appearancesOverride),
           photo: item.photo || "",
           updated_at: new Date().toISOString()
         }))
