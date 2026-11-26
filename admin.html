@@ -4,9 +4,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#090d0a">
   <meta name="robots" content="noindex,nofollow">
+  <meta name="theme-color" content="#090d0a">
   <title>پنل مدیریت | GOALSCOUR</title>
+
   <style>
     * {
       box-sizing: border-box;
@@ -14,27 +15,64 @@
 
     html, body {
       margin: 0;
-      padding: 0;
       width: 100%;
-      height: 100%;
-      overflow: hidden;
+      min-height: 100%;
       background: #090d0a;
+      color: #ffffff;
+      font-family: Tahoma, Arial, sans-serif;
     }
 
-    iframe {
+    .admin-header {
+      min-height: 62px;
+      padding: 12px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: #111812;
+      border-bottom: 1px solid #273329;
+    }
+
+    .admin-brand {
+      color: #b9f27c;
+      font-size: 17px;
+      font-weight: bold;
+    }
+
+    .admin-back {
+      color: #b9f27c;
+      text-decoration: none;
+      border: 1px solid #354735;
+      border-radius: 9px;
+      padding: 9px 13px;
+      font-size: 12px;
+    }
+
+    .admin-frame {
       display: block;
       width: 100%;
-      height: 100%;
+      height: calc(100vh - 62px);
+      min-height: 650px;
       border: 0;
       background: #090d0a;
     }
   </style>
 </head>
+
 <body>
+
+  <header class="admin-header">
+    <div class="admin-brand">GOALSCOUR · ADMIN</div>
+    <a class="admin-back" href="/">بازگشت به سایت</a>
+  </header>
+
   <iframe
+    class="admin-frame"
     src="/index.html?admin=1"
-    title="پنل مدیریت GOALSCOUR"
+    title="پنل مدیریت Goalscour"
+    loading="eager"
     allow="clipboard-read; clipboard-write"
   ></iframe>
+
 </body>
 </html>
