@@ -803,6 +803,67 @@ appearances_override:
       remote.unofficial
     );
 
+    // انتقال تعداد بازی بازیکنان قدیمی به سیستم مبنا
+players.forEach(player => {
+  const hasBase =
+    player.appearancesBase !== null &&
+    player.appearancesBase !== undefined &&
+    player.appearancesBase !== "";
+
+  const oldValue = player.appearancesOverride;
+
+  if (hasBase || oldValue === null ||
+      oldValue === undefined || oldValue === "") {
+    return;
+  }
+
+  const playerId = String(player.id);
+
+  const officialIds = new Set();
+
+  matches.forEach(match => {
+    const duplicate =
+      typeof window.gcIsRatedDuplicate === "function" &&
+      window.gcIsRatedDuplicate(match);
+
+    if (duplicate) return;
+
+    const participants = Array.isArray(match.participantIds)
+      ? match.participantIds.map(String)
+      : [];
+
+    if (
+      participants.includes(playerId) ||
+      String(match.scorerId) === playerId ||
+      String(match.assisterId) === playerId
+    ) {
+      officialIds.add(String(match.id));
+    }
+  });
+
+  const unofficialIds = new Set(
+    unofficial
+      .filter(record => String(record.playerId) === playerId)
+      .map(record =>
+        record.matchId
+          ? "match:" + String(record.matchId)
+          : "record:" + String(record.id)
+      )
+  );
+
+  const rated = typeof window.gcGetMatchStats === "function"
+    ? window.gcGetMatchStats(player.id)
+    : { appearances: 0 };
+
+  const automatic =
+    Number(rated.appearances || 0) +
+    officialIds.size +
+    unofficialIds.size;
+
+  player.appearancesBase = Number(oldValue) - automatic;
+  player.appearancesOverride = null;
+});
+
     saveLocal();
 
     return {
