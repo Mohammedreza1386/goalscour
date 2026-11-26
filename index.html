@@ -729,6 +729,48 @@ function playerName(playerId) {
 
 
 
+  function getAutomaticAppearances(playerId) {
+  const isRatedDuplicate = match =>
+    typeof window.gcIsRatedDuplicate === "function" &&
+    window.gcIsRatedDuplicate(match);
+
+  const officialIds = new Set();
+
+  matches.forEach(match => {
+    if (isRatedDuplicate(match)) return;
+
+    const participants = Array.isArray(match.participantIds)
+      ? match.participantIds.map(String)
+      : [];
+
+    if (
+      participants.includes(String(playerId)) ||
+      String(match.scorerId) === String(playerId) ||
+      String(match.assisterId) === String(playerId)
+    ) {
+      officialIds.add(String(match.id));
+    }
+  });
+
+  const unofficialIds = new Set(
+    unofficial
+      .filter(record => String(record.playerId) === String(playerId))
+      .map(record =>
+        record.matchId
+          ? "match:" + String(record.matchId)
+          : "record:" + String(record.id)
+      )
+  );
+
+  const rated = typeof window.gcGetMatchStats === "function"
+    ? window.gcGetMatchStats(playerId)
+    : { appearances: 0 };
+
+  return num(rated.appearances) +
+    officialIds.size +
+    unofficialIds.size;
+  }
+
 function getStats(playerId) {
   const isRatedDuplicate = m =>
     typeof window.gcIsRatedDuplicate === "function" &&
