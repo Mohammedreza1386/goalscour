@@ -1123,12 +1123,13 @@ player.appearancesOverride = manualAppearances;
     }
   } else {
     players.push({
-      id: id(),
-      name,
-      age,
-      likes,
-      photo: selectedPhoto || ""
-    });
+  id: id(),
+  name,
+  age,
+  likes,
+  appearancesOverride: manualAppearances,
+  photo: selectedPhoto || ""
+});
   }
 
   if (!saveData()) return;
