@@ -1308,7 +1308,7 @@ async function deletePlayer(playerId) {
       p => String(p.id) !== String(playerId)
     );
 
-    if (!saveData()) {
+    if (!window.saveData()) {
       players = oldPlayers;
       return;
     }
@@ -1430,7 +1430,7 @@ headedGoals,
 
   matches.push(record);
 
-  if (!saveData()) {
+  if (!window.saveData()) {
     matches.pop();
     return;
   }
@@ -1556,7 +1556,7 @@ headedGoals,
 
   unofficial.push(record);
 
-  if (!saveData()) {
+  if (!window.saveData()) {
     unofficial.pop();
     return;
   }
@@ -1588,7 +1588,7 @@ function deleteMatch(matchId) {
   const deleted = matches[index];
   matches.splice(index, 1);
 
-  if (!saveData()) {
+  if (!window.saveData()) {
     matches.splice(index, 0, deleted);
     return;
   }
@@ -1609,7 +1609,7 @@ function deleteUnofficial(recordId) {
   const deleted = unofficial[index];
   unofficial.splice(index, 1);
 
-  if (!saveData()) {
+  if (!window.saveData()) {
     unofficial.splice(index, 0, deleted);
     return;
   }
