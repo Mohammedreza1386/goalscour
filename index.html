@@ -1180,8 +1180,11 @@ if (
     player.name = name;
 player.age = age;
 player.likes = likes;
-player.appearancesOverride = manualAppearances;
+player.appearancesBase = manualAppearances === null
+  ? null
+  : manualAppearances - getAutomaticAppearances(editId);
 
+player.appearancesOverride = null;
     if (selectedPhoto) {
       player.photo = selectedPhoto;
     }
