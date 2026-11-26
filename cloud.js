@@ -224,11 +224,13 @@
     </button>
   `;
 
+  if (isAdminPage) {
   const nav = document.querySelector("main nav");
 
   if (nav) {
     nav.insertAdjacentElement("afterend", panel);
   }
+}
 
   /* =========================
      پیام‌های وضعیت
