@@ -319,6 +319,18 @@ td{color:#e3e9e0}
     height: 40px;
   }
   }
+
+  /* حذف منوی مدیریت از صفحه عمومی */
+html.gc-public-view #gcAdminMenu {
+  display: none !important;
+}
+
+/* مخفی‌کردن مسیرهای ثبت و مدیریت مسابقات در صفحه عمومی */
+html.gc-public-view nav button[data-tab="official"],
+html.gc-public-view nav button[data-tab="unofficial"],
+html.gc-public-view nav button[data-tab="match-ratings"] {
+  display: none !important;
+}
   
 </style>
 <script>
