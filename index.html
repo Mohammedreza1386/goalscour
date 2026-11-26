@@ -1399,7 +1399,40 @@ document.getElementById("headedGoals").value = 0;
 document.getElementById("unofficialForm").addEventListener("submit", event => {
   event.preventDefault();
 
-  const playerId = document.getElementById("unofficialPlayer").value;
+  
+const playerSelect = document.getElementById("unofficialPlayer");
+const selectedOption = playerSelect.options[playerSelect.selectedIndex];
+
+const selectedName = String(
+  selectedOption?.textContent || ""
+).trim();
+
+const selectedValue = String(playerSelect.value || "");
+
+const sameNamePlayers = players.filter(
+  p => String(p.name || "").trim() === selectedName
+);
+
+let playerId = selectedValue;
+
+if (sameNamePlayers.length === 1) {
+  playerId = String(sameNamePlayers[0].id);
+} else if (
+  sameNamePlayers.length > 1 ||
+  !players.some(p =>
+    String(p.id) === selectedValue &&
+    String(p.name || "").trim() === selectedName
+  )
+) {
+  alert(
+    "شناسه بازیکن با نام انتخاب‌شده مطابقت ندارد. فهرست بازیکنان را تازه‌سازی و دوباره انتخاب کن."
+  );
+
+  fillSelects();
+  playerSelect.value = "";
+  return;
+}
+
   const goals = num(document.getElementById("unGoals").value);
   const penalties = num(document.getElementById("unPenalties").value);
   const assists = num(document.getElementById("unAssists").value);
