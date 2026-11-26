@@ -483,10 +483,11 @@
           age: item.age,
           likes: item.likes,
 
-          // مقدار دستی تعداد بازی از دیتابیس خوانده می‌شود.
-          appearancesOverride:
-            item.appearances_override ?? null,
+          appearancesBase:
+  item.appearances_base ?? null,
 
+appearancesOverride:
+  item.appearances_override ?? null,
           photo: item.photo || ""
         })),
 
