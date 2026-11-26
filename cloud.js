@@ -1,5 +1,7 @@
 (() => {
   "use strict";
+  const isAdminPage =
+  new URLSearchParams(window.location.search).get("admin") === "1";
 
   const SUPABASE_URL =
     "https://zusbebjskchgehdjvpsm.supabase.co";
