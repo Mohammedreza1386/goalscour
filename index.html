@@ -865,14 +865,24 @@ const player = players.find(
   p => String(p.id) === String(playerId)
 );
 
+const hasAppearancesBase =
+  player?.appearancesBase !== null &&
+  player?.appearancesBase !== undefined &&
+  player?.appearancesBase !== "";
+
 const hasAppearancesOverride =
   player?.appearancesOverride !== null &&
   player?.appearancesOverride !== undefined &&
   player?.appearancesOverride !== "";
 
-const totalAppearances = hasAppearancesOverride
-  ? Math.max(0, num(player.appearancesOverride))
-  : automaticAppearances;
+const totalAppearances = hasAppearancesBase
+  ? Math.max(
+      0,
+      Number(player.appearancesBase) + automaticAppearances
+    )
+  : hasAppearancesOverride
+    ? Math.max(0, num(player.appearancesOverride))
+    : automaticAppearances;
 
 
   return {
