@@ -475,85 +475,103 @@
     return isAdmin;
   }
   
-  function publishStats() {
-    window.gcGetMatchStats = function (playerId) {
-      const rows = performances.filter(item =>
-        String(item.player_id) === String(playerId)
+  
+function publishStats() {
+  window.gcGetMatchStats = function (playerId) {
+    const rows = performances.filter(item =>
+      String(item.player_id) === String(playerId)
+    );
+
+    const appearances = new Set(
+      rows.map(item => item.match_id)
+    ).size;
+
+    const goals = rows.reduce(
+      (sum, item) => sum + Number(item.goals || 0), 0
+    );
+
+    const penalties = rows.reduce(
+      (sum, item) => sum + Number(item.penalties || 0), 0
+    );
+
+    const assists = rows.reduce(
+      (sum, item) => sum + Number(item.assists || 0), 0
+    );
+
+    const rightFootGoals = rows.reduce(
+      (sum, item) => sum + Number(item.right_foot_goals || 0), 0
+    );
+
+    const leftFootGoals = rows.reduce(
+      (sum, item) => sum + Number(item.left_foot_goals || 0), 0
+    );
+
+    const headedGoals = rows.reduce(
+      (sum, item) => sum + Number(item.headed_goals || 0), 0
+    );
+
+    const totalRating = rows.reduce(
+      (sum, item) => sum + Number(item.rating || 0), 0
+    );
+
+    // هت‌تریک معمولی
+    const hatTricks = rows.filter(
+      item => Number(item.goals) >= 3
+    ).length;
+
+    // پرفکت هت‌تریک در یک مسابقه رسمی
+    const perfectHatTricks = rows.filter(item => {
+      return (
+        Number(item.goals || 0) >= 3 &&
+        Number(item.right_foot_goals || 0) >= 1 &&
+        Number(item.left_foot_goals || 0) >= 1 &&
+        Number(item.headed_goals || 0) >= 1
       );
+    }).length;
 
-      const appearances = new Set(
-        rows.map(item => item.match_id)
-      ).size;
+    const braces = rows.filter(
+      item => Number(item.goals) === 2
+    ).length;
 
-      const goals = rows.reduce(
-        (sum, item) => sum + Number(item.goals || 0), 0
-      );
+    return {
+      appearances,
+      totalRating: Number(totalRating.toFixed(2)),
 
-      const penalties = rows.reduce(
-        (sum, item) => sum + Number(item.penalties || 0), 0
-      );
+      averageRating: appearances
+        ? Number((totalRating / appearances).toFixed(2))
+        : 0,
 
-      const assists = rows.reduce(
-        (sum, item) => sum + Number(item.assists || 0), 0
-      );
+      goals,
+      penalties,
+      assists,
 
-      const rightFootGoals = rows.reduce(
-        (sum, item) => sum + Number(item.right_foot_goals || 0), 0
-      );
+      rightFootGoals,
+      leftFootGoals,
+      headedGoals,
 
-      const leftFootGoals = rows.reduce(
-        (sum, item) => sum + Number(item.left_foot_goals || 0), 0
-      );
+      hatTricks,
+      perfectHatTricks,
+      braces,
 
-      const headedGoals = rows.reduce(
-        (sum, item) => sum + Number(item.headed_goals || 0), 0
-      );
+      goalsPerMatch: appearances
+        ? Number((goals / appearances).toFixed(2))
+        : 0,
 
-      const totalRating = rows.reduce(
-        (sum, item) => sum + Number(item.rating || 0), 0
-      );
-
-      return {
-        appearances,
-        totalRating: Number(totalRating.toFixed(2)),
-
-        averageRating: appearances
-          ? Number((totalRating / appearances).toFixed(2))
-          : 0,
-
-        goals,
-        penalties,
-        assists,
-        rightFootGoals,
-        leftFootGoals,
-        headedGoals,
-
-        goalsPerMatch: appearances
-          ? Number((goals / appearances).toFixed(2))
-          : 0,
-
-        assistsPerMatch: appearances
-          ? Number((assists / appearances).toFixed(2))
-          : 0,
-
-        hatTricks: rows.filter(
-          item => Number(item.goals) >= 3
-        ).length,
-
-        braces: rows.filter(
-          item => Number(item.goals) === 2
-        ).length
-      };
+      assistsPerMatch: appearances
+        ? Number((assists / appearances).toFixed(2))
+        : 0
     };
+  };
 
-    window.gcIsRatedDuplicate = function (match) {
-      return events.some(event =>
-        String(event.match_date) === String(match.date) &&
-        String(event.opponent || "").trim().toLowerCase() ===
-        String(match.opponent || "").trim().toLowerCase()
-      );
-    };
-  }
+  window.gcIsRatedDuplicate = function (match) {
+    return events.some(event =>
+      String(event.match_date) === String(match.date) &&
+      String(event.opponent || "").trim().toLowerCase() ===
+      String(match.opponent || "").trim().toLowerCase()
+    );
+  };
+}
+
 
   async function loadRatings() {
     const [eventResult, performanceResult] = await Promise.all([
