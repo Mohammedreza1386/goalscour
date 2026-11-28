@@ -880,15 +880,12 @@ const totalHeadedGoals = officialHeadedGoals + unofficialHeadedGoals;
 
   const perfectHatTricks =
   officialMatches.filter(m =>
+    num(m.goals) >= 3 &&
     num(m.rightFootGoals) >= 1 &&
     num(m.leftFootGoals) >= 1 &&
     num(m.headedGoals) >= 1
   ).length +
-  unofficialRecords.filter(u =>
-    num(u.rightFootGoals) >= 1 &&
-    num(u.leftFootGoals) >= 1 &&
-    num(u.headedGoals) >= 1
-  ).length;
+  num(rated.perfectHatTricks);
 
   const braces =
     officialMatches.filter(m => num(m.goals) === 2).length +
