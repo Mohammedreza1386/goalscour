@@ -427,7 +427,8 @@ function selectedAwardType() {
       assists: unified.totalAssists,
 
       hatTricks: unified.hatTricks,
-      braces: unified.braces,
+perfectHatTricks: Number(unified.perfectHatTricks || 0),
+braces: unified.braces,
 
       appearances: unified.appearances,
       ratingTotal: unified.totalRating,
