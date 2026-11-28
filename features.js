@@ -1,3 +1,4 @@
+
 (() => {
 "use strict";
 
@@ -421,14 +422,15 @@ function selectedAwardType() {
 
     return {
       officialGoals: unified.officialGoals,
+    
       unofficialGoals: unified.unofficialGoals,
       goals: unified.totalGoals,
 
       assists: unified.totalAssists,
 
       hatTricks: unified.hatTricks,
-perfectHatTricks: Number(unified.perfectHatTricks || 0),
-braces: unified.braces,
+      perfectHatTricks: Number(unified.perfectHatTricks || 0),
+      braces: unified.braces,
 
       appearances: unified.appearances,
       ratingTotal: unified.totalRating,
@@ -506,6 +508,19 @@ braces: unified.braces,
     oldScored.filter(x => n(x.goals) >= 3).length +
     ratedRows.filter(x => n(x.goals) >= 3).length;
 
+  const perfectHatTricks =
+    oldScored.filter(x =>
+      n(x.right_foot_goals) >= 1 &&
+      n(x.left_foot_goals) >= 1 &&
+      n(x.headed_goals) >= 1
+    ).length +
+    ratedRows.filter(x =>
+      n(x.goals) >= 3 &&
+      n(x.right_foot_goals) >= 1 &&
+      n(x.left_foot_goals) >= 1 &&
+      n(x.headed_goals) >= 1
+    ).length;
+
   const braces =
     oldScored.filter(x => n(x.goals) === 2).length +
     ratedRows.filter(x => n(x.goals) === 2).length;
@@ -526,6 +541,7 @@ braces: unified.braces,
     goals: officialGoals + unofficialGoals,
     assists: oldAssists + ratedAssists + unofficialAssists,
     hatTricks,
+    perfectHatTricks,
     braces,
     appearances,
     ratingTotal,
@@ -616,6 +632,7 @@ function metricValue(stats, metricKey) {
     total_goals: stats.goals,
     assists: stats.assists,
     hat_tricks: stats.hatTricks,
+    perfect_hat_tricks: stats.perfectHatTricks,
     appearances: stats.appearances,
     average_rating: stats.averageRating,
     dribbles: stats.success,
@@ -624,6 +641,7 @@ function metricValue(stats, metricKey) {
       stats.goals * 1.4 +
       stats.assists * 1.2 +
       stats.hatTricks * 2 +
+      stats.perfectHatTricks * 3 +
       stats.averageRating * 0.8
   };
 
@@ -637,6 +655,7 @@ function metricLabel(metricKey) {
     total_goals:"مجموع گل",
     assists:"پاس گل",
     hat_tricks:"هت‌تریک",
+    perfect_hat_tricks:"پرفکت هت‌تریک",
     appearances:"تعداد بازی",
     average_rating:"میانگین امتیاز",
     dribbles:"دریبل موفق",
@@ -692,8 +711,7 @@ function renderLegendsRanking() {
         String(a.winner_player_id) === String(player.id)
       )
       .reduce((sum, a) =>
-        sum + Number(a.award_points || 0), 0
-      );
+        sum + Number(a.award_points || 0), 0);
 
     const achievementPoints =
       getAchievementReward(player.id).points;
@@ -808,6 +826,7 @@ function renderHistory() {
 
     const title = type
       ? `${type.icon || "🏆"} ${type.title}`
+      
       : (award.award_name || award.award_type || "جایزه");
 
     return `
@@ -1000,6 +1019,7 @@ function renderAwardTypeAdmin() {
           <option value="total_goals">مجموع گل</option>
           <option value="assists">پاس گل</option>
           <option value="hat_tricks">هت‌تریک</option>
+          <option value="perfect_hat_tricks">پرفکت هت‌تریک</option>
           <option value="appearances">تعداد بازی</option>
           <option value="average_rating">میانگین امتیاز</option>
           <option value="dribbles">دریبل موفق</option>
@@ -1204,7 +1224,13 @@ function renderDynamicRanking(type, period) {
       </div>
 
       <div class="gcr">
+        <span>پرفکت هت‌تریک</span>
+        <b>${item.stats.perfectHatTricks || 0}</b>
+      </div>
+
+      <div class="gcr">
         <span>تعداد بازی</span>
+        
         <b>${item.stats.appearances}</b>
       </div>
 
